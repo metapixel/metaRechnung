@@ -24,39 +24,7 @@ $due = $inv['due_date'] ?? date('Y-m-d', strtotime('+' . (int)env('PAYMENT_DAYS'
     <label>Fällig am <input type="date" name="due_date" value="<?= h($due) ?>" required></label>
   </div>
 
-  <h2>Positionen</h2>
-  <div class="scroll"><table id="items">
-    <thead><tr><th>Beschreibung</th><th>Menge</th><th>Einheit</th><th>Einzelpreis (netto)</th><?php if (!$kl): ?><th>MwSt %</th><?php endif; ?><th class="r">Summe</th><th></th></tr></thead>
-    <tbody>
-    <?php foreach ($items as $it): ?>
-      <tr>
-        <td><input name="desc[]" value="<?= h($it['description']) ?>" placeholder="Leistung / Artikel"></td>
-        <td><input name="qty[]" type="number" step="0.001" min="0" value="<?= h(rtrim(rtrim((string)$it['quantity'], '0'), '.') ?: 1) ?>" class="s"></td>
-        <td><select name="unit[]" class="s"><?php foreach (UNITS as $code => $lbl): ?><option value="<?= h($code) ?>" <?= $it['unit'] === $code ? 'selected' : '' ?>><?= h($lbl) ?></option><?php endforeach; ?></select></td>
-        <td><input name="price[]" type="number" step="0.01" value="<?= h($it['unit_price']) ?>" class="s"></td>
-        <td <?= $kl ? 'hidden' : '' ?>><select name="vat[]" class="s">
-          <?php foreach ([19, 7, 0] as $r): ?><option value="<?= $r ?>" <?= (float)$it['vat_rate'] === (float)$r ? 'selected' : '' ?>><?= $r ?></option><?php endforeach; ?>
-        </select></td>
-        <td class="r line">0,00 €</td>
-        <td><button type="button" class="btn small rm" title="Zeile entfernen">×</button></td>
-      </tr>
-    <?php endforeach; ?>
-    </tbody>
-  </table></div>
-  <div class="addbar">
-    <button type="button" class="btn" id="addrow">+ Position</button>
-    <?php if (!empty($articles)): ?>
-    <select id="addarticle" aria-label="Artikel einfügen">
-      <option value="">Artikel einfügen …</option>
-      <?php foreach ($articles as $ar): ?>
-      <option value="<?= (int)$ar['id'] ?>" data-desc="<?= h($ar['description']) ?>" data-unit="<?= h($ar['unit']) ?>" data-price="<?= h(number_format((float)$ar['unit_price'], 2, '.', '')) ?>" data-vat="<?= h((float)$ar['vat_rate']) ?>"><?= h(mb_strimwidth($ar['description'], 0, 70, '…')) ?> – <?= h(money((float)$ar['unit_price'])) ?></option>
-      <?php endforeach; ?>
-    </select>
-    <?php else: ?>
-    <a href="<?= BASE ?>?p=article_edit" class="muted">Artikel anlegen, um sie hier einzufügen</a>
-    <?php endif; ?>
-  </div>
-  <p class="totals">Netto <b id="s-net">0,00 €</b> · <?= $kl ? 'keine USt (§ 19 UStG)' : 'USt <b id="s-tax">0,00 €</b>' ?> · Brutto <b id="s-gross">0,00 €</b></p>
+  <?php require __DIR__ . '/_items.php'; ?>
 
   <label>Hinweistext (erscheint auf der Rechnung)
     <textarea name="notes" rows="3"><?= h($inv['notes'] ?? '') ?></textarea>

@@ -60,3 +60,9 @@ Nach den Änderungen: alle 94 Prüfungen bestanden bis auf die Info zu TRACE. Di
 
 ## Sicherheitstests selbst ausführen
 Siehe `tests/security/README.md`. Die Tests laufen nur gegen eine **eigene Testinstanz** und verändern Daten.
+
+## Neue Funktionen ab 1.4.0 (mit eigenen Tests)
+- **Mail-Anhänge** (`sec3`): Endungs-Allowlist, Inhaltsprüfung, Größenlimits, bereinigte Dateinamen, keine Speicherung.
+- **Logo** (`sec5`): nur PNG/JPG (kein SVG), Typ am Inhalt erkannt, Bild wird neu kodiert (Anhänge/PHP-Code/Metadaten fallen weg), Dateiname serverseitig, Ordner per `.htaccess` gesperrt.
+- **cron.php** (`sec6`): per Kommandozeile ohne Token, per HTTP nur mit geheimem 160-Bit-Token (`hash_equals`, Fehlversuche je IP begrenzt → 429, Token erneuerbar/abschaltbar); Läufe sind durch Dateisperre und Datenbank-Zeilensperre gegen Doppelausführung geschützt.
+- **Platzhalter** sind eine feste Allowlist (kein Code, keine Rekursion); unbekannte Platzhalter werden beim Speichern abgelehnt.

@@ -25,6 +25,8 @@ jobs:
         run: |
           find . -name '*.php' -not -path './vendor/*' -print0 | xargs -0 -n1 php -l | grep -v '^No syntax errors' || true
           ! find . -name '*.php' -not -path './vendor/*' -print0 | xargs -0 -n1 php -l 2>&1 | grep -q 'Parse error'
+      - name: Logik-Tests (Zeiträume und Platzhalter)
+        run: php tests/unit/recurring_test.php
       - name: composer validate
         run: composer validate --no-check-lock
       - name: Abhängigkeiten installieren

@@ -16,6 +16,8 @@ if ('serviceWorker' in navigator && document.body.dataset.sw) {
   var kl = document.body.dataset.kl === '1';
   var fmt = function (n) { return n.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' }); };
 
+  function say(msg) { var l = document.getElementById('live'); if (l) { l.textContent = ''; setTimeout(function () { l.textContent = msg; }, 50); } }
+
   function recalc() {
     var net = 0, tax = 0, groups = {};
     body.querySelectorAll('tr').forEach(function (tr) {
@@ -44,7 +46,11 @@ if ('serviceWorker' in navigator && document.body.dataset.sw) {
     body.appendChild(tr);
     return tr;
   }
-  document.getElementById('addrow').addEventListener('click', function () { newRow(); recalc(); });
+  document.getElementById('addrow').addEventListener('click', function () {
+    var tr = newRow(); recalc();
+    tr.querySelector('[name="desc[]"]').focus();
+    say('Position ' + body.children.length + ' hinzugefügt.');
+  });
 
   // Artikel aus der Artikelliste als Position einfügen
   var art = document.getElementById('addarticle');
@@ -64,10 +70,13 @@ if ('serviceWorker' in navigator && document.body.dataset.sw) {
       }
       art.selectedIndex = 0;
       recalc();
+      say('Artikel als Position ' + body.children.length + ' eingefügt: ' + (o.dataset.desc || ''));
+      tr.querySelector('[name="qty[]"]').focus();
     });
   }
   body.addEventListener('click', function (e) {
-    if (e.target.classList.contains('rm') && body.children.length > 1) { e.target.closest('tr').remove(); recalc(); }
+    var rb = e.target.closest ? e.target.closest('.rm') : null;
+    if (rb && body.children.length > 1) { rb.closest('tr').remove(); recalc(); say('Position entfernt.'); var d = body.querySelector('[name="desc[]"]'); if (d) d.focus(); }
   });
   body.addEventListener('input', recalc);
   recalc();

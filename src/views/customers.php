@@ -3,7 +3,8 @@
   <a class="btn primary" href="<?= BASE ?>?p=customer_edit">+ Neuer Kunde</a>
 </div>
 <div class="scroll"><table>
-  <tr><th>Name</th><th>Ort</th><th>E-Mail</th><th></th></tr>
+  <caption class="sr">Kundenliste</caption>
+  <tr><th scope="col">Name</th><th scope="col">Ort</th><th scope="col">E-Mail</th><th scope="col"><span class="sr">Aktionen</span></th></tr>
   <?php foreach ($customers as $c): ?>
   <tr>
     <td><?= h($c['name']) ?></td>

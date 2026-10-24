@@ -188,7 +188,7 @@ if (($_POST['action'] ?? '') === 'install' && !$blocked) {
             throw new RuntimeException('In dieser Datenbank existiert bereits eine befüllte Tabelle „invoices“. Zur Sicherheit wird nichts überschrieben – bitte eine leere Datenbank verwenden.');
         }
         $pdo->exec((string)file_get_contents($root . '/src/schema.sql'));
-        $log[] = '✔ Tabellen angelegt (customers, invoices, invoice_items, articles)';
+        $log[] = '✔ Tabellen angelegt (customers, invoices, invoice_items, articles, recurring)';
 
         // 3. Ordner + Schutz
         foreach (['storage', 'storage/invoices', 'storage/tmp'] as $d) {
@@ -225,6 +225,7 @@ if (($_POST['action'] ?? '') === 'install' && !$blocked) {
             'MAIL_BCC' => post('mail_bcc'),
             // Feste App-Adresse (für Links in Mails); verhindert Host-Header-Manipulation
             'APP_URL' => detect_app_url(),
+            'CRON_TOKEN' => bin2hex(random_bytes(20)),
         ];
         $code = "<?php\n// Von install.php erzeugt. Enthält Zugangsdaten – nicht weitergeben.\nreturn " . var_export($cfg, true) . ";\n";
         if (file_put_contents($root . '/config.php', $code, LOCK_EX) === false) {

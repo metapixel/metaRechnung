@@ -138,6 +138,35 @@ final class Invoices
         return $rows;
     }
 
+    /**
+     * Liest und prüft die Positionsfelder (desc[], qty[], unit[], price[], vat[]) eines Formulars.
+     * Leere Beschreibungen werden übersprungen. Wirft RuntimeException mit Positionsnummer bei Fehlern.
+     * @return list<array{description:string,quantity:float,unit:string,unit_price:float,vat_rate:float}>
+     */
+    public static function parseItems(array $in): array
+    {
+        $out = [];
+        foreach ((array)($in['desc'] ?? []) as $k => $desc) {
+            $desc = clean(is_string($desc) ? $desc : '', true);
+            if ($desc === '') {
+                continue;
+            }
+            $n = count($out) + 1;
+            if (mb_strlen($desc) > 500) {
+                throw new \RuntimeException('Position ' . $n . ': Die Beschreibung ist zu lang (höchstens 500 Zeichen).');
+            }
+            $unitIn = $in['unit'][$k] ?? '';
+            $out[] = [
+                'description' => $desc,
+                'quantity' => self::numStrict($in['qty'][$k] ?? '1', 'Menge', $n, 0.001, 999999.0),
+                'unit' => is_string($unitIn) && array_key_exists($unitIn, UNITS) ? $unitIn : 'C62',
+                'unit_price' => self::numStrict($in['price'][$k] ?? '0', 'Einzelpreis', $n, -9999999.99, 9999999.99),
+                'vat_rate' => self::numStrict($in['vat'][$k] ?? '19', 'MwSt-Satz', $n, 0.0, 30.0),
+            ];
+        }
+        return $out;
+    }
+
     public static function saveDraft(?int $id, array $in): int
     {
         $pdo = db();
@@ -176,22 +205,8 @@ final class Invoices
                 $pdo->prepare('DELETE FROM invoice_items WHERE invoice_id = ?')->execute([$id]);
             }
             $ins = $pdo->prepare('INSERT INTO invoice_items (invoice_id, pos, description, quantity, unit, unit_price, vat_rate) VALUES (?, ?, ?, ?, ?, ?, ?)');
-            $pos = 0;
-            foreach ((array)($in['desc'] ?? []) as $k => $desc) {
-                $desc = clean(is_string($desc) ? $desc : '', true);
-                if ($desc === '') {
-                    continue;
-                }
-                if (mb_strlen($desc) > 500) {
-                    throw new \RuntimeException('Position ' . ($pos + 1) . ': Die Beschreibung ist zu lang (höchstens 500 Zeichen).');
-                }
-                $n = ++$pos;
-                $qty = self::numStrict($in['qty'][$k] ?? '1', 'Menge', $n, 0.001, 999999.0);
-                $price = self::numStrict($in['price'][$k] ?? '0', 'Einzelpreis', $n, -9999999.99, 9999999.99);
-                $vat = self::numStrict($in['vat'][$k] ?? '19', 'MwSt-Satz', $n, 0.0, 30.0);
-                $unitIn = $in['unit'][$k] ?? '';
-                $unit = is_string($unitIn) && array_key_exists($unitIn, UNITS) ? $unitIn : 'C62';
-                $ins->execute([$id, $n, $desc, $qty, $unit, $price, $vat]);
+            foreach (self::parseItems($in) as $n => $r) {
+                $ins->execute([$id, $n + 1, $r['description'], $r['quantity'], $r['unit'], $r['unit_price'], $r['vat_rate']]);
             }
             $pdo->commit();
         } catch (\Throwable $e) {

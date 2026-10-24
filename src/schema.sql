@@ -51,3 +51,36 @@ CREATE TABLE IF NOT EXISTS articles (
   vat_rate DECIMAL(5,2) NOT NULL DEFAULT 19,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS recurring (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(120) NOT NULL,
+  customer_id INT UNSIGNED NOT NULL,
+  frequency ENUM('month','quarter','year') NOT NULL DEFAULT 'month',
+  period ENUM('previous','current','next') NOT NULL DEFAULT 'previous',
+  mode ENUM('draft','issue','send') NOT NULL DEFAULT 'draft',
+  next_run DATE NOT NULL,
+  anchor_day TINYINT UNSIGNED NOT NULL DEFAULT 1,
+  end_date DATE NULL,
+  active TINYINT(1) NOT NULL DEFAULT 1,
+  notes TEXT NULL,
+  mail_message TEXT NULL,
+  last_run DATE NULL,
+  last_invoice_id INT UNSIGNED NULL,
+  run_count INT UNSIGNED NOT NULL DEFAULT 0,
+  last_error VARCHAR(500) NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (customer_id) REFERENCES customers(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS recurring_items (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  recurring_id INT UNSIGNED NOT NULL,
+  pos SMALLINT UNSIGNED NOT NULL,
+  description VARCHAR(500) NOT NULL,
+  quantity DECIMAL(12,3) NOT NULL DEFAULT 1,
+  unit VARCHAR(8) NOT NULL DEFAULT 'C62',
+  unit_price DECIMAL(12,2) NOT NULL DEFAULT 0,
+  vat_rate DECIMAL(5,2) NOT NULL DEFAULT 19,
+  FOREIGN KEY (recurring_id) REFERENCES recurring(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

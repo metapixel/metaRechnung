@@ -10,6 +10,9 @@
   .plain td { border: 0; padding: 1px 3px; }
 </style>
 
+<?php $lg = $lh === null ? \App\Logo::info() : null; if ($lg): ?>
+<div style="text-align:<?= h($lg['align']) ?>"><img src="<?= h($lg['path']) ?>" style="width:<?= h((string)$lg['width']) ?>mm" alt="<?= h($co['name']) ?>"></div>
+<?php endif; ?>
 <?php if (empty($hideSender)): ?>
 <div style="text-align:right">
   <b><?= h($co['name']) ?></b><br>

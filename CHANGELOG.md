@@ -2,6 +2,20 @@
 
 Die aktuelle Versionsnummer steht in der Datei `VERSION` (und unten in der App sowie unter Einstellungen → System).
 
+## 1.5.0
+- **Wiederkehrende Rechnungen** (Menü „Wiederkehrend“): Vorlagen mit Kunde, Positionen, Intervall (monatlich, vierteljährlich, jährlich), Startdatum und optionalem Ende.
+  `cron.php` erzeugt fällige Rechnungen – wahlweise als Entwurf (Standard), automatisch ausgestellt oder ausgestellt und per E-Mail versendet.
+  Aufruf per Kommandozeile oder per URL mit geheimem Token (erneuerbar/abschaltbar; Fehlversuche werden gebremst).
+  Ein Zeitraum wird nie doppelt abgerechnet (Transaktion mit Zeilensperre, auch bei gleichzeitigen Aufrufen); versäumte Läufe werden nachgeholt (höchstens 12 je Aufruf).
+- **Platzhalter** in Positionen, Hinweistext und Mailtext: `{ZEITRAUM}`, `{ZEITRAUM_VON}`, `{ZEITRAUM_BIS}`, `{MONAT}`, `{MONAT_KURZ}`, `{MONAT_NR}`, `{QUARTAL}`, `{JAHR}`, `{INTERVALL}`, `{DATUM}`
+  (im Mailtext zusätzlich `{NUMMER}`, `{BETRAG}`, `{FAELLIG}`, `{FIRMA}`, `{STATUSLINK}`). Abrechnungszeitraum wählbar: zurückliegend, laufend oder kommend. Unbekannte Platzhalter werden beim Speichern abgelehnt.
+- **Logo** als Alternative zum Briefpapier (Einstellungen → Logo): PNG/JPG, wird neu kodiert (keine Metadaten, keine Transparenz), Breite und Ausrichtung einstellbar.
+- **Barrierefreiheit** (WCAG 2.2 AA, geprüft mit axe-core in Hell- und Dunkelmodus): Skip-Link, aussagekräftige Seitentitel, Landmarken, Tabellenüberschriften mit `scope` und Beschriftungen,
+  Labels für alle Positionsfelder, `role="alert"` für Fehlermeldungen, Live-Ansagen beim Hinzufügen/Entfernen von Positionen, Fokus-Stile, Unterstreichung von Links im Text,
+  Hochkontrast-Modus, mobiles Menü ohne Seitwärtsscrollen.
+- Datenbank-Migration v4 (Tabellen `recurring`, `recurring_items`, Token `CRON_TOKEN`) läuft automatisch.
+- Neue Tests: `sec5` (Logo), `sec6` (wiederkehrende Rechnungen/Cron), `tests/unit` (Zeiträume), `tests/a11y` (axe-core).
+
 ## 1.4.0
 - **Zusätzliche Anhänge beim Rechnungsversand** (z. B. Korrekturabzüge): bis zu 5 Dateien, je 5 MB, gesamt 10 MB. Erlaubt sind PDF, Bilder (PNG/JPG/GIF/WebP),
   ZIP, Office-/OpenDocument-Dateien, TXT und CSV. Dateiendung und Inhalt werden geprüft, Dateinamen bereinigt; die Dateien werden nicht auf dem Server gespeichert.

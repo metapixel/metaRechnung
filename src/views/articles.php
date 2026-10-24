@@ -7,7 +7,7 @@
   <p class="muted">Noch keine Artikel. Lege den ersten mit „+ Neuer Artikel“ an.</p>
 <?php else: ?>
 <div class="scroll"><table>
-  <tr><th>Bezeichnung</th><th>Einheit</th><th class="r">Preis (netto)</th><?php if (!\App\Invoices::kleinunternehmer()): ?><th class="r">MwSt</th><?php endif; ?><th></th></tr>
+  <tr><th scope="col">Bezeichnung</th><th scope="col">Einheit</th><th scope="col" class="r">Preis (netto)</th><?php if (!\App\Invoices::kleinunternehmer()): ?><th scope="col" class="r">MwSt</th><?php endif; ?><th scope="col"><span class="sr">Aktionen</span></th></tr>
   <?php foreach ($articles as $a): ?>
   <tr>
     <td><?= h($a['description']) ?></td>

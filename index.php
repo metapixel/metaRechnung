@@ -13,8 +13,10 @@ use App\Invoices;
 use App\Letterhead;
 use App\Articles;
 use App\Attachments;
+use App\Logo;
 use App\Mailer;
 use App\RateLimit;
+use App\Recurring;
 
 $p = $_GET['p'] ?? 'invoices';
 $post = $_SERVER['REQUEST_METHOD'] === 'POST';
@@ -153,6 +155,48 @@ try {
             render('article_form', ['a' => $a]);
             break;
 
+        case 'recurring':
+            if ($post) {
+                $a = $_POST['action'] ?? '';
+                if ($a === 'run_due') {
+                    $res = Recurring::runDue();
+                    $bad = count(array_filter($res, static fn($r) => $r['status'] === 'fehler'));
+                    flash(!$res ? 'Es war nichts fällig.' : count($res) . ' Rechnung(en) erzeugt' . ($bad ? ', davon ' . $bad . ' mit Fehlern (siehe Liste).' : '.'));
+                } elseif ($a === 'cron_token') {
+                    Config::save(['CRON_TOKEN' => bin2hex(random_bytes(20))]);
+                    flash('Neues Cron-Token erzeugt. Bitte den Cronjob-Aufruf (HTTP) anpassen.');
+                } elseif ($a === 'cron_token_off') {
+                    Config::save(['CRON_TOKEN' => '']);
+                    flash('Aufruf per HTTP deaktiviert (die Kommandozeile funktioniert weiterhin).');
+                }
+                redirect(BASE . '?p=recurring');
+            }
+            render('recurring', ['rows' => Recurring::all()]);
+            break;
+
+        case 'recurring_edit':
+            $id = (int)($_GET['id'] ?? 0);
+            $rec = $id ? Recurring::find($id) : null;
+            if ($id && !$rec) {
+                throw new RuntimeException('Vorlage nicht gefunden.');
+            }
+            if ($post) {
+                if (($_POST['action'] ?? '') === 'delete' && $rec) {
+                    Recurring::delete($id);
+                    flash('Vorlage gelöscht. Bereits erzeugte Rechnungen bleiben unverändert.');
+                    redirect(BASE . '?p=recurring');
+                }
+                Recurring::save($id ?: null, $_POST);
+                flash('Vorlage gespeichert.');
+                redirect(BASE . '?p=recurring');
+            }
+            render('recurring_form', [
+                'r' => $rec,
+                'customers' => db()->query('SELECT id, name, email FROM customers ORDER BY name')->fetchAll(),
+                'articles' => Articles::all(),
+            ]);
+            break;
+
         case 'invoice_edit':
             $id = (int)($_GET['id'] ?? 0);
             $inv = $id ? Invoices::find($id) : null;
@@ -258,6 +302,17 @@ try {
             header('Content-Type: ' . ['pdf' => 'application/pdf', 'png' => 'image/png', 'jpg' => 'image/jpeg'][$ext]);
             header('Cache-Control: no-store');
             readfile($lh['path']);
+            exit;
+
+        case 'logo_file':
+            $lg = Logo::info();
+            if (!$lg) {
+                http_response_code(404);
+                exit('Kein Logo hinterlegt.');
+            }
+            header('Content-Type: ' . (str_ends_with($lg['file'], '.jpg') ? 'image/jpeg' : 'image/png'));
+            header('Cache-Control: no-store');
+            readfile($lg['path']);
             exit;
 
         case 'letterhead_preview':
@@ -386,6 +441,24 @@ try {
                     }
                     Config::save($c);
                     flash($uploaded ? 'Briefpapier hochgeladen und Einstellungen gespeichert. Gilt für neu ausgestellte Rechnungen.' : 'Briefpapier-Einstellungen gespeichert.');
+                    redirect(BASE . '?p=settings');
+                } elseif ($a === 'logo') {
+                    $c = [
+                        'LOGO_WIDTH' => (string)Logo::width($_POST['logo_width'] ?? '', 50),
+                        'LOGO_ALIGN' => ($_POST['logo_align'] ?? '') === 'left' ? 'left' : 'right',
+                    ];
+                    $up = $_FILES['logo'] ?? null;
+                    $uploaded = $up && (int)($up['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE;
+                    if ($uploaded) {
+                        $c['LOGO_FILE'] = Logo::store($up);
+                    }
+                    Config::save($c);
+                    flash($uploaded ? 'Logo hochgeladen und Einstellungen gespeichert. Gilt für neu ausgestellte Rechnungen.' : 'Logo-Einstellungen gespeichert.');
+                    redirect(BASE . '?p=settings');
+                } elseif ($a === 'logo_delete') {
+                    Logo::remove();
+                    Config::save(['LOGO_FILE' => '']);
+                    flash('Logo entfernt.');
                     redirect(BASE . '?p=settings');
                 } elseif ($a === 'letterhead_delete') {
                     Letterhead::remove();

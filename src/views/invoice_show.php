@@ -19,7 +19,7 @@ $post = fn(string $action, string $label, string $cls = '', string $confirm = ''
 <?= $st === 'paid' && $inv['paid_at'] ? ' · bezahlt am ' . h(fdate($inv['paid_at'])) : '' ?></p>
 
 <div class="scroll"><table>
-  <tr><th>#</th><th>Beschreibung</th><th class="r">Menge</th><th class="r">Einzelpreis</th><?php if (!$kl): ?><th class="r">MwSt</th><?php endif; ?><th class="r">Summe</th></tr>
+  <tr><th scope="col">#</th><th scope="col">Beschreibung</th><th scope="col" class="r">Menge</th><th scope="col" class="r">Einzelpreis</th><?php if (!$kl): ?><th scope="col" class="r">MwSt</th><?php endif; ?><th scope="col" class="r">Summe</th></tr>
   <?php foreach ($inv['items'] as $it): ?>
   <tr>
     <td><?= (int)$it['pos'] ?></td><td><?= h($it['description']) ?></td>

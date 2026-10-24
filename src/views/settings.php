@@ -11,8 +11,8 @@ if ($co['vat_id'] === '' && $co['tax_number'] === '') { $miss[] = 'Steuernummer 
 ?>
 <h1>Einstellungen</h1>
 
-<?php if ($errors): ?><div class="card warnbox"><?php foreach ($errors as $e): ?><p class="err"><?= h($e) ?></p><?php endforeach; ?></div><?php endif; ?>
-<?php if (!\App\Config::writable()): ?><div class="card warnbox"><p class="err">config.php ist nicht beschreibbar – Änderungen können nicht gespeichert werden. Bitte Schreibrechte prüfen.</p></div><?php endif; ?>
+<?php if ($errors): ?><div class="card warnbox"><?php foreach ($errors as $e): ?><p class="err" role="alert"><?= h($e) ?></p><?php endforeach; ?></div><?php endif; ?>
+<?php if (!\App\Config::writable()): ?><div class="card warnbox"><p class="err" role="alert">config.php ist nicht beschreibbar – Änderungen können nicht gespeichert werden. Bitte Schreibrechte prüfen.</p></div><?php endif; ?>
 <?php if ($miss): ?><div class="card warnbox"><p>Für gültige <b>XRechnungen</b> fehlen noch: <?= h(implode(', ', $miss)) ?>.</p></div><?php endif; ?>
 
 <form method="post" class="card" autocomplete="off">
@@ -91,6 +91,34 @@ if ($co['vat_id'] === '' && $co['tax_number'] === '') { $miss[] = 'Steuernummer 
   <form method="post" style="margin-top:10px" data-confirm="Briefpapier wirklich entfernen?">
     <input type="hidden" name="csrf" value="<?= h(csrf()) ?>"><input type="hidden" name="action" value="letterhead_delete">
     <button class="btn danger">Briefpapier entfernen</button>
+  </form>
+  <?php endif; ?>
+</div>
+
+<?php $lg = \App\Logo::info(); ?>
+<div class="card">
+  <h2>Logo</h2>
+  <p class="hint">Alternative zum Briefpapier: Ihr Logo erscheint oben auf neu ausgestellten Rechnungen, darunter der Absenderblock. <b>PNG oder JPG</b>, höchstens 2 MB und 3000 × 3000 px
+  (transparente Flächen werden weiß). SVG wird aus Sicherheitsgründen nicht angenommen. Ist ein Briefpapier hinterlegt, wird das Logo nicht verwendet.</p>
+  <?php if ($lg): ?>
+    <p>Aktuell: <b><?= h($lg['file']) ?></b><br><img src="<?= BASE ?>?p=logo_file" alt="Aktuelles Firmenlogo" style="max-width:200px;max-height:100px;border:1px solid var(--line);margin-top:6px;background:#fff"></p>
+    <?php if (\App\Letterhead::info()): ?><p class="muted">Hinweis: Das Briefpapier ist aktiv, daher wird das Logo derzeit nicht gedruckt.</p><?php endif; ?>
+  <?php else: ?><p class="muted">Noch kein Logo hinterlegt.</p><?php endif; ?>
+  <form method="post" enctype="multipart/form-data" autocomplete="off">
+    <input type="hidden" name="csrf" value="<?= h(csrf()) ?>"><input type="hidden" name="action" value="logo">
+    <label><?= $lg ? 'Neues Logo hochladen (ersetzt das vorhandene)' : 'Logo hochladen' ?>
+      <input type="file" name="logo" accept=".png,.jpg,.jpeg,.gif,.webp,image/png,image/jpeg,image/gif,image/webp"></label>
+    <div class="grid2">
+      <label>Breite im PDF (mm) <input type="number" step="1" min="10" max="120" name="logo_width" value="<?= h($lg['width'] ?? 50) ?>"></label>
+      <label>Ausrichtung <select name="logo_align"><option value="right" <?= ($lg['align'] ?? 'right') === 'right' ? 'selected' : '' ?>>rechts</option><option value="left" <?= ($lg['align'] ?? '') === 'left' ? 'selected' : '' ?>>links</option></select></label>
+    </div>
+    <button class="btn primary">Speichern</button>
+    <?php if ($lg): ?><a class="btn" href="<?= BASE ?>?p=letterhead_preview" target="_blank">Vorschau (Beispielrechnung)</a><?php endif; ?>
+  </form>
+  <?php if ($lg): ?>
+  <form method="post" style="margin-top:10px" data-confirm="Logo wirklich entfernen?">
+    <input type="hidden" name="csrf" value="<?= h(csrf()) ?>"><input type="hidden" name="action" value="logo_delete">
+    <button class="btn danger">Logo entfernen</button>
   </form>
   <?php endif; ?>
 </div>

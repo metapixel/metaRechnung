@@ -6,7 +6,7 @@
   <p class="muted">Noch keine Rechnungen. Lege zuerst einen <a href="<?= BASE ?>?p=customer_edit">Kunden</a> an.</p>
 <?php else: ?>
 <div class="scroll"><table>
-  <tr><th>Nr.</th><th>Kunde</th><th>Datum</th><th>Fällig</th><th class="r">Brutto</th><th>Status</th></tr>
+  <tr><th scope="col">Nr.</th><th scope="col">Kunde</th><th scope="col">Datum</th><th scope="col">Fällig</th><th scope="col" class="r">Brutto</th><th scope="col">Status</th></tr>
   <?php foreach ($rows as $r):
       $overdue = $r['status'] === 'issued' && $r['due_date'] < date('Y-m-d');
       $label = ['draft' => 'Entwurf', 'issued' => $overdue ? 'überfällig' : 'offen', 'paid' => 'bezahlt'][$r['status']]; ?>

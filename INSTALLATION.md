@@ -48,6 +48,17 @@ Unter **Einstellungen → Briefpapier** kannst du ein A4-Briefpapier hochladen: 
   Der Kunde sieht dort „Zahlung eingegangen am …“ (sobald du die Rechnung als bezahlt markierst) und kann PDF (ZUGFeRD) und XRechnung (XML) laden.
 - **XRechnung 3.0 (CII):** Download auch in der Rechnungsansicht. Voraussetzung: Telefon, E-Mail, IBAN, Steuernummer/USt-IdNr. des Ausstellers und
   E-Mail-Adresse des Kunden. Für öffentliche Auftraggeber im Kundenformular die Leitweg-ID als „Käuferreferenz“ eintragen.
+- **Artikel:** Im Menü „Artikel“ wiederkehrende Leistungen anlegen; im Rechnungsentwurf per „Artikel einfügen …“ als Position übernehmen.
+- **Zusätzliche Anhänge:** Beim Versand lassen sich bis zu 5 Dateien (z. B. Korrekturabzüge) an die Mail hängen; sie werden nicht gespeichert.
+- **Logo statt Briefpapier:** Unter Einstellungen → Logo ein PNG/JPG hochladen; es erscheint oben auf neuen Rechnungen (Breite und Ausrichtung einstellbar).
+  Ist ein Briefpapier hinterlegt, hat dieses Vorrang.
+- **Wiederkehrende Rechnungen:** Im Menü „Wiederkehrend“ Vorlagen mit Kunde, Positionen, Intervall (monatlich, vierteljährlich, jährlich) und Startdatum anlegen.
+  Ein täglicher Cronjob erzeugt zum Termin die Rechnung – als Entwurf (Standard), ausgestellt oder ausgestellt und per Mail versendet.
+  In Positionen und Hinweistext ersetzen Platzhalter den Zeitraum, z. B. „Hosting {ZEITRAUM}“ → „Hosting Oktober 2026“ (`{MONAT}`, `{QUARTAL}`, `{JAHR}`, `{ZEITRAUM_VON}`, `{ZEITRAUM_BIS}` …; Liste im Formular).
+  **Cronjob einrichten** (im Hosting-Panel, einmal täglich): `php /pfad/zur/installation/cron.php` oder, wenn nur URLs möglich sind,
+  `wget -q -O /dev/null "https://deine-domain.de/rechnung/cron.php?token=…"` (das Token steht im Menü „Wiederkehrend“ und lässt sich dort erneuern oder abschalten).
+  Ein Zeitraum wird nie doppelt abgerechnet; versäumte Läufe werden nachgeholt. Fehler beim Ausstellen/Versand stehen in der Liste.
+- **Barrierefreiheit:** Tastaturbedienung mit „Zum Inhalt springen“-Link, sprechende Seitentitel, beschriftete Formularfelder und Tabellen, Fokus- und Kontrast-Stile (WCAG 2.2 AA mit axe-core geprüft).
 - **Duplizieren:** Button „Als neue Rechnung duplizieren“ legt einen Entwurf mit Kunde, Positionen und Hinweistext an.
 
 ## Sicherheit
