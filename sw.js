@@ -1,5 +1,5 @@
 // Minimaler Service Worker: nur die App-Hülle cachen. Rechnungsdaten kommen immer frisch vom Server.
-const CACHE = 'metarechnung-shell-v2';
+const CACHE = 'metarechnung-shell-v3';
 const SCOPE = self.registration.scope;
 const SHELL = ['offline.html', 'style.css', 'app.js', 'icons/icon-192.png', 'icons/icon-512.png'].map((p) => new URL(p, SCOPE).href);
 
@@ -23,6 +23,12 @@ self.addEventListener('fetch', (e) => {
     return;
   }
   if (SHELL.includes(req.url)) {
-    e.respondWith(caches.match(req).then((hit) => hit || fetch(req)));
+    // Netzwerk zuerst (nach einem Update sofort die neue app.js/style.css), Cache nur als Offline-Rückfall
+    e.respondWith(
+      fetch(req).then((res) => {
+        if (res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)); }
+        return res;
+      }).catch(() => caches.match(req))
+    );
   }
 });

@@ -2,6 +2,11 @@
 
 Die aktuelle Versionsnummer steht in der Datei `VERSION` (und unten in der App sowie unter Einstellungen → System).
 
+## 1.5.1
+- **Fix: „Artikel einfügen“ tat nach einem Update nichts.** Der Service Worker lieferte die App-Dateien (`app.js`, `style.css`) immer aus dem Cache, sodass nach einem Update
+  weiter das alte Skript lief. Jetzt wird zuerst das Netzwerk gefragt (Cache nur noch offline) und der Cache neu benannt; nach dem Update gilt das sofort.
+  Falls es bei dir noch hakt: Seite einmal mit Strg+F5 neu laden.
+
 ## 1.5.0
 - **Wiederkehrende Rechnungen** (Menü „Wiederkehrend“): Vorlagen mit Kunde, Positionen, Intervall (monatlich, vierteljährlich, jährlich), Startdatum und optionalem Ende.
   `cron.php` erzeugt fällige Rechnungen – wahlweise als Entwurf (Standard), automatisch ausgestellt oder ausgestellt und per E-Mail versendet.
