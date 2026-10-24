@@ -10,14 +10,14 @@ anon = C()
 base_cfg = open(APP + '/config.php').read()
 
 def settings_form(**over):
-    d = {'csrf': page_token(s), 'action': 'save', 'COMPANY_NAME': 'Test IT-Service', 'COMPANY_OWNER': 'Kai Test', 'COMPANY_STREET': 'Musterstr. 1', 'COMPANY_ZIP': '26871', 'COMPANY_CITY': 'Papenburg',
-         'COMPANY_COUNTRY': 'DE', 'COMPANY_EMAIL': 'rechnung@example.de', 'COMPANY_PHONE': '+49 4961 123', 'COMPANY_TAX_NUMBER': '12/345/67890', 'COMPANY_VAT_ID': '',
+    d = {'csrf': page_token(s), 'action': 'save', 'COMPANY_NAME': 'Test IT-Service', 'COMPANY_OWNER': 'Kai Test', 'COMPANY_STREET': 'Musterstr. 1', 'COMPANY_ZIP': '12345', 'COMPANY_CITY': 'Musterstadt',
+         'COMPANY_COUNTRY': 'DE', 'COMPANY_EMAIL': 'rechnung@example.de', 'COMPANY_PHONE': '+49 123 456789', 'COMPANY_TAX_NUMBER': '12/345/67890', 'COMPANY_VAT_ID': '',
          'COMPANY_IBAN': 'DE89 3704 0044 0532 0130 00', 'COMPANY_BIC': '', 'COMPANY_BANK': '', 'INVOICE_PREFIX': 'RE', 'PAYMENT_DAYS': '14', 'SMTP_HOST': '127.0.0.1', 'SMTP_PORT': '2525',
          'SMTP_SECURE': 'none', 'SMTP_USER': '', 'SMTP_PASS': '', 'MAIL_FROM': 'rechnung@example.de', 'MAIL_FROM_NAME': 'Test IT-Service', 'MAIL_BCC': '', 'APP_URL': 'http://127.0.0.1:8097/'}
     d.update(over)
     return d
 
-s.post('/index.php?p=customer_edit', {'csrf': page_token(s, '/index.php?p=customer_edit'), 'name': 'Beispiel GmbH', 'email': 'erika@example.com', 'street': 'Hauptstr. 5', 'zip': '26871', 'city': 'Papenburg', 'country': 'DE'})
+s.post('/index.php?p=customer_edit', {'csrf': page_token(s, '/index.php?p=customer_edit'), 'name': 'Beispiel GmbH', 'email': 'erika@example.com', 'street': 'Hauptstr. 5', 'zip': '12345', 'city': 'Musterstadt', 'country': 'DE'})
 CID = sql('select max(id) from customers')
 # ---------------------------------------------------------------- I: Konfig-Injection
 marker = '/tmp/pwned_marker'

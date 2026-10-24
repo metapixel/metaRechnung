@@ -2,6 +2,9 @@
 
 Die aktuelle Versionsnummer steht in der Datei `VERSION` (und unten in der App sowie unter Einstellungen → System).
 
+## 1.2.2
+- Repository bereinigt: Testdaten in `tests/security/` enthalten nur noch erfundene Beispieldaten; keine persönlichen Angaben im Quellcode.
+
 ## 1.2.1 – Sicherheits-Update
 Ergebnis eines umfangreichen Sicherheits-Audits (statische Analyse mit Psalm-Taint-Analyse und Semgrep, Abgleich der Abhängigkeiten mit der
 PHP-Advisory-Datenbank, 92 dynamische Angriffstests gegen eine laufende Instanz). Details: `SECURITY.md`.
