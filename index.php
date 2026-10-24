@@ -11,6 +11,8 @@ use App\Config;
 use App\Einvoice;
 use App\Invoices;
 use App\Letterhead;
+use App\Articles;
+use App\Attachments;
 use App\Mailer;
 use App\RateLimit;
 
@@ -63,8 +65,8 @@ if (empty($_SESSION['auth'])) {
 }
 
 if ($post && empty($_POST) && (int)($_SERVER['CONTENT_LENGTH'] ?? 0) > 0) {
-    flash('Die Anfrage war zu groß für den Server (post_max_size ' . ini_get('post_max_size') . ', Datei-Limit ' . ini_get('upload_max_filesize') . ').');
-    redirect(BASE . '?p=settings');
+    flash('Die Anfrage war zu groß für den Server (post_max_size ' . ini_get('post_max_size') . ', Datei-Limit ' . ini_get('upload_max_filesize') . '). Bitte kleinere Dateien wählen.');
+    redirect(safe_target($_SERVER['REQUEST_URI'] ?? ''));
 }
 if ($post) {
     csrf_check();
@@ -128,6 +130,29 @@ try {
             render('customer_form', ['c' => $c]);
             break;
 
+        case 'articles':
+            render('articles', ['articles' => Articles::all()]);
+            break;
+
+        case 'article_edit':
+            $id = (int)($_GET['id'] ?? 0);
+            $a = $id ? Articles::find($id) : null;
+            if ($id && !$a) {
+                throw new RuntimeException('Artikel nicht gefunden.');
+            }
+            if ($post) {
+                if (($_POST['action'] ?? '') === 'delete' && $a) {
+                    Articles::delete($id);
+                    flash('Artikel gelöscht. Bereits erstellte Rechnungen bleiben unverändert.');
+                    redirect(BASE . '?p=articles');
+                }
+                $new = Articles::save($id ?: null, Articles::validate($_POST));
+                flash('Artikel gespeichert.');
+                redirect(BASE . '?p=articles');
+            }
+            render('article_form', ['a' => $a]);
+            break;
+
         case 'invoice_edit':
             $id = (int)($_GET['id'] ?? 0);
             $inv = $id ? Invoices::find($id) : null;
@@ -145,6 +170,7 @@ try {
             render('invoice_form', [
                 'inv' => $inv,
                 'customers' => db()->query('SELECT id, name FROM customers ORDER BY name')->fetchAll(),
+                'articles' => Articles::all(),
                 'preselect' => (int)($_GET['customer'] ?? 0),
             ]);
             break;
@@ -182,9 +208,10 @@ try {
                     if (!filter_var($to, FILTER_VALIDATE_EMAIL)) {
                         throw new RuntimeException('Ungültige E-Mail-Adresse.');
                     }
-                    Mailer::sendInvoice($inv, Invoices::pdfBytes($inv), $to, (string)($_POST['message'] ?? ''), Invoices::statusUrl($inv));
+                    $extra = Attachments::collect($_FILES['attachments'] ?? null, $inv['number'] . '.pdf');
+                    Mailer::sendInvoice($inv, Invoices::pdfBytes($inv), $to, (string)($_POST['message'] ?? ''), Invoices::statusUrl($inv), $extra);
                     db()->prepare('UPDATE invoices SET sent_at = NOW() WHERE id = ?')->execute([$id]);
-                    flash('E-Mail an ' . $to . ' gesendet.');
+                    flash('E-Mail an ' . $to . ' gesendet' . ($extra ? ' (mit ' . count($extra) . ' zusätzlichen Anhängen)' : '') . '.');
                 }
                 redirect(BASE . '?p=invoice&id=' . $id);
             }

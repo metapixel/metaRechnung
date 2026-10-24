@@ -131,10 +131,10 @@ rec('C3', 'H', 'SQL-Injection über POST-Felder (Kunde): keine Verzögerung, Dat
     time.time() - t0 < 3 and sql(f'select name from customers where id={inj_cid}') == inj_name, f'{time.time() - t0:.1f}s')
 pages = [s.get('/index.php?p=customers'), s.get(f'/index.php?p=customer_edit&id={inj_cid}'), s.get('/index.php')]
 rec('C4', 'H', 'Second-Order: gespeicherte Injection-Namen beschädigen nichts (Tabellen vorhanden)',
-    sql("select count(*) from information_schema.tables where table_schema='" + DB + "'") == '3' and all(p.status == 200 for p in pages))
+    int(sql("select count(*) from information_schema.tables where table_schema='" + DB + "'")) >= 3 and all(p.status == 200 for p in pages))
 inj_inv, rr = draft(s, desc=("x'); DROP TABLE customers;--",), customer=inj_cid, notes="n' OR SLEEP(4) OR '")
 rr2 = act(s, inj_inv, 'issue')
-rec('C5', 'H', 'SQL-Injection über Rechnungsfelder/Ausstellen: Tabellen intakt', sql("select count(*) from information_schema.tables where table_schema='" + DB + "'") == '3' and inj_inv is not None, rr.status)
+rec('C5', 'H', 'SQL-Injection über Rechnungsfelder/Ausstellen: Tabellen intakt', int(sql("select count(*) from information_schema.tables where table_schema='" + DB + "'")) >= 3 and inj_inv is not None, rr.status)
 rr = act(s, inv1, 'paid', paid_at="2026-01-01' OR SLEEP(4) OR '")
 rec('C6', 'M', 'Datumsfeld paid_at wird validiert', rr.elapsed < 3 and sql(f'select paid_at from invoices where id={inv1}') != "2026-01-01' OR SLEEP(4) OR '")
 act(s, inv1, 'unpaid')

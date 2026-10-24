@@ -44,7 +44,8 @@ final class Mailer
         return $m;
     }
 
-    public static function sendInvoice(array $inv, string $pdf, string $to, string $message, string $statusUrl): void
+    /** @param array<int, array{path:string,name:string,mime:string}> $attachments zusätzliche, bereits geprüfte Anhänge (Attachments::collect) */
+    public static function sendInvoice(array $inv, string $pdf, string $to, string $message, string $statusUrl, array $attachments = []): void
     {
         $m = self::make();
         $m->addAddress($to);
@@ -57,6 +58,9 @@ final class Mailer
         $m->Subject = 'Rechnung ' . $inv['number'] . ' von ' . $inv['co']['name'];
         $m->Body = $message;
         $m->addStringAttachment($pdf, $inv['number'] . '.pdf', PHPMailer::ENCODING_BASE64, 'application/pdf');
+        foreach ($attachments as $a) {
+            $m->addAttachment($a['path'], $a['name'], PHPMailer::ENCODING_BASE64, $a['mime']);
+        }
         $m->send();
     }
 

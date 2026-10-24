@@ -2,6 +2,14 @@
 
 Die aktuelle Versionsnummer steht in der Datei `VERSION` (und unten in der App sowie unter Einstellungen → System).
 
+## 1.4.0
+- **Zusätzliche Anhänge beim Rechnungsversand** (z. B. Korrekturabzüge): bis zu 5 Dateien, je 5 MB, gesamt 10 MB. Erlaubt sind PDF, Bilder (PNG/JPG/GIF/WebP),
+  ZIP, Office-/OpenDocument-Dateien, TXT und CSV. Dateiendung und Inhalt werden geprüft, Dateinamen bereinigt; die Dateien werden nicht auf dem Server gespeichert.
+- **Artikelverwaltung** (Menü „Artikel“): wiederkehrende Leistungen mit Beschreibung, Einheit, Preis und MwSt. anlegen und im Rechnungsentwurf per Auswahlfeld
+  „Artikel einfügen …“ als Position übernehmen (Preis und Text bleiben danach frei änderbar).
+- Datenbank-Migration v3 (Tabelle `articles`) läuft beim ersten Aufruf automatisch.
+- Neue Sicherheitstests `sec3` (Anhänge) und `sec4` (Artikel).
+
 ## 1.3.1
 - GitHub-Symbol (SVG) mit Link zum Repository in der Fußleiste (nicht auf der öffentlichen Statusseite).
 

@@ -67,7 +67,7 @@ $post = fn(string $action, string $label, string $cls = '', string $confirm = ''
   <a class="btn" href="<?= h($statusUrl) ?>" target="_blank">Statusseite öffnen</a>
 </div>
 
-<form method="post" class="card">
+<form method="post" class="card" enctype="multipart/form-data">
   <h2>Per E-Mail senden</h2>
   <input type="hidden" name="csrf" value="<?= h(csrf()) ?>">
   <input type="hidden" name="action" value="send">
@@ -75,6 +75,11 @@ $post = fn(string $action, string $label, string $cls = '', string $confirm = ''
   <label>Nachricht
     <textarea name="message" rows="9"><?= h("Guten Tag" . ($inv['c_contact'] ? ' ' . $inv['c_contact'] : '') . ",\n\nanbei erhalten Sie die Rechnung " . $inv['number'] . " über " . money($t['gross']) . ".\nBitte überweisen Sie den Betrag bis zum " . fdate($inv['due_date']) . ".\n\nZahlungsstatus und Downloads (PDF, XRechnung):\n" . $statusUrl . "\n\nMit freundlichen Grüßen\n" . ($inv['co']['owner'] ?: $inv['co']['name'])) ?></textarea>
   </label>
+  <label>Zusätzliche Anhänge (optional, z. B. Korrekturabzüge)
+    <input type="file" name="attachments[]" multiple accept=".pdf,.png,.jpg,.jpeg,.gif,.webp,.zip,.docx,.xlsx,.pptx,.odt,.ods,.txt,.csv">
+  </label>
+  <p class="hint">Bis zu <?= \App\Attachments::MAX_FILES ?> Dateien, je höchstens <?= (int)(\App\Attachments::serverFileLimit() / 1048576) ?> MB, zusammen <?= \App\Attachments::MAX_TOTAL / 1048576 ?> MB.
+    Erlaubt: <?= h(\App\Attachments::allowedExtensions()) ?>. Die Rechnungs-PDF hängt immer automatisch an; die Dateien werden nicht gespeichert.</p>
   <button class="btn primary">E-Mail senden</button>
 </form>
 <?php endif; ?>

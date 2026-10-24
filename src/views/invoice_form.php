@@ -43,7 +43,19 @@ $due = $inv['due_date'] ?? date('Y-m-d', strtotime('+' . (int)env('PAYMENT_DAYS'
     <?php endforeach; ?>
     </tbody>
   </table></div>
-  <p><button type="button" class="btn" id="addrow">+ Position</button></p>
+  <div class="addbar">
+    <button type="button" class="btn" id="addrow">+ Position</button>
+    <?php if (!empty($articles)): ?>
+    <select id="addarticle" aria-label="Artikel einfügen">
+      <option value="">Artikel einfügen …</option>
+      <?php foreach ($articles as $ar): ?>
+      <option value="<?= (int)$ar['id'] ?>" data-desc="<?= h($ar['description']) ?>" data-unit="<?= h($ar['unit']) ?>" data-price="<?= h(number_format((float)$ar['unit_price'], 2, '.', '')) ?>" data-vat="<?= h((float)$ar['vat_rate']) ?>"><?= h(mb_strimwidth($ar['description'], 0, 70, '…')) ?> – <?= h(money((float)$ar['unit_price'])) ?></option>
+      <?php endforeach; ?>
+    </select>
+    <?php else: ?>
+    <a href="<?= BASE ?>?p=article_edit" class="muted">Artikel anlegen, um sie hier einzufügen</a>
+    <?php endif; ?>
+  </div>
   <p class="totals">Netto <b id="s-net">0,00 €</b> · <?= $kl ? 'keine USt (§ 19 UStG)' : 'USt <b id="s-tax">0,00 €</b>' ?> · Brutto <b id="s-gross">0,00 €</b></p>
 
   <label>Hinweistext (erscheint auf der Rechnung)

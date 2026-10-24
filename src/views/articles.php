@@ -1,0 +1,21 @@
+<div class="row">
+  <h1>Artikel &amp; Leistungen</h1>
+  <a class="btn primary" href="<?= BASE ?>?p=article_edit">+ Neuer Artikel</a>
+</div>
+<p class="muted">Wiederkehrende Leistungen einmal anlegen und in der Rechnung per Klick als Position einfügen.</p>
+<?php if (!$articles): ?>
+  <p class="muted">Noch keine Artikel. Lege den ersten mit „+ Neuer Artikel“ an.</p>
+<?php else: ?>
+<div class="scroll"><table>
+  <tr><th>Bezeichnung</th><th>Einheit</th><th class="r">Preis (netto)</th><?php if (!\App\Invoices::kleinunternehmer()): ?><th class="r">MwSt</th><?php endif; ?><th></th></tr>
+  <?php foreach ($articles as $a): ?>
+  <tr>
+    <td><?= h($a['description']) ?></td>
+    <td><?= h(UNITS[$a['unit']] ?? '') ?></td>
+    <td class="r"><?= h(money((float)$a['unit_price'])) ?></td>
+    <?php if (!\App\Invoices::kleinunternehmer()): ?><td class="r"><?= h((float)$a['vat_rate']) ?> %</td><?php endif; ?>
+    <td class="r"><a href="<?= BASE ?>?p=article_edit&id=<?= (int)$a['id'] ?>">Bearbeiten</a></td>
+  </tr>
+  <?php endforeach; ?>
+</table></div>
+<?php endif; ?>

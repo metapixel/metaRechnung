@@ -144,6 +144,10 @@ tbody tr, table tr:not(:first-child) { transition:background .12s; }
 .foot b { color:var(--fg); font-weight:700; } .foot .dot { opacity:.45; }
 .foot .ver { font-variant-numeric:tabular-nums; padding:1px 8px; border-radius:999px; background:var(--pri-soft); color:var(--pri); font-weight:650; }
 
+/* Positionen hinzufügen */
+.addbar { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin:12px 0; }
+.addbar select { width:auto; max-width:100%; margin:0; min-width:220px; }
+
 /* GitHub-Symbol in der Fußleiste */
 .foot .gh { display:inline-flex; align-items:center; color:var(--mut); padding:2px; border-radius:6px; transition:color .15s, background .15s; }
 .foot .gh svg { width:17px; height:17px; }

@@ -188,7 +188,7 @@ if (($_POST['action'] ?? '') === 'install' && !$blocked) {
             throw new RuntimeException('In dieser Datenbank existiert bereits eine befüllte Tabelle „invoices“. Zur Sicherheit wird nichts überschrieben – bitte eine leere Datenbank verwenden.');
         }
         $pdo->exec((string)file_get_contents($root . '/src/schema.sql'));
-        $log[] = '✔ Tabellen angelegt (customers, invoices, invoice_items)';
+        $log[] = '✔ Tabellen angelegt (customers, invoices, invoice_items, articles)';
 
         // 3. Ordner + Schutz
         foreach (['storage', 'storage/invoices', 'storage/tmp'] as $d) {
@@ -197,7 +197,7 @@ if (($_POST['action'] ?? '') === 'install' && !$blocked) {
             }
             ensure_protected($root . '/' . $d);
         }
-        file_put_contents($root . '/storage/schema_version', '2');
+        file_put_contents($root . '/storage/schema_version', '3');
         ensure_protected($root . '/src');
         ensure_protected($root . '/vendor');
         $log[] = '✔ Ordner storage/ angelegt und gegen Webzugriff geschützt';

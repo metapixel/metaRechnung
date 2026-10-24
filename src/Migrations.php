@@ -10,7 +10,7 @@ namespace App;
 /** Schema-Updates für bestehende Installationen (läuft automatisch, einmalig). */
 final class Migrations
 {
-    public const VERSION = 2;
+    public const VERSION = 3;
 
     public static function run(): void
     {
@@ -20,7 +20,24 @@ final class Migrations
             return;
         }
         $pdo = db();
+        if ($cur < 2) {
+            self::v2($pdo);
+        }
+        // v3: Artikelliste
+        $pdo->exec("CREATE TABLE IF NOT EXISTS articles (
+            id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            description VARCHAR(500) NOT NULL,
+            unit VARCHAR(8) NOT NULL DEFAULT 'C62',
+            unit_price DECIMAL(12,2) NOT NULL DEFAULT 0,
+            vat_rate DECIMAL(5,2) NOT NULL DEFAULT 19,
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 
+        @file_put_contents($file, (string)self::VERSION);
+    }
+
+    private static function v2(\PDO $pdo): void
+    {
         // v2: Käuferreferenz, Snapshot der Rechnungsstellerdaten, öffentliches Status-Token
         foreach ([
             'ALTER TABLE customers ADD COLUMN buyer_reference VARCHAR(100) NULL',
@@ -45,6 +62,5 @@ final class Migrations
             $upd->execute([bin2hex(random_bytes(16)), $r['id']]);
         }
 
-        @file_put_contents($file, (string)self::VERSION);
     }
 }

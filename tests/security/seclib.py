@@ -43,7 +43,8 @@ class C:
             for k, v in (data or {}).items():
                 for vv in (v if isinstance(v, list) else [v]):
                     payload += f'--{bd}\r\nContent-Disposition: form-data; name="{k}"\r\n\r\n{vv}\r\n'.encode()
-            for field, (fname, content, ctype) in files.items():
+            items = files if isinstance(files, list) else [(k, *v) for k, v in files.items()]
+            for field, fname, content, ctype in items:
                 payload += f'--{bd}\r\nContent-Disposition: form-data; name="{field}"; filename="{fname}"\r\nContent-Type: {ctype}\r\n\r\n'.encode() + content + b'\r\n'
             payload += f'--{bd}--\r\n'.encode()
             hdr['Content-Type'] = 'multipart/form-data; boundary=' + bd
