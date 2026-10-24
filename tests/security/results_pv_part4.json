@@ -1,0 +1,114 @@
+[
+ {
+  "id": "T1",
+  "sev": "H",
+  "title": "Artikelseiten ohne Login nicht erreichbar (Anmeldeformular statt Inhalt)",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "T2",
+  "sev": "H",
+  "title": "Anonymes Anlegen eines Artikels wirkungslos",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "T3",
+  "sev": "M",
+  "title": "Artikel anlegen (Komma als Dezimaltrenner) funktioniert",
+  "ok": true,
+  "detail": "(302, 'Artikel gespeichert.')"
+ },
+ {
+  "id": "T4",
+  "sev": "M",
+  "title": "Artikel bearbeiten",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "T5",
+  "sev": "M",
+  "title": "Ungültige Werte (leer, 1e9, Text, MwSt −5/1000, >500 Zeichen, Arrays) werden abgelehnt",
+  "ok": true,
+  "detail": "[]"
+ },
+ {
+  "id": "T6",
+  "sev": "H",
+  "title": "SQL-Injection in Bezeichnung: wörtlich gespeichert, Tabelle intakt",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "T7",
+  "sev": "H",
+  "title": "Stored XSS in Artikelbezeichnung: Liste, Rechnungsformular (data-Attribut) und Bearbeiten maskiert",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "T8",
+  "sev": "H",
+  "title": "Anlegen ohne CSRF-Token → 400",
+  "ok": true,
+  "detail": "400"
+ },
+ {
+  "id": "T9",
+  "sev": "H",
+  "title": "Bearbeiten mit falschem Token → 400, Daten unverändert",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "T10",
+  "sev": "H",
+  "title": "Löschen ohne Token → 400, Artikel bleibt",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "T11",
+  "sev": "M",
+  "title": "GET löst kein Löschen aus",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "T12",
+  "sev": "M",
+  "title": "Rechnungsformular bietet die Artikel zum Einfügen an",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "T13",
+  "sev": "M",
+  "title": "Artikel löschen funktioniert und lässt bestehende Rechnungspositionen unverändert",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "T14",
+  "sev": "M",
+  "title": "Nicht vorhandener Artikel (id=99999) liefert saubere Fehlermeldung, kein 500er",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "T15",
+  "sev": "H",
+  "title": "SQL-Injection über id-Parameter ohne Verzögerung",
+  "ok": true,
+  "detail": "0.0s"
+ },
+ {
+  "id": "T16",
+  "sev": "M",
+  "title": "Keine PHP-Fehler/Warnungen im Log",
+  "ok": true,
+  "detail": "[]"
+ }
+]

@@ -59,6 +59,7 @@ Unter **Einstellungen → Briefpapier** kannst du ein A4-Briefpapier hochladen: 
   `wget -q -O /dev/null "https://deine-domain.de/rechnung/cron.php?token=…"` (das Token steht im Menü „Wiederkehrend“ und lässt sich dort erneuern oder abschalten).
   Ein Zeitraum wird nie doppelt abgerechnet; versäumte Läufe werden nachgeholt. Fehler beim Ausstellen/Versand stehen in der Liste.
 - **Barrierefreiheit:** Tastaturbedienung mit „Zum Inhalt springen“-Link, sprechende Seitentitel, beschriftete Formularfelder und Tabellen, Fokus- und Kontrast-Stile (WCAG 2.2 AA mit axe-core geprüft).
+- **PDF-Vorschau:** Entwürfe lassen sich vor dem Ausstellen als PDF ansehen (Nummer „ENTWURF“, nichts wird gespeichert).
 - **Duplizieren:** Button „Als neue Rechnung duplizieren“ legt einen Entwurf mit Kunde, Positionen und Hinweistext an.
 
 ## Sicherheit

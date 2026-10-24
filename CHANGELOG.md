@@ -2,6 +2,10 @@
 
 Die aktuelle Versionsnummer steht in der Datei `VERSION` (und unten in der App sowie unter Einstellungen → System).
 
+## 1.5.3
+- **PDF-Vorschau für Entwürfe**: In der Entwurfsansicht („PDF-Vorschau“, öffnet in neuem Tab) und im Bearbeiten-Formular („Speichern und PDF-Vorschau“) lässt sich die Rechnung vor dem Ausstellen
+  so ansehen, wie sie als PDF aussehen wird (mit Logo/Briefpapier, Notizen, Summen; Nummer „ENTWURF“). Die Vorschau wird nur erzeugt und ausgeliefert – es wird nichts gespeichert und keine Rechnungsnummer vergeben.
+
 ## 1.5.2
 - **Notizfeld für Artikel und Positionen**: Artikel haben eine optionale Notiz (Artikelpflege); im Rechnungsentwurf gibt es je Position ein Notizfeld, das beim Einfügen eines Artikels vorbelegt wird.
   Die Notiz steht unter der Beschreibung in der Rechnungsansicht, im PDF und als Artikelbeschreibung in ZUGFeRD/XRechnung (KoSIT-Validator: akzeptiert). Beim Duplizieren wird sie übernommen.

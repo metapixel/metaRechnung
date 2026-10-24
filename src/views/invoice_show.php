@@ -36,6 +36,7 @@ $post = fn(string $action, string $label, string $cls = '', string $confirm = ''
 <div class="actions">
 <?php if ($st === 'draft'): ?>
   <a class="btn" href="<?= BASE ?>?p=invoice_edit&id=<?= (int)$inv['id'] ?>">Bearbeiten</a>
+  <a class="btn" href="<?= BASE ?>?p=draft_preview&id=<?= (int)$inv['id'] ?>" target="_blank">PDF-Vorschau</a>
   <?= $post('issue', 'Ausstellen (Nummer vergeben + PDF erzeugen)', 'primary', 'Rechnung jetzt ausstellen? Danach ist sie nicht mehr änderbar.') ?>
   <?= $post('duplicate', 'Duplizieren') ?>
   <?= $post('delete', 'Löschen', 'danger', 'Entwurf wirklich löschen?') ?>

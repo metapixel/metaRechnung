@@ -1,0 +1,282 @@
+[
+ {
+  "id": "A1",
+  "sev": "H",
+  "title": "Alle Seiten/Downloads ohne Login geschützt",
+  "ok": true,
+  "detail": "[]"
+ },
+ {
+  "id": "A2",
+  "sev": "H",
+  "title": "Anonyme POSTs ändern nichts",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "B1",
+  "sev": "H",
+  "title": "CSRF: alle zustandsändernden Aktionen verlangen gültiges Token (400)",
+  "ok": true,
+  "detail": "{}"
+ },
+ {
+  "id": "B2",
+  "sev": "H",
+  "title": "CSRF-Versuche haben keinen Zustand verändert",
+  "ok": true,
+  "detail": "(('1', '2', 'draft'), ('1', '2', 'draft'))"
+ },
+ {
+  "id": "B0",
+  "sev": "H",
+  "title": "CSRF: Formular ohne Token wird auch abgelehnt, wenn die Sitzung noch kein Token erzeugt hat",
+  "ok": true,
+  "detail": "400"
+ },
+ {
+  "id": "B3",
+  "sev": "H",
+  "title": "CSRF-Token einer fremden Sitzung wird abgelehnt",
+  "ok": true,
+  "detail": "400"
+ },
+ {
+  "id": "B4",
+  "sev": "M",
+  "title": "GET-Anfragen lösen keine Aktionen aus",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "B5",
+  "sev": "L",
+  "title": "Abmelden ist per GET nicht auslösbar (Logout-CSRF)",
+  "ok": true,
+  "detail": "Sitzung wurde per GET-Link beendet"
+ },
+ {
+  "id": "B6",
+  "sev": "L",
+  "title": "Login-Formular verlangt CSRF-Token (Login-CSRF)",
+  "ok": true,
+  "detail": "Login ohne Token akzeptiert"
+ },
+ {
+  "id": "C1",
+  "sev": "H",
+  "title": "SQL-Injection über GET-Parameter (id, t, customer, dl): keine Verzögerung",
+  "ok": true,
+  "detail": "[]"
+ },
+ {
+  "id": "C2",
+  "sev": "M",
+  "title": "SQL-Fehlermeldungen werden bei manipulierten GET-Parametern nicht ausgegeben",
+  "ok": true,
+  "detail": "[]"
+ },
+ {
+  "id": "C3",
+  "sev": "H",
+  "title": "SQL-Injection über POST-Felder (Kunde): keine Verzögerung, Daten wörtlich gespeichert",
+  "ok": true,
+  "detail": "0.0s"
+ },
+ {
+  "id": "C4",
+  "sev": "H",
+  "title": "Second-Order: gespeicherte Injection-Namen beschädigen nichts (Tabellen vorhanden)",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "C5",
+  "sev": "H",
+  "title": "SQL-Injection über Rechnungsfelder/Ausstellen: Tabellen intakt",
+  "ok": true,
+  "detail": "302"
+ },
+ {
+  "id": "C6",
+  "sev": "M",
+  "title": "Datumsfeld paid_at wird validiert",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "D1",
+  "sev": "H",
+  "title": "Stored XSS: Payloads in Kunde/Positionen/Notizen/Einstellungen werden in allen Ansichten maskiert",
+  "ok": true,
+  "detail": "[]"
+ },
+ {
+  "id": "D2",
+  "sev": "H",
+  "title": "Stored XSS im Rechnungs-Bearbeitungsformular (value/textarea) maskiert",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "D3",
+  "sev": "H",
+  "title": "Reflektiertes XSS über GET-Parameter und PATH_INFO (BASE aus SCRIPT_NAME)",
+  "ok": true,
+  "detail": "[]"
+ },
+ {
+  "id": "D4",
+  "sev": "M",
+  "title": "Host-Header wird nicht unmaskiert in Seiten/Links ausgegeben",
+  "ok": true,
+  "detail": "400"
+ },
+ {
+  "id": "D5",
+  "sev": "L",
+  "title": "Statuslink in Mails/Ansicht wird nicht aus manipulierbarem Host-Header abgeleitet (APP_URL)",
+  "ok": true,
+  "detail": "http://127.0.0.1:8097/status.php?t=c92e13c717410298bf222cd863cada01"
+ },
+ {
+  "id": "D6",
+  "sev": "M",
+  "title": "Flash-Meldungen mit Benutzerdaten (E-Mail) werden maskiert",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "E1",
+  "sev": "H",
+  "title": "HTML-Injection in PDF: keine ausgehenden Requests (SSRF) beim PDF-Rendern",
+  "ok": true,
+  "detail": "[]"
+ },
+ {
+  "id": "E2",
+  "sev": "H",
+  "title": "XML-Injection: XRechnung bleibt wohlgeformt, kein injiziertes Element",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "E3",
+  "sev": "M",
+  "title": "Steuerzeichen (z. B. \\x0b) im Kundennamen: Ausstellen klappt / klare Fehlermeldung statt Absturz",
+  "ok": true,
+  "detail": "issued"
+ },
+ {
+  "id": "F1",
+  "sev": "H",
+  "title": "Mail-Header-Injection (CRLF in Firmenname/Absendername): kein Bcc/X-Injected-Header, kein fremder Empfänger",
+  "ok": true,
+  "detail": "2"
+ },
+ {
+  "id": "F2",
+  "sev": "H",
+  "title": "SMTP-Smuggling im Nachrichtentext: nur erwartete Empfänger im Umschlag",
+  "ok": true,
+  "detail": "['ENVELOPE: MAIL FROM:<rechnung@example.de> RCPT TO:<kunde@example.com>', 'ENVELOPE: MAIL FROM:<rechnung@example.de> RCPT TO:<ich@example.com>']"
+ },
+ {
+  "id": "F3",
+  "sev": "H",
+  "title": "Mail-Versand: genau erwartete Anzahl Nachrichten (keine zusätzlichen durch Injection)",
+  "ok": true,
+  "detail": "2"
+ },
+ {
+  "id": "F4",
+  "sev": "H",
+  "title": "Ungültige/mehrfache Empfängeradressen (CRLF, Komma, Semikolon) werden abgelehnt",
+  "ok": true,
+  "detail": "[]"
+ },
+ {
+  "id": "F5",
+  "sev": "M",
+  "title": "Redirects (Location) zeigen nur auf interne Pfade (Open Redirect)",
+  "ok": true,
+  "detail": "([], '/index.php?p=invoice_edit')"
+ },
+ {
+  "id": "F6",
+  "sev": "M",
+  "title": "Fehler-Redirect verwendet REQUEST_URI nicht ungeprüft",
+  "ok": true,
+  "detail": "/"
+ },
+ {
+  "id": "G1",
+  "sev": "H",
+  "title": "Interne Dateien (config, src, storage, vendor, PDFs) sind per HTTP nicht lesbar",
+  "ok": true,
+  "detail": "{}"
+ },
+ {
+  "id": "G2",
+  "sev": "L",
+  "title": "Versions-/Doku-Dateien (VERSION, *.md) sind per HTTP nicht abrufbar (Fingerprinting)",
+  "ok": true,
+  "detail": "{}"
+ },
+ {
+  "id": "G3",
+  "sev": "H",
+  "title": "Path Traversal über Parameter/URL liefert keine Systemdateien",
+  "ok": true,
+  "detail": "[]"
+ },
+ {
+  "id": "H1",
+  "sev": "M",
+  "title": "Clickjacking-Schutz (X-Frame-Options oder CSP frame-ancestors) auf allen Seiten",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "H2",
+  "sev": "M",
+  "title": "X-Content-Type-Options: nosniff (Seiten + PDF)",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "H3",
+  "sev": "M",
+  "title": "Content-Security-Policy gesetzt und ohne script-src unsafe-inline",
+  "ok": true,
+  "detail": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; object-src 'none'; base-u"
+ },
+ {
+  "id": "H4",
+  "sev": "L",
+  "title": "Referrer-Policy gesetzt (Token in Statuslink nicht per Referer weitergeben)",
+  "ok": true,
+  "detail": "no-referrer"
+ },
+ {
+  "id": "H5",
+  "sev": "M",
+  "title": "Authentifizierte Seiten mit Cache-Control: no-store",
+  "ok": true,
+  "detail": "no-store, no-cache, must-revalidate"
+ },
+ {
+  "id": "H6",
+  "sev": "M",
+  "title": "Statusseite: no-store, noindex, kein Session-Cookie",
+  "ok": true,
+  "detail": "('no-store', [])"
+ },
+ {
+  "id": "H7",
+  "sev": "L",
+  "title": "Server-/PHP-Version wird nicht preisgegeben (X-Powered-By)",
+  "ok": true,
+  "detail": ""
+ }
+]

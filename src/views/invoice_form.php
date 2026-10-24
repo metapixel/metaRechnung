@@ -30,5 +30,6 @@ $due = $inv['due_date'] ?? date('Y-m-d', strtotime('+' . (int)env('PAYMENT_DAYS'
     <textarea name="notes" rows="3"><?= h($inv['notes'] ?? '') ?></textarea>
   </label>
   <button class="btn primary">Entwurf speichern</button>
+  <button class="btn" name="after" value="preview">Speichern und PDF-Vorschau</button>
   <a class="btn" href="<?= BASE ?>">Abbrechen</a>
 </form>

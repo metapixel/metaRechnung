@@ -208,6 +208,9 @@ try {
                     throw new RuntimeException('Bitte einen Kunden wählen.');
                 }
                 $newId = Invoices::saveDraft($id ?: null, $_POST);
+                if (($_POST['after'] ?? '') === 'preview') {
+                    redirect(BASE . '?p=draft_preview&id=' . $newId);
+                }
                 flash('Entwurf gespeichert.');
                 redirect(BASE . '?p=invoice&id=' . $newId);
             }
@@ -273,6 +276,27 @@ try {
             header('Content-Disposition: inline; filename="' . $inv['number'] . '.pdf"');
             header('Content-Length: ' . strlen($bytes));
             // Geprüft: erzeugte PDF/XML-Daten mit festem Content-Type (kein HTML), keine Benutzereingabe
+            // nosemgrep
+            echo $bytes;
+            exit;
+
+        case 'draft_preview':
+            // PDF-Vorschau eines Entwurfs: wird nur erzeugt und ausgeliefert, nichts gespeichert, keine Nummer vergeben
+            $inv = Invoices::find((int)($_GET['id'] ?? 0));
+            if (!$inv) {
+                http_response_code(404);
+                exit('Rechnung nicht gefunden.');
+            }
+            if ($inv['status'] !== 'draft') {
+                redirect(BASE . '?p=pdf&id=' . (int)$inv['id']);
+            }
+            $inv['number'] = 'ENTWURF';
+            $bytes = Einvoice::pdf($inv);
+            header('Content-Type: application/pdf');
+            header('Content-Disposition: inline; filename="entwurf-vorschau.pdf"');
+            header('Cache-Control: no-store');
+            header('Content-Length: ' . strlen($bytes));
+            // Geprüft: erzeugte PDF-Daten mit festem Content-Type (kein HTML), keine Benutzereingabe
             // nosemgrep
             echo $bytes;
             exit;
