@@ -269,12 +269,16 @@ final class Invoices
         }
         $files = 0;
         foreach (glob(dirname(__DIR__) . '/storage/invoices/*.pdf') ?: [] as $f) {
+            // Geprüft: Pfad wird serverseitig gebildet (feste Ordner, kein Benutzerpfad)
+            // nosemgrep
             if (@unlink($f)) {
                 $files++;
             }
         }
         foreach (glob(dirname(__DIR__) . '/storage/tmp/*') ?: [] as $f) {
             if (is_file($f)) {
+                // Geprüft: Pfad wird serverseitig gebildet (feste Ordner, kein Benutzerpfad)
+                // nosemgrep
                 @unlink($f);
             }
         }

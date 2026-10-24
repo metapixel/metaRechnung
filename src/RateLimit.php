@@ -73,6 +73,8 @@ final class RateLimit
 
     public static function clear(string $key): void
     {
+        // Geprüft: Pfad wird serverseitig gebildet (feste Ordner, kein Benutzerpfad)
+        // nosemgrep
         @unlink(self::file($key));
     }
 }

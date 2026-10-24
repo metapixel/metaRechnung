@@ -106,8 +106,12 @@ function page(string $title, string $body): never
 // ---------------------------------------------------------------- bereits installiert?
 if (is_file($root . '/config.php')) {
     if (($_POST['action'] ?? '') === 'selfdelete') {
+        // Geprüft: Pfad wird serverseitig gebildet (feste Ordner, kein Benutzerpfad)
+        // nosemgrep
         $ok = @unlink(__FILE__);
         if ($ok && is_file($root . '/vendor.zip') && is_file($root . '/vendor/autoload.php')) {
+            // Geprüft: Pfad wird serverseitig gebildet (feste Ordner, kein Benutzerpfad)
+            // nosemgrep
             @unlink($root . '/vendor.zip');
         }
         page('Installer entfernt', $ok
@@ -244,7 +248,11 @@ if (($_POST['action'] ?? '') === 'install' && !$blocked) {
                 $log[] = '⚠ Webzugriff auf ' . $f . ' konnte nicht geprüft werden – bitte ' . $base . $f . ' manuell aufrufen: es darf KEIN Inhalt erscheinen.';
             }
         }
+        // Geprüft: Pfad wird serverseitig gebildet (feste Ordner, kein Benutzerpfad)
+        // nosemgrep
         @unlink($root . '/storage/probe.txt');
+        // Geprüft: Pfad wird serverseitig gebildet (feste Ordner, kein Benutzerpfad)
+        // nosemgrep
         @unlink($root . '/src/probe.txt');
 
         $done = '<div class="card"><h1>Installation abgeschlossen ✔</h1><pre class="log">' . h(implode("\n", $log)) . '</pre>';

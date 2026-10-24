@@ -4,6 +4,7 @@ Die aktuelle Versionsnummer steht in der Datei `VERSION` (und unten in der App s
 
 ## 1.2.2
 - Lizenz festgelegt: GPL-2.0-or-later (`LICENSE`, `NOTICE.md` mit Drittbibliotheken, Lizenzkopf in den PHP-Dateien).
+- CI: Semgrep-Treffer geprüft (alles Fehlalarme: Ausgabe erzeugter PDF/XML-Dateien, Löschen serverseitig gebildeter Pfade) und mit Begründung markiert; Actions auf checkout@v5 und ubuntu-24.04.
 - Repository bereinigt: Testdaten in `tests/security/` enthalten nur noch erfundene Beispieldaten; keine persönlichen Angaben im Quellcode.
 
 ## 1.2.1 – Sicherheits-Update

@@ -40,6 +40,8 @@ try {
         header('Content-Type: application/pdf');
         header('Content-Disposition: attachment; filename="' . $inv['number'] . '.pdf"');
         header('Content-Length: ' . strlen($bytes));
+        // Geprüft: erzeugte PDF/XML-Daten mit festem Content-Type (kein HTML), keine Benutzereingabe
+        // nosemgrep
         echo $bytes;
         exit;
     }
@@ -48,6 +50,8 @@ try {
         header('Content-Type: application/xml; charset=utf-8');
         header('Content-Disposition: attachment; filename="' . $inv['number'] . '_xrechnung.xml"');
         header('Content-Length: ' . strlen($xml));
+        // Geprüft: erzeugte PDF/XML-Daten mit festem Content-Type (kein HTML), keine Benutzereingabe
+        // nosemgrep
         echo $xml;
         exit;
     }

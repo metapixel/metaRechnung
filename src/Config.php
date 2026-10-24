@@ -29,6 +29,8 @@ final class Config
         if (@file_put_contents($tmp, $code, LOCK_EX) !== false && @rename($tmp, $path)) {
             // ok
         } else {
+            // Geprüft: Pfad wird serverseitig gebildet (feste Ordner, kein Benutzerpfad)
+            // nosemgrep
             @unlink($tmp);
             if (@file_put_contents($path, $code, LOCK_EX) === false) {
                 throw new \RuntimeException('config.php ist nicht beschreibbar – bitte Schreibrechte prüfen.');

@@ -105,6 +105,8 @@ final class Letterhead
     public static function remove(): void
     {
         foreach (glob(self::dir() . '/briefpapier.*') ?: [] as $f) {
+            // Geprüft: Pfad wird serverseitig gebildet (feste Ordner, kein Benutzerpfad)
+            // nosemgrep
             @unlink($f);
         }
     }

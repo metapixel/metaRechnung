@@ -167,6 +167,8 @@ final class Einvoice
             $mpdf->WriteHTML($html);
             return $mpdf->Output('', 'S');
         } finally {
+            // Geprüft: Pfad wird serverseitig gebildet (feste Ordner, kein Benutzerpfad)
+            // nosemgrep
             @unlink($xmlFile);
         }
     }
