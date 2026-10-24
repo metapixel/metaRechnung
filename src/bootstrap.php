@@ -1,4 +1,8 @@
 <?php
+/*
+ * Rechnungs-App – Copyright (C) 2026 Kai
+ * Lizenz: GPL-2.0-or-later (siehe LICENSE)
+ */
 declare(strict_types=1);
 
 $root = dirname(__DIR__);

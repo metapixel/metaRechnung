@@ -2,13 +2,28 @@
     "name": "rechnung-webspace/app",
     "description": "Einfache Rechnungs-App (ZUGFeRD/Factur-X, XRechnung, Mailversand, PWA) für normalen Webspace",
     "type": "project",
+    "license": "GPL-2.0-or-later",
     "require": {
         "php": ">=8.1",
-        "ext-pdo": "*", "ext-mbstring": "*", "ext-gd": "*", "ext-dom": "*", "ext-xml": "*", "ext-simplexml": "*", "ext-libxml": "*", "ext-json": "*", "ext-ctype": "*",
+        "ext-pdo": "*",
+        "ext-mbstring": "*",
+        "ext-gd": "*",
+        "ext-dom": "*",
+        "ext-xml": "*",
+        "ext-simplexml": "*",
+        "ext-libxml": "*",
+        "ext-json": "*",
+        "ext-ctype": "*",
         "horstoeko/zugferd": "^1.0",
         "mpdf/mpdf": "^8.2",
         "phpmailer/phpmailer": "^6.9",
         "symfony/validator": "^6.4.14"
     },
-    "config": { "platform": { "php": "8.1.0" }, "optimize-autoloader": true, "sort-packages": true }
+    "config": {
+        "platform": {
+            "php": "8.1.0"
+        },
+        "optimize-autoloader": true,
+        "sort-packages": true
+    }
 }

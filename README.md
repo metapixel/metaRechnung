@@ -35,8 +35,8 @@ Für die Entwicklung genügt `composer install` im Projektordner und ein lokaler
 ## Wichtige Hinweise
 - **Nie einchecken:** `config.php` (Passwort-Hash, Datenbank- und SMTP-Zugang) und `storage/` – `.gitignore` schützt davor.
 - Die XRechnung-/ZUGFeRD-Ausgabe ersetzt keine steuerliche Beratung; Pflichtangaben (Steuernummer/USt-IdNr., IBAN, Kontakt) müssen in den Einstellungen stehen.
-- Lizenz: **noch nicht festgelegt.** Hinweis: Das Paket nutzt mPDF (GPL-2.0) und PHPMailer (LGPL), Verteilung als Gesamtpaket spricht für eine GPL-kompatible Lizenz.
-  Bis dahin gilt: alle Rechte vorbehalten.
+- Lizenz: **GNU General Public License, Version 2 oder (nach Wahl) jede spätere Version** (GPL-2.0-or-later), siehe [LICENSE](LICENSE).
+  Das passt zu mPDF (GPL-2.0); Drittbibliotheken siehe [NOTICE.md](NOTICE.md).
 
 ## Changelog
 [CHANGELOG.md](CHANGELOG.md)

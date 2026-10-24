@@ -20,7 +20,7 @@ php -r 'require "vendor/autoload.php"; foreach (["horstoeko\\zugferd\\ZugferdDoc
 rm -f vendor.zip; zip -qr9 vendor.zip vendor
 cp vendor.zip .build/vendor.zip
 
-FILES=(index.php status.php install.php app.js sw.js style.css offline.html manifest.webmanifest icons src VERSION CHANGELOG.md INSTALLATION.md SECURITY.md README.md .htaccess composer.json)
+FILES=(index.php status.php install.php app.js sw.js style.css offline.html manifest.webmanifest icons src VERSION CHANGELOG.md INSTALLATION.md SECURITY.md README.md LICENSE NOTICE.md .htaccess composer.json)
 mkdir -p .build/full .build/update
 for d in full update; do
   cp -a "${FILES[@]}" ".build/$d/"
