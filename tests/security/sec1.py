@@ -1,5 +1,5 @@
 import sys, re, html, os, time, subprocess, glob, urllib.parse
-sys.path.insert(0, '/home/claude/work/sec')
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from seclib import *
 
 label = sys.argv[1]
