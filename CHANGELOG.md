@@ -2,6 +2,9 @@
 
 Die aktuelle Versionsnummer steht in der Datei `VERSION` (und unten in der App sowie unter Einstellungen → System).
 
+## 1.3.1
+- GitHub-Symbol (SVG) mit Link zum Repository in der Fußleiste (nicht auf der öffentlichen Statusseite).
+
 ## 1.3.0
 - Neues Erscheinungsbild, rein mit CSS und inline-SVG (keine Bibliotheken, keine externen Schriften/Skripte): Farbverlauf-Akzent, Karten mit Schatten,
   Pillen-Navigation mit Symbolen, abgesetzte Tabellenköpfe, farbige Status-Badges, Fokus-Ringe, weicher Dunkelmodus, mobiles Layout.
