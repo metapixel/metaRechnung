@@ -1,6 +1,6 @@
 <?php
 /*
- * Rechnungs-App – Copyright (C) 2026 Kai
+ * metaRechnung – Copyright (C) 2026 Kai
  * Lizenz: GPL-2.0-or-later (siehe LICENSE)
  */
 declare(strict_types=1);
@@ -64,8 +64,8 @@ final class Mailer
     {
         $m = self::make();
         $m->addAddress($to);
-        $m->Subject = 'Testnachricht der Rechnungs-App';
-        $m->Body = "Diese E-Mail bestätigt, dass der Mailversand der Rechnungs-App funktioniert.\n";
+        $m->Subject = 'Testnachricht von metaRechnung';
+        $m->Body = "Diese E-Mail bestätigt, dass der Mailversand von metaRechnung funktioniert.\n";
         $m->send();
     }
 }

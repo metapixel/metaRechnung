@@ -2,6 +2,12 @@
 
 Die aktuelle Versionsnummer steht in der Datei `VERSION` (und unten in der App sowie unter Einstellungen → System).
 
+## 1.3.0
+- Neues Erscheinungsbild, rein mit CSS und inline-SVG (keine Bibliotheken, keine externen Schriften/Skripte): Farbverlauf-Akzent, Karten mit Schatten,
+  Pillen-Navigation mit Symbolen, abgesetzte Tabellenköpfe, farbige Status-Badges, Fokus-Ringe, weicher Dunkelmodus, mobiles Layout.
+- Name der App durchgehend **metaRechnung** (Seitentitel, Logo, PWA-Name, Offline-Seite, Installer, Testmail, Dokumentation); neues Logo als SVG (`icons/icon.svg`) und neu erzeugte PWA-Icons.
+- Versionshinweis in einer Fußleiste am unteren Fensterrand (nur für angemeldete Nutzer mit Version, auf Anmelde- und Statusseite nur der Name).
+
 ## 1.2.2
 - Lizenz festgelegt: GPL-2.0-or-later (`LICENSE`, `NOTICE.md` mit Drittbibliotheken, Lizenzkopf in den PHP-Dateien).
 - CI: Semgrep-Treffer geprüft (alles Fehlalarme: Ausgabe erzeugter PDF/XML-Dateien, Löschen serverseitig gebildeter Pfade) und mit Begründung markiert; Actions auf checkout@v5 und ubuntu-24.04.

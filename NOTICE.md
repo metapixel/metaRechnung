@@ -1,6 +1,6 @@
 # Lizenz und Drittbibliotheken
 
-Rechnungs-App: Copyright (C) 2026 Kai. Lizenz: GNU General Public License, Version 2 oder später (GPL-2.0-or-later), Text in `LICENSE`.
+metaRechnung: Copyright (C) 2026 Kai. Lizenz: GNU General Public License, Version 2 oder später (GPL-2.0-or-later), Text in `LICENSE`.
 Dieses Programm wird in der Hoffnung verteilt, dass es nützlich ist, aber **ohne jede Gewährleistung**, auch ohne die implizite Gewährleistung der
 Marktreife oder der Eignung für einen bestimmten Zweck. Es ersetzt keine steuerliche oder rechtliche Beratung.
 

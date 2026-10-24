@@ -1,12 +1,12 @@
 <?php
 /*
- * Rechnungs-App – Copyright (C) 2026 Kai
+ * metaRechnung – Copyright (C) 2026 Kai
  * Lizenz: GPL-2.0-or-later (siehe LICENSE)
  */
 declare(strict_types=1);
 
 /**
- * Installer für die Rechnungs-App (Webspace).
+ * Installer für metaRechnung (Webspace).
  * Aufruf im Browser: https://deine-domain.de/<ordner>/install.php
  * Nach erfolgreicher Installation diese Datei löschen (geht per Knopf auf der Abschlussseite).
  */
@@ -96,7 +96,7 @@ function detect_app_url(): string
 function page(string $title, string $body): never
 {
     echo '<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
-        . '<title>' . h($title) . '</title><link rel="stylesheet" href="style.css">'
+        . '<title>metaRechnung</title><link rel="stylesheet" href="style.css">'
         . '<style>fieldset{border:1px solid var(--line);border-radius:12px;margin:16px 0;padding:8px 16px 16px}legend{font-weight:600;padding:0 6px}'
         . '.ok{color:var(--ok)}.no{color:var(--bad)}.warn{color:var(--warn)}ul.chk{list-style:none;padding:0}ul.chk li{padding:3px 0}pre.log{background:var(--card);border:1px solid var(--line);padding:10px;border-radius:8px;white-space:pre-wrap}</style>'
         . '</head><body><main>' . $body . '</main></body></html>';
@@ -278,7 +278,7 @@ if (($_POST['action'] ?? '') === 'install' && !$blocked) {
 }
 
 // ---------------------------------------------------------------- Formular
-$b = '<h1>Rechnungs-App installieren <small class="muted">v' . h($appVersion) . '</small></h1>';
+$b = '<h1>metaRechnung installieren <small class="muted">v' . h($appVersion) . '</small></h1>';
 $b .= '<div class="card"><h2>Systemprüfung</h2><ul class="chk">';
 foreach ($reqs as [$label, $ok, $hint, $fatal]) {
     $b .= '<li class="' . ($ok ? 'ok' : ($fatal ? 'no' : 'warn')) . '">' . ($ok ? '✔ ' : ($fatal ? '✘ ' : '⚠ ')) . h($label) . ($ok ? '' : ' – ' . h($hint)) . '</li>';

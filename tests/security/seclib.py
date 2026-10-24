@@ -84,7 +84,7 @@ def csrf_of(body):
 
 
 def flash_of(body):
-    m = re.search(r'class="flash">([^<]+)<', body)
+    m = re.search(r'class="flash"[^>]*>([^<]+)<', body)
     return html.unescape(m.group(1)) if m else ''
 
 

@@ -1,4 +1,4 @@
-# Rechnungs-App – Installation auf dem Webspace
+# metaRechnung – Installation auf dem Webspace
 
 **Voraussetzungen:** PHP 8.1 oder neuer (Erweiterungen pdo_mysql, mbstring, gd, dom, xml, simplexml, zip),
 eine leere MySQL/MariaDB-Datenbank, HTTPS (für die PWA-Installation), Schreibrechte im Zielordner.

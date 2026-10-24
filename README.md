@@ -1,4 +1,4 @@
-# Rechnungs-App für Webspace
+# metaRechnung für Webspace
 
 Schlanke, selbst gehostete Rechnungsverwaltung in PHP/MySQL für ganz normalen Webspace (kein Docker, kein SSH nötig).
 

@@ -1,6 +1,6 @@
 {
-    "name": "rechnung-webspace/app",
-    "description": "Einfache Rechnungs-App (ZUGFeRD/Factur-X, XRechnung, Mailversand, PWA) für normalen Webspace",
+    "name": "metapixel/metarechnung",
+    "description": "Einfache metaRechnung (ZUGFeRD/Factur-X, XRechnung, Mailversand, PWA) für normalen Webspace",
     "type": "project",
     "license": "GPL-2.0-or-later",
     "require": {

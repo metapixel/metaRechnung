@@ -1,5 +1,5 @@
 // Minimaler Service Worker: nur die App-Hülle cachen. Rechnungsdaten kommen immer frisch vom Server.
-const CACHE = 'rechnung-shell-v1';
+const CACHE = 'metarechnung-shell-v2';
 const SCOPE = self.registration.scope;
 const SHELL = ['offline.html', 'style.css', 'app.js', 'icons/icon-192.png', 'icons/icon-512.png'].map((p) => new URL(p, SCOPE).href);
 
