@@ -1,0 +1,100 @@
+[
+ {
+  "id": "S1",
+  "sev": "H",
+  "title": "Gültige Anhänge (PDF, PNG, ZIP) werden unverändert mit der Rechnungs-PDF versendet",
+  "ok": true,
+  "detail": "E-Mail an kunde@example.com gesendet (mit 3 zusätzlichen Anhängen)."
+ },
+ {
+  "id": "S2",
+  "sev": "M",
+  "title": "Erfolgsmeldung nennt die Zahl der zusätzlichen Anhänge",
+  "ok": true,
+  "detail": "E-Mail an kunde@example.com gesendet (mit 3 zusätzlichen Anhängen)."
+ },
+ {
+  "id": "S3",
+  "sev": "H",
+  "title": "Unerlaubte/gefälschte Dateien werden abgelehnt, es wird keine Mail gesendet",
+  "ok": true,
+  "detail": "[]"
+ },
+ {
+  "id": "S4",
+  "sev": "M",
+  "title": "Mehr als 5 Anhänge werden abgelehnt",
+  "ok": true,
+  "detail": "Fehler: Es sind höchstens 5 Anhänge erlaubt."
+ },
+ {
+  "id": "S5",
+  "sev": "M",
+  "title": "Zu große Gesamtsumme/Datei (3 × 1,8 MB über Server-/App-Limit) wird abgelehnt oder gesendet, nie abgeschnitten",
+  "ok": true,
+  "detail": "E-Mail an kunde@example.com gesendet (mit 3 zusätzlichen Anhängen)."
+ },
+ {
+  "id": "S6",
+  "sev": "M",
+  "title": "Datei über 5 MB wird abgelehnt",
+  "ok": true,
+  "detail": "Fehler: „riesig.pdf“ ist größer als 5 MB."
+ },
+ {
+  "id": "S7",
+  "sev": "M",
+  "title": "Anfrage über post_max_size (12 MB): saubere Meldung, kein 500er, keine Mail, Weiterleitung auf dieselbe Seite",
+  "ok": true,
+  "detail": "(302, '/index.php?p=invoice&id=1', 'Die Anfrage war zu groß für den Server (post_max_size 10M, Datei-Limit 8M). Bitte kleinere Dateien wählen.')"
+ },
+ {
+  "id": "S8",
+  "sev": "H",
+  "title": "Dateinamen mit CRLF/Pfaden/Quotes/Doppelnamen: keine Header-Injection, sichere und eindeutige Namen",
+  "ok": true,
+  "detail": "Fehler: „x“: Dateityp nicht erlaubt. Erlaubt sind PDF, PNG, JPG, JPEG, GIF, WEBP, ZIP, DOCX, XLSX, PPTX, ODT, ODS, TXT, CSV."
+ },
+ {
+  "id": "S9",
+  "sev": "H",
+  "title": "Versand mit Anhang ohne CSRF-Token wird abgelehnt (400)",
+  "ok": true,
+  "detail": "400"
+ },
+ {
+  "id": "S10",
+  "sev": "H",
+  "title": "Anonymer Versand mit Anhang erzeugt keine Mail",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "S12",
+  "sev": "M",
+  "title": "storage/ enthält nach dem Versand nur die Rechnungs-PDF (keine Upload-Reste)",
+  "ok": true,
+  "detail": "[]"
+ },
+ {
+  "id": "S13",
+  "sev": "M",
+  "title": "Versand ohne Zusatzanhänge funktioniert wie bisher (nur Rechnungs-PDF)",
+  "ok": true,
+  "detail": "E-Mail an kunde@example.com gesendet."
+ },
+ {
+  "id": "S14",
+  "sev": "M",
+  "title": "Einzel-Upload im Mehrfachfeld (attachments statt attachments[]) führt nicht zu einem 500er",
+  "ok": true,
+  "detail": "302"
+ },
+ {
+  "id": "S15",
+  "sev": "M",
+  "title": "Keine PHP-Fatal-Errors/Warnungen im Log",
+  "ok": true,
+  "detail": "[]"
+ }
+]

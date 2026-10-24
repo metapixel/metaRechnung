@@ -2,6 +2,11 @@
 
 Die aktuelle Versionsnummer steht in der Datei `VERSION` (und unten in der App sowie unter Einstellungen → System).
 
+## 1.5.4
+- **Schlankeres `vendor/`**: Das Release-Skript entfernt nicht benötigte Teile der Bibliotheken – ungenutzte ZUGFeRD-Profile samt Schematron/XSLT-Validierungsdateien, nicht verwendete mPDF-Schriften und
+  Thai/Khmer-Wörterbücher, Validator-Übersetzungen. Ergebnis: **20 MB statt 37 MB** auf dem Server, `vendor.zip` **4,5 MB statt 8 MB**; Funktionsumfang unverändert.
+  Ein Rauchtest (`build/smoke.php`) erzeugt dabei echte XML-Dateien (EN 16931 und XRechnung), ein PDF/A-3 und prüft Mailer/FPDI; alle Sicherheitstests und der KoSIT-Validator laufen gegen die verschlankte Fassung.
+
 ## 1.5.3
 - **PDF-Vorschau für Entwürfe**: In der Entwurfsansicht („PDF-Vorschau“, öffnet in neuem Tab) und im Bearbeiten-Formular („Speichern und PDF-Vorschau“) lässt sich die Rechnung vor dem Ausstellen
   so ansehen, wie sie als PDF aussehen wird (mit Logo/Briefpapier, Notizen, Summen; Nummer „ENTWURF“). Die Vorschau wird nur erzeugt und ausgeliefert – es wird nichts gespeichert und keine Rechnungsnummer vergeben.

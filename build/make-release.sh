@@ -12,11 +12,18 @@ composer audit --no-dev || { echo "composer audit meldet Sicherheitslücken – 
 # vendor/ verschlanken: Tests, Doku, Git-Reste, nicht benötigte mPDF-Schriften (nur DejaVu bleibt)
 find vendor -type d \( -iname tests -o -iname test -o -iname docs -o -iname doc -o -iname examples -o -name .git \) -prune -exec rm -rf {} +
 find vendor -type f \( -name '*.md' -o -name 'phpunit*' -o -name '.gitattributes' -o -name '.gitignore' -o -name '*.dist' \) -delete
-if [ -d vendor/mpdf/mpdf/ttfonts ]; then
-  find vendor/mpdf/mpdf/ttfonts -type f ! -name 'DejaVu*' ! -name '.htaccess' -delete
-fi
-# Rauchtest: alle benötigten Klassen müssen nach dem Verschlanken noch ladbar sein
-php -r 'require "vendor/autoload.php"; foreach (["horstoeko\\zugferd\\ZugferdDocumentBuilder","Mpdf\\Mpdf","PHPMailer\\PHPMailer\\PHPMailer","setasign\\Fpdi\\Fpdi","Symfony\\Component\\Validator\\Validation"] as $c) { if (!class_exists($c)) { fwrite(STDERR, "Klasse fehlt: $c\n"); exit(1); } } echo "Rauchtest ok\n";'
+# Nur nötige mPDF-Schriften (DejaVu Sans Condensed) und Wörterbücher für Thai/Khmer/Lao entfernen
+find vendor/mpdf/mpdf/ttfonts -type f ! -name 'DejaVuSansCondensed*' ! -name '.htaccess' -delete
+rm -f vendor/mpdf/mpdf/data/linebrdict{K,T,L}.dat
+# ZUGFeRD: nur Profil EN 16931 (auch für XRechnung) bleibt; Schematron/XSLT/Schemas dienen nur der Validierung, die die App nicht nutzt
+Z=vendor/horstoeko/zugferd
+rm -rf "$Z/make" "$Z/build" "$Z/src/schema/xslt" "$Z/src/schema/schematron"
+for p in basic basicwl extended minimum; do rm -rf "$Z/src/entities/$p" "$Z/src/yaml/$p" "$Z/src/validation/$p"; done
+rm -f "$Z"/src/schema/FACTUR-X_{BASIC,BASIC-WL,EXTENDED,MINIMUM}*.xsd
+# Übersetzungen des Symfony-Validators (die App nutzt ihn nicht direkt)
+rm -rf vendor/symfony/validator/Resources/translations
+# Rauchtest: XML (EN16931 + XRechnung), PDF/A-3, Mailer, FPDI müssen nach dem Verschlanken funktionieren
+php build/smoke.php vendor
 rm -f vendor.zip; zip -qr9 vendor.zip vendor
 cp vendor.zip .build/vendor.zip
 
