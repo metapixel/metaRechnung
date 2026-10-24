@@ -1,0 +1,42 @@
+ServerRoot "/etc/apache2"
+ServerName localhost
+PidFile /home/claude/work/sec/apache/apache.pid
+Mutex file:/home/claude/work/sec/apache default
+User www-data
+Group www-data
+Listen 127.0.0.1:8097
+ErrorLog /home/claude/work/sec/apache/error.log
+LogLevel warn
+LogFormat "%h %>s %r" simple
+CustomLog /home/claude/work/sec/apache/access.log simple
+LoadModule mpm_prefork_module /usr/lib/apache2/modules/mod_mpm_prefork.so
+LoadModule authz_core_module /usr/lib/apache2/modules/mod_authz_core.so
+LoadModule authz_host_module /usr/lib/apache2/modules/mod_authz_host.so
+LoadModule access_compat_module /usr/lib/apache2/modules/mod_access_compat.so
+LoadModule dir_module /usr/lib/apache2/modules/mod_dir.so
+LoadModule mime_module /usr/lib/apache2/modules/mod_mime.so
+LoadModule headers_module /usr/lib/apache2/modules/mod_headers.so
+LoadModule rewrite_module /usr/lib/apache2/modules/mod_rewrite.so
+LoadModule setenvif_module /usr/lib/apache2/modules/mod_setenvif.so
+LoadModule alias_module /usr/lib/apache2/modules/mod_alias.so
+LoadModule autoindex_module /usr/lib/apache2/modules/mod_autoindex.so
+LoadModule env_module /usr/lib/apache2/modules/mod_env.so
+LoadModule php_module /usr/lib/apache2/modules/libphp8.3.so
+TypesConfig /etc/mime.types
+AddType application/x-httpd-php .php
+DirectoryIndex index.php index.html
+DocumentRoot /home/claude/work/sec/app
+<Directory />
+  AllowOverride None
+  Require all denied
+</Directory>
+<Directory /home/claude/work/sec/app>
+  AllowOverride All
+  Require all granted
+</Directory>
+<IfModule php_module>
+  php_value upload_max_filesize 8M
+  php_value post_max_size 10M
+  php_flag display_errors off
+  php_value error_log /home/claude/work/sec/apache/php_error.log
+</IfModule>

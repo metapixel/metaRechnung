@@ -1,0 +1,16 @@
+# Geheimnisse und Laufzeitdaten – niemals einchecken
+/config.php
+/config.tmp.php
+/install.unlock
+/storage/*
+!/storage/.htaccess
+!/storage/index.html
+# Abhängigkeiten und Build-Ergebnisse
+/vendor/
+/vendor.zip
+/dist/
+/composer.lock
+*.pdf
+*.eml
+.DS_Store
+*.log
