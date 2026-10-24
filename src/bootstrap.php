@@ -105,6 +105,14 @@ function fdate(?string $d): string
     return $d ? date('d.m.Y', strtotime($d)) : '';
 }
 
+/** Asset-URL mit Versions-/Änderungsstempel: nach jedem Update lädt der Browser neue CSS/JS-Dateien ohne Cache-Leeren. */
+function asset(string $file): string
+{
+    $path = dirname(__DIR__) . '/' . $file;
+    $stamp = APP_VERSION . '-' . (is_file($path) ? (string)filemtime($path) : '0');
+    return BASE . $file . '?v=' . rawurlencode($stamp);
+}
+
 function csrf(): string
 {
     if (empty($_SESSION['csrf'])) {

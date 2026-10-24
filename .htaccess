@@ -24,9 +24,10 @@ ServerSignature Off
 </IfModule>
 
 <IfModule mod_headers.c>
-  <Files "sw.js">
+  # Skripte/Styles immer beim Server auf Änderungen prüfen (ETag), damit Updates sofort wirken
+  <FilesMatch "\.(js|css|webmanifest)$">
     Header set Cache-Control "no-cache"
-  </Files>
+  </FilesMatch>
   Header always set X-Content-Type-Options "nosniff"
   Header always set X-Frame-Options "SAMEORIGIN"
   Header always set Referrer-Policy "same-origin"

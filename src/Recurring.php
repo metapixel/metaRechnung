@@ -210,7 +210,7 @@ final class Recurring
         $allowed = array_keys(self::VARS);
         $bad = [];
         foreach ($items as $it) {
-            $bad = array_merge($bad, self::unknownVars($it['description'], $allowed));
+            $bad = array_merge($bad, self::unknownVars($it['description'], $allowed), self::unknownVars((string)$it['note'], $allowed));
         }
         $bad = array_merge($bad, self::unknownVars((string)$notes, $allowed), self::unknownVars((string)$mail, array_merge($allowed, array_keys(self::MAIL_VARS))));
         if ($bad) {
@@ -232,9 +232,9 @@ final class Recurring
                     ->execute([$name, $cid, $freq, $which, $mode, $next, $anchor, $end, $active, $notes, $mail, $id]);
                 $pdo->prepare('DELETE FROM recurring_items WHERE recurring_id = ?')->execute([$id]);
             }
-            $ins = $pdo->prepare('INSERT INTO recurring_items (recurring_id, pos, description, quantity, unit, unit_price, vat_rate) VALUES (?, ?, ?, ?, ?, ?, ?)');
+            $ins = $pdo->prepare('INSERT INTO recurring_items (recurring_id, pos, description, note, quantity, unit, unit_price, vat_rate) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
             foreach ($items as $n => $r) {
-                $ins->execute([$id, $n + 1, $r['description'], $r['quantity'], $r['unit'], $r['unit_price'], $r['vat_rate']]);
+                $ins->execute([$id, $n + 1, $r['description'], $r['note'], $r['quantity'], $r['unit'], $r['unit_price'], $r['vat_rate']]);
             }
             $pdo->commit();
         } catch (\Throwable $e) {
@@ -253,7 +253,7 @@ final class Recurring
         $v = self::vars($run, $r['frequency'], $r['period'], new \DateTimeImmutable('today'));
         $items = [];
         foreach ($r['items'] as $it) {
-            $items[] = ['description' => self::render($it['description'], $v)] + $it;
+            $items[] = ['description' => self::render($it['description'], $v), 'note' => $it['note'] !== null ? self::render($it['note'], $v) : null] + $it;
         }
         return ['vars' => $v, 'items' => $items, 'notes' => $r['notes'] !== null ? self::render($r['notes'], $v) : null, 'period' => $v['ZEITRAUM']];
     }
@@ -307,9 +307,9 @@ final class Recurring
             $inv = (int)$pdo->lastInsertId();
             $its = $pdo->prepare('SELECT * FROM recurring_items WHERE recurring_id = ? ORDER BY pos');
             $its->execute([$rid]);
-            $ins = $pdo->prepare('INSERT INTO invoice_items (invoice_id, pos, description, quantity, unit, unit_price, vat_rate) VALUES (?, ?, ?, ?, ?, ?, ?)');
+            $ins = $pdo->prepare('INSERT INTO invoice_items (invoice_id, pos, description, note, quantity, unit, unit_price, vat_rate) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
             foreach ($its->fetchAll() as $n => $it) {
-                $ins->execute([$inv, $n + 1, mb_substr(self::render($it['description'], $vars), 0, 500), $it['quantity'], $it['unit'], $it['unit_price'], $it['vat_rate']]);
+                $ins->execute([$inv, $n + 1, mb_substr(self::render($it['description'], $vars), 0, 500), $it['note'] !== null ? mb_substr(self::render($it['note'], $vars), 0, 1000) : null, $it['quantity'], $it['unit'], $it['unit_price'], $it['vat_rate']]);
             }
             $next = self::nextRun($run, $r['frequency'], (int)$r['anchor_day']);
             $finished = $r['end_date'] !== null && $next->format('Y-m-d') > $r['end_date'];

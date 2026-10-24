@@ -39,16 +39,20 @@ final class Articles
         }
         $price = Invoices::numStrict($in['unit_price'] ?? '0', 'Einzelpreis', 1, -9999999.99, 9999999.99);
         $vat = Invoices::numStrict($in['vat_rate'] ?? '19', 'MwSt-Satz', 1, 0.0, 30.0);
-        return ['description' => $desc, 'unit' => $unit, 'unit_price' => $price, 'vat_rate' => $vat];
+        $note = clean(is_string($in['note'] ?? '') ? (string)$in['note'] : '', true);
+        if (mb_strlen($note) > 1000) {
+            throw new \RuntimeException('Die Notiz ist zu lang (höchstens 1000 Zeichen).');
+        }
+        return ['description' => $desc, 'note' => $note !== '' ? $note : null, 'unit' => $unit, 'unit_price' => $price, 'vat_rate' => $vat];
     }
 
     public static function save(?int $id, array $v): int
     {
         if ($id) {
-            db()->prepare('UPDATE articles SET description=:description, unit=:unit, unit_price=:unit_price, vat_rate=:vat_rate WHERE id=:id')->execute($v + ['id' => $id]);
+            db()->prepare('UPDATE articles SET description=:description, note=:note, unit=:unit, unit_price=:unit_price, vat_rate=:vat_rate WHERE id=:id')->execute($v + ['id' => $id]);
             return $id;
         }
-        db()->prepare('INSERT INTO articles (description, unit, unit_price, vat_rate) VALUES (:description, :unit, :unit_price, :vat_rate)')->execute($v);
+        db()->prepare('INSERT INTO articles (description, note, unit, unit_price, vat_rate) VALUES (:description, :note, :unit, :unit_price, :vat_rate)')->execute($v);
         return (int)db()->lastInsertId();
     }
 

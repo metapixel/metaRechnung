@@ -6,7 +6,8 @@
     <tbody>
     <?php foreach ($items as $it): ?>
       <tr>
-        <td><input name="desc[]" aria-label="Beschreibung" value="<?= h($it['description']) ?>" placeholder="Leistung / Artikel"></td>
+        <td><input name="desc[]" aria-label="Beschreibung" value="<?= h($it['description']) ?>" placeholder="Leistung / Artikel">
+          <textarea name="note[]" rows="1" maxlength="1000" class="note" aria-label="Notiz zur Position (optional)" placeholder="Notiz (optional)"><?= h($it['note'] ?? '') ?></textarea></td>
         <td><input name="qty[]" aria-label="Menge" type="number" step="0.001" min="0" value="<?= h(rtrim(rtrim((string)$it['quantity'], '0'), '.') ?: 1) ?>" class="s"></td>
         <td><select name="unit[]" aria-label="Einheit" class="s"><?php foreach (UNITS as $code => $lbl): ?><option value="<?= h($code) ?>" <?= $it['unit'] === $code ? 'selected' : '' ?>><?= h($lbl) ?></option><?php endforeach; ?></select></td>
         <td><input name="price[]" aria-label="Einzelpreis netto in Euro" type="number" step="0.01" value="<?= h($it['unit_price']) ?>" class="s"></td>
@@ -25,7 +26,7 @@
     <select id="addarticle" aria-label="Artikel einfügen">
       <option value="">Artikel einfügen …</option>
       <?php foreach ($articles as $ar): ?>
-      <option value="<?= (int)$ar['id'] ?>" data-desc="<?= h($ar['description']) ?>" data-unit="<?= h($ar['unit']) ?>" data-price="<?= h(number_format((float)$ar['unit_price'], 2, '.', '')) ?>" data-vat="<?= h((float)$ar['vat_rate']) ?>"><?= h(mb_strimwidth($ar['description'], 0, 70, '…')) ?> – <?= h(money((float)$ar['unit_price'])) ?></option>
+      <option value="<?= (int)$ar['id'] ?>" data-desc="<?= h($ar['description']) ?>" data-note="<?= h($ar['note'] ?? '') ?>" data-unit="<?= h($ar['unit']) ?>" data-price="<?= h(number_format((float)$ar['unit_price'], 2, '.', '')) ?>" data-vat="<?= h((float)$ar['vat_rate']) ?>"><?= h(mb_strimwidth($ar['description'], 0, 70, '…')) ?> – <?= h(money((float)$ar['unit_price'])) ?></option>
       <?php endforeach; ?>
     </select>
     <?php else: ?>

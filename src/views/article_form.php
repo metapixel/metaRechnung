@@ -11,6 +11,9 @@ $vat = (float)($a['vat_rate'] ?? 19);
   <label>Bezeichnung * <span class="hint">Dieser Text erscheint als Position auf der Rechnung.</span>
     <input name="description" maxlength="500" value="<?= $val('description') ?>" required autofocus>
   </label>
+  <label>Notiz <span class="hint">(optional) Zusatztext, der unter der Position auf der Rechnung steht. In wiederkehrenden Rechnungen sind Platzhalter wie {ZEITRAUM} möglich.</span>
+    <textarea name="note" rows="3" maxlength="1000"><?= $val('note') ?></textarea>
+  </label>
   <div class="grid3">
     <label>Einheit
       <select name="unit"><?php foreach (UNITS as $code => $lbl): ?><option value="<?= h($code) ?>" <?= $unit === $code ? 'selected' : '' ?>><?= h($lbl) ?></option><?php endforeach; ?></select>

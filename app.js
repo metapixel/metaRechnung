@@ -41,7 +41,7 @@ if ('serviceWorker' in navigator && document.body.dataset.sw) {
     var blank = !last.querySelector('[name="desc[]"]').value.trim() && !last.querySelector('[name="price[]"]').value.trim();
     if (blank) return last;
     var tr = last.cloneNode(true);
-    tr.querySelectorAll('input').forEach(function (i) { i.value = ''; });
+    tr.querySelectorAll('input, textarea').forEach(function (i) { i.value = ''; });
     tr.querySelector('[name="qty[]"]').value = '1';
     body.appendChild(tr);
     return tr;
@@ -60,6 +60,7 @@ if ('serviceWorker' in navigator && document.body.dataset.sw) {
       if (!o || !o.value) return;
       var tr = newRow();
       tr.querySelector('[name="desc[]"]').value = o.dataset.desc || '';
+      var nt = tr.querySelector('[name="note[]"]'); if (nt) nt.value = o.dataset.note || '';
       tr.querySelector('[name="qty[]"]').value = '1';
       tr.querySelector('[name="price[]"]').value = o.dataset.price || '';
       var u = tr.querySelector('[name="unit[]"]'); if (u && o.dataset.unit) u.value = o.dataset.unit;

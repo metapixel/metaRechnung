@@ -21,9 +21,9 @@ if (preg_match('~<h1[^>]*>(.*?)</h1>~s', (string)($content ?? ''), $hm)) {
 <link rel="icon" type="image/svg+xml" href="<?= BASE ?>icons/icon.svg">
 <link rel="icon" type="image/png" href="<?= BASE ?>icons/icon-192.png">
 <link rel="apple-touch-icon" href="<?= BASE ?>icons/icon-192.png">
-<link rel="stylesheet" href="<?= BASE ?>style.css">
+<link rel="stylesheet" href="<?= h(asset('style.css')) ?>">
 </head>
-<body data-kl="<?= \App\Invoices::kleinunternehmer() ? '1' : '0' ?>" data-sw="<?= empty($public) ? h(BASE) . 'sw.js' : '' ?>">
+<body data-kl="<?= \App\Invoices::kleinunternehmer() ? '1' : '0' ?>" data-sw="<?= empty($public) ? h(asset('sw.js')) : '' ?>">
 <a class="skip" href="#main">Zum Inhalt springen</a>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
   <defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4f46e5"/><stop offset="1" stop-color="#7c3aed"/></linearGradient></defs>
@@ -72,6 +72,6 @@ if (preg_match('~<h1[^>]*>(.*?)</h1>~s', (string)($content ?? ''), $hm)) {
   <a class="gh" href="https://github.com/metapixel/metaRechnung" target="_blank" rel="noopener noreferrer" title="metaRechnung auf GitHub" aria-label="metaRechnung auf GitHub"><svg viewBox="0 0 16 16" aria-hidden="true"><use href="#i-github"/></svg></a>
 <?php endif; ?>
 </footer>
-<script src="<?= BASE ?>app.js" defer></script>
+<script src="<?= h(asset('app.js')) ?>" defer></script>
 </body>
 </html>

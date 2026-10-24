@@ -108,8 +108,8 @@ final class Invoices
             $pdo->prepare("INSERT INTO invoices (customer_id, status, issue_date, delivery_date, due_date, notes) VALUES (?, 'draft', CURDATE(), NULL, ?, ?)")
                 ->execute([$src['customer_id'], $due, $src['notes']]);
             $new = (int)$pdo->lastInsertId();
-            $pdo->prepare('INSERT INTO invoice_items (invoice_id, pos, description, quantity, unit, unit_price, vat_rate)
-                           SELECT ?, pos, description, quantity, unit, unit_price, vat_rate FROM invoice_items WHERE invoice_id = ?')
+            $pdo->prepare('INSERT INTO invoice_items (invoice_id, pos, description, note, quantity, unit, unit_price, vat_rate)
+                           SELECT ?, pos, description, note, quantity, unit, unit_price, vat_rate FROM invoice_items WHERE invoice_id = ?')
                 ->execute([$new, $id]);
             $pdo->commit();
             return $new;
@@ -141,7 +141,7 @@ final class Invoices
     /**
      * Liest und prüft die Positionsfelder (desc[], qty[], unit[], price[], vat[]) eines Formulars.
      * Leere Beschreibungen werden übersprungen. Wirft RuntimeException mit Positionsnummer bei Fehlern.
-     * @return list<array{description:string,quantity:float,unit:string,unit_price:float,vat_rate:float}>
+     * @return list<array{description:string,note:?string,quantity:float,unit:string,unit_price:float,vat_rate:float}>
      */
     public static function parseItems(array $in): array
     {
@@ -155,9 +155,15 @@ final class Invoices
             if (mb_strlen($desc) > 500) {
                 throw new \RuntimeException('Position ' . $n . ': Die Beschreibung ist zu lang (höchstens 500 Zeichen).');
             }
+            $noteIn = $in['note'][$k] ?? '';
+            $note = clean(is_string($noteIn) ? $noteIn : '', true);
+            if (mb_strlen($note) > 1000) {
+                throw new \RuntimeException('Position ' . $n . ': Die Notiz ist zu lang (höchstens 1000 Zeichen).');
+            }
             $unitIn = $in['unit'][$k] ?? '';
             $out[] = [
                 'description' => $desc,
+                'note' => $note !== '' ? $note : null,
                 'quantity' => self::numStrict($in['qty'][$k] ?? '1', 'Menge', $n, 0.001, 999999.0),
                 'unit' => is_string($unitIn) && array_key_exists($unitIn, UNITS) ? $unitIn : 'C62',
                 'unit_price' => self::numStrict($in['price'][$k] ?? '0', 'Einzelpreis', $n, -9999999.99, 9999999.99),
@@ -204,9 +210,9 @@ final class Invoices
                     ->execute([(int)$in['customer_id'], $issue, $delivery, $due, $notes, $id]);
                 $pdo->prepare('DELETE FROM invoice_items WHERE invoice_id = ?')->execute([$id]);
             }
-            $ins = $pdo->prepare('INSERT INTO invoice_items (invoice_id, pos, description, quantity, unit, unit_price, vat_rate) VALUES (?, ?, ?, ?, ?, ?, ?)');
+            $ins = $pdo->prepare('INSERT INTO invoice_items (invoice_id, pos, description, note, quantity, unit, unit_price, vat_rate) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
             foreach (self::parseItems($in) as $n => $r) {
-                $ins->execute([$id, $n + 1, $r['description'], $r['quantity'], $r['unit'], $r['unit_price'], $r['vat_rate']]);
+                $ins->execute([$id, $n + 1, $r['description'], $r['note'], $r['quantity'], $r['unit'], $r['unit_price'], $r['vat_rate']]);
             }
             $pdo->commit();
         } catch (\Throwable $e) {

@@ -68,3 +68,32 @@ rec('T15', 'H', 'SQL-Injection über id-Parameter ohne Verzögerung', r.elapsed 
 errs = open(APP + '/../apache/php_error.log').read()
 rec('T16', 'M', 'Keine PHP-Fehler/Warnungen im Log', not re.search(r'Fatal|Uncaught|TypeError|Warning', errs), re.findall(r'.*(?:Fatal|Warning).*', errs)[:2])
 save_results(label + '_part4')
+
+# --- Notizfeld (ab 1.5.2)
+import subprocess, glob
+s = authed()
+r = art('Notiz-Artikel', '10', 'LS', '19', note='Zeile 1\nZeile 2 <b>fett</b> {ZEITRAUM}')
+nid = sql("select max(id) from articles")
+rec('T17', 'M', 'Artikel-Notiz wird gespeichert (Zeilenumbruch, Platzhalter bleibt als Text)', sql(f"select count(*) from articles where id={nid} and note like 'Zeile 1%{{ZEITRAUM}}'") == '1')
+n0 = count(); art('x', '1', note='y' * 1001)
+rec('T18', 'M', 'Notiz über 1000 Zeichen wird abgelehnt', count() == n0)
+form = s.get('/index.php?p=invoice_edit').body
+ed = s.get(f'/index.php?p=article_edit&id={nid}').body
+rec('T19', 'H', 'Notiz maskiert im Rechnungsformular (data-note) und in der Artikelpflege (kein <b> im Markup)', 'data-note="Zeile 1' in form and '<b>fett</b>' not in form and '<b>fett</b>' not in ed and '&lt;b&gt;fett' in ed)
+cid2 = sql('select max(id) from customers')
+r = s.post('/index.php?p=invoice_edit', {'csrf': page_token(s, '/index.php?p=invoice_edit'), 'customer_id': cid2, 'issue_date': '2026-10-24', 'due_date': '2026-11-07', 'desc[]': ['Pos A', 'Pos B'], 'note[]': ['Notiztext A\nzweite Zeile <i>x</i>', ''], 'qty[]': ['1', '1'], 'unit[]': ['C62', 'C62'], 'price[]': ['10', '5'], 'vat[]': ['19', '19']})
+inv = re.search(r'id=(\d+)', r.h('location')).group(1)
+rec('T20', 'M', 'Positionsnotiz wird beim Entwurf gespeichert, leere Notiz → NULL', sql(f"select count(*) from invoice_items where invoice_id={inv} and note like 'Notiztext A%'") == '1' and sql(f"select count(*) from invoice_items where invoice_id={inv} and note is null") == '1')
+r = s.post('/index.php?p=invoice_edit', {'csrf': page_token(s, '/index.php?p=invoice_edit'), 'customer_id': cid2, 'issue_date': '2026-10-24', 'due_date': '2026-11-07', 'desc[]': ['P'], 'note[]': ['z' * 1001], 'qty[]': ['1'], 'unit[]': ['C62'], 'price[]': ['1'], 'vat[]': ['19']})
+rec('T21', 'M', 'Positionsnotiz > 1000 Zeichen wird abgelehnt', sql("select count(*) from invoice_items where note like 'zzzz%'") == '0')
+shown = s.get(f'/index.php?p=invoice&id={inv}').body
+rec('T22', 'H', 'Notiz in der Rechnungsansicht maskiert angezeigt', 'Notiztext A' in shown and '<i>x</i>' not in shown and '&lt;i&gt;x' in shown)
+s.post(f'/index.php?p=invoice&id={inv}', {'action': 'issue', 'csrf': page_token(s, f'/index.php?p=invoice&id={inv}')})
+pdf = s.get(f'/index.php?p=pdf&id={inv}')
+open('/tmp/note_inv.pdf', 'wb').write(pdf.raw)
+txt = subprocess.run(['pdftotext', '/tmp/note_inv.pdf', '-'], capture_output=True, text=True).stdout
+xml = s.get(f'/index.php?p=xrechnung&id={inv}').body
+rec('T23', 'H', 'Notiz erscheint im PDF unter der Position und in der XRechnung (Artikelbeschreibung), maskiert', 'Notiztext A' in txt and 'zweite Zeile' in txt and 'Notiztext A' in xml and '<i>x</i>' not in xml, (len(pdf.raw), 'Notiztext A' in xml))
+dup = s.post(f'/index.php?p=invoice&id={inv}', {'action': 'duplicate', 'csrf': page_token(s, f'/index.php?p=invoice&id={inv}')})
+rec('T24', 'M', 'Duplizieren übernimmt die Positionsnotiz', sql("select count(*) from invoice_items where note like 'Notiztext A%'") == '2', dup.status)
+save_results(label + '_part4b')

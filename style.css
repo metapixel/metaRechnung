@@ -181,3 +181,5 @@ p a, .hint a, .muted a, label a, .flash a { text-decoration:underline; text-unde
 label.check { display:flex; align-items:center; gap:8px; color:inherit; } label.check input { width:auto; }
 @media (max-width:640px) { .varlist { grid-template-columns:1fr; } .varlist dd { margin-bottom:6px; } }
 .preview .hint, .vars .hint { color:var(--fg); }
+
+textarea.note { margin-top:4px; min-height:2.4em; font-size:.88rem; resize:vertical; }

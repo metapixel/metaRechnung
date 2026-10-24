@@ -10,7 +10,7 @@
   <tr><th scope="col">Bezeichnung</th><th scope="col">Einheit</th><th scope="col" class="r">Preis (netto)</th><?php if (!\App\Invoices::kleinunternehmer()): ?><th scope="col" class="r">MwSt</th><?php endif; ?><th scope="col"><span class="sr">Aktionen</span></th></tr>
   <?php foreach ($articles as $a): ?>
   <tr>
-    <td><?= h($a['description']) ?></td>
+    <td><?= h($a['description']) ?><?= !empty($a['note']) ? '<br><span class="muted">' . h(mb_strimwidth((string)$a['note'], 0, 90, '…')) . '</span>' : '' ?></td>
     <td><?= h(UNITS[$a['unit']] ?? '') ?></td>
     <td class="r"><?= h(money((float)$a['unit_price'])) ?></td>
     <?php if (!\App\Invoices::kleinunternehmer()): ?><td class="r"><?= h((float)$a['vat_rate']) ?> %</td><?php endif; ?>

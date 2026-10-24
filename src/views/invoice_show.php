@@ -22,7 +22,7 @@ $post = fn(string $action, string $label, string $cls = '', string $confirm = ''
   <tr><th scope="col">#</th><th scope="col">Beschreibung</th><th scope="col" class="r">Menge</th><th scope="col" class="r">Einzelpreis</th><?php if (!$kl): ?><th scope="col" class="r">MwSt</th><?php endif; ?><th scope="col" class="r">Summe</th></tr>
   <?php foreach ($inv['items'] as $it): ?>
   <tr>
-    <td><?= (int)$it['pos'] ?></td><td><?= h($it['description']) ?></td>
+    <td><?= (int)$it['pos'] ?></td><td><?= h($it['description']) ?><?= !empty($it['note']) ? '<br><span class="muted">' . nl2br(h($it['note'])) . '</span>' : '' ?></td>
     <td class="r"><?= h(rtrim(rtrim(number_format((float)$it['quantity'], 3, ',', ''), '0'), ',')) ?> <?= h(UNITS[$it['unit']] ?? '') ?></td>
     <td class="r"><?= h(money((float)$it['unit_price'])) ?></td>
     <?php if (!$kl): ?><td class="r"><?= h((float)$it['vat_rate']) ?> %</td><?php endif; ?>

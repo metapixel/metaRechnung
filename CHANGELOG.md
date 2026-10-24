@@ -2,6 +2,14 @@
 
 Die aktuelle Versionsnummer steht in der Datei `VERSION` (und unten in der App sowie unter Einstellungen → System).
 
+## 1.5.2
+- **Notizfeld für Artikel und Positionen**: Artikel haben eine optionale Notiz (Artikelpflege); im Rechnungsentwurf gibt es je Position ein Notizfeld, das beim Einfügen eines Artikels vorbelegt wird.
+  Die Notiz steht unter der Beschreibung in der Rechnungsansicht, im PDF und als Artikelbeschreibung in ZUGFeRD/XRechnung (KoSIT-Validator: akzeptiert). Beim Duplizieren wird sie übernommen.
+  In wiederkehrenden Rechnungen gelten die Platzhalter (`{ZEITRAUM}` …) auch in der Notiz; unbekannte Platzhalter werden abgelehnt. Datenbank-Migration v5 läuft automatisch.
+- **Kein Cache-Leeren mehr nach Updates**: CSS/JS/Service-Worker werden mit Versions- und Änderungsstempel eingebunden (`app.js?v=…`), der Server verlangt für JS/CSS eine Prüfung bei jedem Aufruf
+  (`Cache-Control: no-cache`, per ETag billig), und der Service Worker ignoriert den Stempel beim Offline-Cache. Ein normales Neuladen genügt.
+- Installer schreibt die Schema-Version jetzt korrekt (5).
+
 ## 1.5.1
 - **Fix: „Artikel einfügen“ tat nach einem Update nichts.** Der Service Worker lieferte die App-Dateien (`app.js`, `style.css`) immer aus dem Cache, sodass nach einem Update
   weiter das alte Skript lief. Jetzt wird zuerst das Netzwerk gefragt (Cache nur noch offline) und der Cache neu benannt; nach dem Update gilt das sofort.

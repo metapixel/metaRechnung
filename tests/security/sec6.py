@@ -168,6 +168,16 @@ rec('R28', 'M', 'Vorlage löschen entfernt Positionen mit, erzeugte Rechnungen b
 form = s.get('/index.php?p=recurring_edit').body
 lst = s.get('/index.php?p=recurring').body
 rec('R29', 'L', 'Formular und Liste rendern (Platzhalterhilfe, Cron-Anleitung mit Token), Seitentitel gesetzt', '{ZEITRAUM}' in form and 'cron.php?token=' in lst and '<title>Wiederkehrende Rechnungen' in lst)
+n0 = nrec(); rpost(**{'note[]': ['Hinweis {QUARTALL}']})
+rec('R32', 'H', 'Unbekannter Platzhalter in der Positionsnotiz wird abgelehnt', nrec() == n0)
+sql('delete from invoices')
+rpost(name='Mit Notiz', **{'note[]': ['Leistung im {ZEITRAUM} ({ZEITRAUM_VON} – {ZEITRAUM_BIS}) <b>x</b>']}); rn = last_id()
+sql(f"update recurring set next_run='{tdy}', anchor_day={today.day} where id={rn}"); cli()
+nt = sql('select note from invoice_items where invoice_id=(select max(id) from invoices)')
+rec('R33', 'H', 'Platzhalter in der Positionsnotiz werden beim Erzeugen ersetzt (Text bleibt unmaskiert gespeichert, Ausgabe maskiert)', re.match(r'Leistung im \w+ \d{4} \(01\.\d\d\.\d{4} – \d\d\.\d\d\.\d{4}\) <b>x</b>$', nt) is not None and '<b>x</b>' not in s.get('/index.php?p=invoice&id=' + sql('select max(id) from invoices')).body, nt)
+pvn = s.get(f'/index.php?p=recurring_edit&id={rn}').body
+rec('R34', 'L', 'Vorschau im Formular zeigt die aufgelöste Notiz', 'Leistung im ' in pvn.split('Vorschau der n')[-1] and '{ZEITRAUM}' not in pvn.split('Vorschau der n')[-1])
+sql(f'delete from recurring where id={rn}')
 rpost(name='Vorschau', frequency='quarter'); pid = last_id()
 pv = s.get(f'/index.php?p=recurring_edit&id={pid}').body
 rec('R31', 'L', 'Vorschau im Formular zeigt Termin und aufgelösten Zeitraum', re.search(r'Erstellung am \d\d\.\d\d\.\d{4}, Zeitraum \d\. Quartal \d{4}', pv) is not None and 'Hosting {ZEITRAUM}' not in pv.split('Vorschau der n')[-1])

@@ -89,7 +89,7 @@ final class Einvoice
         foreach ($inv['items'] as $n => $it) {
             $rate = $kl ? 0.0 : (float)$it['vat_rate'];
             $d->addNewPosition((string)($n + 1));
-            $d->setDocumentPositionProductDetails($it['description']);
+            $d->setDocumentPositionProductDetails($it['description'], !empty($it['note']) ? (string)$it['note'] : null);
             $d->setDocumentPositionNetPrice((float)$it['unit_price']);
             $d->setDocumentPositionQuantity((float)$it['quantity'], $it['unit']);
             $d->addDocumentPositionTax($kl ? 'E' : ($rate === 0.0 ? 'Z' : 'S'), 'VAT', $rate);

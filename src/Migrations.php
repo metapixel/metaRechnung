@@ -10,7 +10,7 @@ namespace App;
 /** Schema-Updates für bestehende Installationen (läuft automatisch, einmalig). */
 final class Migrations
 {
-    public const VERSION = 4;
+    public const VERSION = 5;
 
     public static function run(): void
     {
@@ -70,6 +70,17 @@ final class Migrations
                 Config::save(['CRON_TOKEN' => bin2hex(random_bytes(20))]);
             } catch (\Throwable $e) {
                 // config.php nicht beschreibbar: Token kann später in „Wiederkehrend“ erzeugt werden
+            }
+        }
+
+        // v5: Notiz je Artikel/Position (Zusatztext unter der Beschreibung)
+        foreach (['articles', 'invoice_items', 'recurring_items'] as $t) {
+            try {
+                $pdo->exec('ALTER TABLE ' . $t . ' ADD COLUMN note TEXT NULL AFTER description');
+            } catch (\PDOException $e) {
+                if ((int)($e->errorInfo[1] ?? 0) !== 1060) {
+                    throw $e;
+                }
             }
         }
 

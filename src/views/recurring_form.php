@@ -53,7 +53,7 @@ $pv = $r ? \App\Recurring::preview($r) : null;
   <?php $articles = $articles ?? []; require __DIR__ . '/_items.php'; ?>
 
   <details class="vars" open>
-    <summary>Platzhalter für Positionen und Hinweistext</summary>
+    <summary>Platzhalter für Positionen, Notizen und Hinweistext</summary>
     <p class="hint">Beim Erstellen jeder Rechnung wird <code>{NAME}</code> durch den Wert des Abrechnungszeitraums ersetzt. Beispiel: „Hosting {ZEITRAUM}“ wird zu „Hosting Oktober 2026“.</p>
     <dl class="varlist">
       <?php foreach (\App\Recurring::VARS as $k => $d): ?><dt><code>{<?= h($k) ?>}</code></dt><dd><?= h($d) ?></dd><?php endforeach; ?>
@@ -71,7 +71,7 @@ $pv = $r ? \App\Recurring::preview($r) : null;
   <?php if ($pv): ?>
   <div class="preview" role="note">
     <b>Vorschau der nächsten Rechnung</b> (Erstellung am <?= h(fdate($r['next_run'])) ?>, Zeitraum <?= h($pv['period']) ?>, <?= h($pv['vars']['ZEITRAUM_VON']) ?> – <?= h($pv['vars']['ZEITRAUM_BIS']) ?>):
-    <ul><?php foreach ($pv['items'] as $it): ?><li><?= h($it['description']) ?></li><?php endforeach; ?></ul>
+    <ul><?php foreach ($pv['items'] as $it): ?><li><?= h($it['description']) ?><?= !empty($it['note']) ? '<br><span class="muted">' . nl2br(h($it['note'])) . '</span>' : '' ?></li><?php endforeach; ?></ul>
     <?php if ($pv['notes']): ?><p><?= nl2br(h($pv['notes'])) ?></p><?php endif; ?>
     <p class="hint">Die Vorschau zeigt den zuletzt gespeicherten Stand.</p>
   </div>

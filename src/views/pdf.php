@@ -50,7 +50,7 @@
   <?php foreach ($inv['items'] as $it): ?>
   <tr>
     <td><?= (int)$it['pos'] ?></td>
-    <td><?= h($it['description']) ?></td>
+    <td><?= h($it['description']) ?><?= !empty($it['note']) ? '<br><span class="small">' . nl2br(h($it['note'])) . '</span>' : '' ?></td>
     <td class="r"><?= h(rtrim(rtrim(number_format((float)$it['quantity'], 3, ',', ''), '0'), ',')) ?> <?= h(UNITS[$it['unit']] ?? '') ?></td>
     <td class="r"><?= h(money((float)$it['unit_price'])) ?></td>
     <?php if (!$kl): ?><td class="r"><?= h(rtrim(rtrim(number_format((float)$it['vat_rate'], 2, ',', ''), '0'), ',')) ?> %</td><?php endif; ?>
