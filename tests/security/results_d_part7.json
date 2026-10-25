@@ -1,0 +1,114 @@
+[
+ {
+  "id": "D1",
+  "sev": "H",
+  "title": "Anonym: Editor-Seite nicht erreichbar, Speichern wirkungslos",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "D2",
+  "sev": "H",
+  "title": "Speichern ohne CSRF-Token → 400, nichts gespeichert",
+  "ok": true,
+  "detail": "400"
+ },
+ {
+  "id": "D3",
+  "sev": "H",
+  "title": "Gültiges CSS (Kommentar/Zeichenkette mit Klammern, > Kombinator) wird gespeichert",
+  "ok": true,
+  "detail": "302"
+ },
+ {
+  "id": "D4",
+  "sev": "M",
+  "title": "Eigenes CSS erscheint auf allen Seiten genau einmal im <style id=\"custom-css\">, nach style.css",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "D5",
+  "sev": "M",
+  "title": "Auch Login- und öffentliche Statusseite übernehmen das CSS (Branding für Kunden)",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "D6",
+  "sev": "M",
+  "title": "Notausgang ?nocss=1 blendet das eigene CSS aus (auch auf der Editor-Seite bleibt die Seite benutzbar)",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "D7",
+  "sev": "H",
+  "title": "Ausbruch aus <style>, <, @import, expression, javascript:, -moz-binding, unausgeglichene Klammern/Kommentare, >50 KB werden abgelehnt (Datei unverändert)",
+  "ok": true,
+  "detail": "[]"
+ },
+ {
+  "id": "D8",
+  "sev": "M",
+  "title": "Array statt String als css → kein 500, Datei unverändert",
+  "ok": true,
+  "detail": "302"
+ },
+ {
+  "id": "D9",
+  "sev": "M",
+  "title": "Steuerzeichen/NUL werden entfernt",
+  "ok": true,
+  "detail": "'a{color:red}b{color:blue}\\n'"
+ },
+ {
+  "id": "D10",
+  "sev": "H",
+  "title": "Editor-Seite: CSP unverändert streng (script-src 'self'), keine Inline-Skripte, Editor-Skript lokal eingebunden",
+  "ok": true,
+  "detail": "(\"default-src 'self'; script-src 'self'; style-src 'self' 'uns\", [])"
+ },
+ {
+  "id": "D11",
+  "sev": "L",
+  "title": "Editor-Skript wird ausgeliefert (JavaScript, nosniff, no-cache) und enthält nur den CSS-Modus",
+  "ok": true,
+  "detail": "(200, 'text/javascript', 347529)"
+ },
+ {
+  "id": "D12",
+  "sev": "H",
+  "title": "storage/custom.css nicht direkt abrufbar",
+  "ok": true,
+  "detail": "403"
+ },
+ {
+  "id": "D13",
+  "sev": "H",
+  "title": "Zurücksetzen ohne CSRF-Token → 400; GET setzt nichts zurück",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "D14",
+  "sev": "M",
+  "title": "Zurücksetzen mit Token löscht die Datei, Seiten ohne eigenes <style>",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "D15",
+  "sev": "L",
+  "title": "Leeres CSS speichern entfernt die Datei ebenfalls",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "D16",
+  "sev": "M",
+  "title": "Keine PHP-Fehler/Warnungen im Log",
+  "ok": true,
+  "detail": "[]"
+ }
+]

@@ -183,3 +183,14 @@ label.check { display:flex; align-items:center; gap:8px; color:inherit; } label.
 .preview .hint, .vars .hint { color:var(--fg); }
 
 textarea.note { margin-top:4px; min-height:2.4em; font-size:.88rem; resize:vertical; }
+
+/* CSS-Editor (CodeMirror) */
+.cm-editor { border:1px solid var(--line); border-radius:var(--r-s); background:var(--field); color:var(--fg); font-size:.9rem; margin-top:6px; }
+.cm-editor.cm-focused { outline:3px solid var(--pri); outline-offset:1px; }
+.cm-editor .cm-scroller { font-family:ui-monospace,Consolas,monospace; line-height:1.5; min-height:22rem; overflow:visible; }   /* kein eigener Scrollbereich: Seite scrollt (Barrierefreiheit) */
+.cm-content { padding:8px 0; caret-color:var(--fg); }
+.cm-gutters { background:transparent; color:var(--mut); border-right:1px solid var(--line); }
+.cm-activeLine, .cm-activeLineGutter { background:var(--pri-soft); }
+.cm-cursor { border-left:2px solid var(--fg); }
+.cm-selectionBackground { background:color-mix(in srgb, var(--pri) 28%, transparent) !important; }
+@media (forced-colors:active) { .cm-editor.cm-focused { outline-color:Highlight; } }

@@ -1,0 +1,15 @@
+{
+  "name": "metarechnung-editor",
+  "private": true,
+  "description": "Baut assets/css-editor.js (CodeMirror 6, nur CSS-Modus). Aufruf: npm install && npm run build",
+  "scripts": { "build": "esbuild src.js --bundle --minify --format=iife --legal-comments=none --outfile=../../assets/css-editor.js" },
+  "dependencies": {
+    "@codemirror/commands": "^6.6.0",
+    "@codemirror/lang-css": "^6.2.1",
+    "@codemirror/language": "^6.10.0",
+    "@codemirror/state": "^6.4.0",
+    "@codemirror/view": "^6.28.0",
+    "@lezer/highlight": "^1.2.0"
+  },
+  "devDependencies": { "esbuild": "^0.21.0" }
+}

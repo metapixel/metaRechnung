@@ -2,6 +2,14 @@
 
 Die aktuelle Versionsnummer steht in der Datei `VERSION` (und unten in der App sowie unter Einstellungen → System).
 
+## 1.6.0
+- **CSS-Editor für die Oberfläche** (Einstellungen → „CSS-Editor öffnen“): CodeMirror 6 (nur CSS-Modus, lokal ausgeliefert, ~340 KB, wird nur auf dieser Seite geladen) mit Syntaxhervorhebung,
+  Zeilennummern und **Live-Vorschau** direkt auf der Seite. „Vorlage einfügen“ zeigt die verfügbaren Design-Variablen (`--pri`, `--bg`, `--card`, `--r` …, auch für den dunklen Modus).
+  Gespeichert wird in `storage/custom.css`; das CSS gilt für alle Seiten inkl. Login und Kunden-Statusseite. Zurücksetzen auf das Standard-Design jederzeit möglich.
+- **Sicherheit/Bedienung:** Prüfung beim Speichern (kein `<`, kein `@import`/`expression`/`javascript:`, ausgeglichene Klammern, max. 50 KB), Content-Security-Policy unverändert,
+  Notausgang `?nocss=1`. Tab verlässt den Editor (keine Tastaturfalle), Editor ist beschriftet und besteht die axe-Prüfung.
+- Der Editor lässt sich mit `cd build/editor && npm install && npm run build` neu bauen. Neue Tests `sec7`.
+
 ## 1.5.4
 - **Schlankeres `vendor/`**: Das Release-Skript entfernt nicht benötigte Teile der Bibliotheken – ungenutzte ZUGFeRD-Profile samt Schematron/XSLT-Validierungsdateien, nicht verwendete mPDF-Schriften und
   Thai/Khmer-Wörterbücher, Validator-Übersetzungen. Ergebnis: **20 MB statt 37 MB** auf dem Server, `vendor.zip` **4,5 MB statt 8 MB**; Funktionsumfang unverändert.

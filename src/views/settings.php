@@ -61,6 +61,8 @@ if ($co['vat_id'] === '' && $co['tax_number'] === '') { $miss[] = 'Steuernummer 
   <button class="btn primary">Einstellungen speichern</button>
 </form>
 
+<div class="card"><h2>Darstellung</h2><p class="muted">Eigenes CSS für die Oberfläche (Farben, Rundungen, Schriftgröße) mit Editor und Live-Vorschau.</p><a class="btn" href="<?= BASE ?>?p=design">CSS-Editor öffnen</a></div>
+
 <?php $lh = \App\Letterhead::info(); $lv = fn(string $k, float $d) => h($lh[$k] ?? $d); ?>
 <div class="card">
   <h2>Briefpapier</h2>

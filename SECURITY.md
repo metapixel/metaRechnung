@@ -65,4 +65,5 @@ Siehe `tests/security/README.md`. Die Tests laufen nur gegen eine **eigene Testi
 - **Mail-Anhänge** (`sec3`): Endungs-Allowlist, Inhaltsprüfung, Größenlimits, bereinigte Dateinamen, keine Speicherung.
 - **Logo** (`sec5`): nur PNG/JPG (kein SVG), Typ am Inhalt erkannt, Bild wird neu kodiert (Anhänge/PHP-Code/Metadaten fallen weg), Dateiname serverseitig, Ordner per `.htaccess` gesperrt.
 - **cron.php** (`sec6`): per Kommandozeile ohne Token, per HTTP nur mit geheimem 160-Bit-Token (`hash_equals`, Fehlversuche je IP begrenzt → 429, Token erneuerbar/abschaltbar); Läufe sind durch Dateisperre und Datenbank-Zeilensperre gegen Doppelausführung geschützt.
+- **Eigenes CSS** (`sec7`): nur für angemeldete Nutzer mit CSRF-Token; abgelehnt werden `<` (kein Ausbruch aus `<style>`), `@import`, `expression()`, `javascript:`, unausgeglichene Klammern und > 50 KB. Die CSP bleibt unverändert (kein Inline-Skript, externe Ressourcen weiter gesperrt); Editor-Skript wird lokal ausgeliefert. Notausgang `?nocss=1`.
 - **Platzhalter** sind eine feste Allowlist (kein Code, keine Rekursion); unbekannte Platzhalter werden beim Speichern abgelehnt.

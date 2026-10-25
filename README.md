@@ -30,7 +30,8 @@ Für die Entwicklung genügt `composer install` im Projektordner und ein lokaler
 | `src/` | Klassen (`Invoices`, `Einvoice`, `Mailer`, `Letterhead`, `RateLimit`, …) und Views |
 | `install.php` | Einmal-Installer (löscht sich selbst) |
 | `storage/` | Laufzeitdaten (PDFs, Briefpapier, Zähler) – nicht im Repository, per `.htaccess` gesperrt |
-| `tests/security/` | Dynamische Sicherheitstests (`sec1`–`sec6`, Python, laufende Test-Instanz) |
+| `assets/css-editor.js` | CSS-Editor (CodeMirror 6, vorgebaut; Quelle und Build-Anleitung in `build/editor/`) |
+| `tests/security/` | Dynamische Sicherheitstests (`sec1`–`sec7`, Python, laufende Test-Instanz) |
 | `tests/unit/` | Logik-Tests ohne Datenbank (`php tests/unit/recurring_test.php`) |
 | `tests/a11y/` | Barrierefreiheits-Prüfung mit axe-core (WCAG 2.2 AA) |
 | `build/` | Paketbau |

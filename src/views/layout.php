@@ -1,6 +1,6 @@
 <?php
 $cur = (string)($_GET['p'] ?? 'invoices');
-$cur = ['invoice' => 'invoices', 'invoice_edit' => 'invoices', 'customer_edit' => 'customers', 'article_edit' => 'articles', 'recurring_edit' => 'recurring'][$cur] ?? $cur;
+$cur = ['invoice' => 'invoices', 'invoice_edit' => 'invoices', 'customer_edit' => 'customers', 'article_edit' => 'articles', 'recurring_edit' => 'recurring', 'design' => 'settings'][$cur] ?? $cur;
 $nav = fn(string $p, string $label, string $icon) =>
     '<a href="' . h(BASE) . '?p=' . $p . '"' . ($cur === $p ? ' class="active" aria-current="page"' : '') . '><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-' . $icon . '"/></svg>' . h($label) . '</a>';
 $brand = '<svg class="logo" viewBox="0 0 512 512" aria-hidden="true"><use href="#logo"/></svg><span class="nm"><i>meta</i><b>Rechnung</b></span>';
@@ -22,6 +22,9 @@ if (preg_match('~<h1[^>]*>(.*?)</h1>~s', (string)($content ?? ''), $hm)) {
 <link rel="icon" type="image/png" href="<?= BASE ?>icons/icon-192.png">
 <link rel="apple-touch-icon" href="<?= BASE ?>icons/icon-192.png">
 <link rel="stylesheet" href="<?= h(asset('style.css')) ?>">
+<?php if (\App\Theme::active() && ($customCss = \App\Theme::get()) !== ''): ?><style id="custom-css"><?= str_replace('<', '', $customCss) ?></style>
+<?php elseif (($_GET['p'] ?? '') === 'design'): ?><style id="custom-css"></style>
+<?php endif; ?>
 </head>
 <body data-kl="<?= \App\Invoices::kleinunternehmer() ? '1' : '0' ?>" data-sw="<?= empty($public) ? h(asset('sw.js')) : '' ?>">
 <a class="skip" href="#main">Zum Inhalt springen</a>

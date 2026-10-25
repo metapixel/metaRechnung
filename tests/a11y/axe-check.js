@@ -16,7 +16,7 @@ const B = process.env.A11Y_URL || 'http://127.0.0.1:8097/';
     };
     await p.goto(B); await scan('login');
     await p.fill('[name=user]', process.env.A11Y_USER || 'kai'); await p.fill('[name=pass]', process.env.A11Y_PASS || ''); await Promise.all([p.waitForNavigation(), p.click('button.primary')]);
-    for (const q of ['invoices', 'invoice_edit', 'customers', 'customer_edit', 'articles', 'article_edit', 'settings', 'invoice&id=1', 'recurring', 'recurring_edit', 'recurring_edit&id=' + (process.env.A11Y_RID || '1')]) { await p.goto(B + '?p=' + q); await scan(q); }
+    for (const q of ['invoices', 'invoice_edit', 'customers', 'customer_edit', 'articles', 'article_edit', 'settings', 'invoice&id=1', 'recurring', 'design', 'recurring_edit', 'recurring_edit&id=' + (process.env.A11Y_RID || '1')]) { await p.goto(B + '?p=' + q); await scan(q); }
     await ctx.close();
   }
   await b.close(); process.exit(bad ? 1 : 0);

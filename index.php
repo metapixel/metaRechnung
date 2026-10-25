@@ -16,6 +16,7 @@ use App\Attachments;
 use App\Logo;
 use App\Mailer;
 use App\RateLimit;
+use App\Theme;
 use App\Recurring;
 
 $p = $_GET['p'] ?? 'invoices';
@@ -153,6 +154,21 @@ try {
                 redirect(BASE . '?p=articles');
             }
             render('article_form', ['a' => $a]);
+            break;
+
+        case 'design':
+            if ($post) {
+                $a = $_POST['action'] ?? 'save';
+                if ($a === 'reset') {
+                    Theme::reset();
+                    flash('Eigenes CSS entfernt – das Standard-Design ist wieder aktiv.');
+                } else {
+                    Theme::save(Theme::validate($_POST['css'] ?? ''));
+                    flash('Gespeichert. Das eigene CSS gilt jetzt für alle Seiten.');
+                }
+                redirect(BASE . '?p=design');
+            }
+            render('design', ['css' => Theme::get()]);
             break;
 
         case 'recurring':

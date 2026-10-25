@@ -82,3 +82,22 @@ if ('serviceWorker' in navigator && document.body.dataset.sw) {
   body.addEventListener('input', recalc);
   recalc();
 })();
+
+// CSS-Editor (Seite „Darstellung“): CodeMirror ersetzt die Textarea, Änderungen wirken sofort als Vorschau
+(function () {
+  var ta = document.querySelector('textarea[data-css-editor]');
+  if (!ta) return;
+  var live = document.getElementById('custom-css');
+  function preview(v) { if (live) live.textContent = v; }
+  var ed = null;
+  if (typeof window.metaCssEditor === 'function') ed = window.metaCssEditor(ta, preview);
+  ta.addEventListener('input', function () { preview(ta.value); });
+  var btn = document.getElementById('css-insert'), tpl = document.getElementById('css-template');
+  if (btn && tpl) btn.addEventListener('click', function () {
+    var cur = ta.value.trim();
+    var next = cur ? tpl.content.textContent + '\n\n' + cur : tpl.content.textContent;
+    if (ed) ed.set(next); else { ta.value = next; }
+    preview(next);
+    if (ed) ed.focus(); else ta.focus();
+  });
+})();

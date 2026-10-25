@@ -58,6 +58,8 @@ Unter **Einstellungen → Briefpapier** kannst du ein A4-Briefpapier hochladen: 
   **Cronjob einrichten** (im Hosting-Panel, einmal täglich): `php /pfad/zur/installation/cron.php` oder, wenn nur URLs möglich sind,
   `wget -q -O /dev/null "https://deine-domain.de/rechnung/cron.php?token=…"` (das Token steht im Menü „Wiederkehrend“ und lässt sich dort erneuern oder abschalten).
   Ein Zeitraum wird nie doppelt abgerechnet; versäumte Läufe werden nachgeholt. Fehler beim Ausstellen/Versand stehen in der Liste.
+- **Eigenes CSS:** Unter Einstellungen → „CSS-Editor öffnen“ lässt sich das Aussehen der Oberfläche anpassen (Farben über CSS-Variablen, Rundungen, Schriftgröße) – mit Syntaxhervorhebung und Live-Vorschau. Das CSS wird in `storage/custom.css` gespeichert und gilt auch für Login- und Kunden-Statusseite.
+  Falls ein CSS die Seite unbenutzbar macht: `&nocss=1` an die Adresse anhängen (z. B. `?p=design&nocss=1`), dann ist es abgeschaltet und lässt sich korrigieren oder zurücksetzen.
 - **Barrierefreiheit:** Tastaturbedienung mit „Zum Inhalt springen“-Link, sprechende Seitentitel, beschriftete Formularfelder und Tabellen, Fokus- und Kontrast-Stile (WCAG 2.2 AA mit axe-core geprüft).
 - **PDF-Vorschau:** Entwürfe lassen sich vor dem Ausstellen als PDF ansehen (Nummer „ENTWURF“, nichts wird gespeichert).
 - **Duplizieren:** Button „Als neue Rechnung duplizieren“ legt einen Entwurf mit Kunde, Positionen und Hinweistext an.

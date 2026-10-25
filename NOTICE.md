@@ -16,6 +16,7 @@ Die Installationspakete enthalten unter `vendor/` folgende Bibliotheken mit ihre
 | jms/serializer, jms/metadata, doctrine/*, goetas-webservices/xsd2php-runtime | MIT |
 | smalot/pdfparser | LGPL-3.0 |
 | psr/*, myclabs/deep-copy, phpstan/phpdoc-parser, paragonie/random_compat | MIT |
+| CodeMirror 6 (`@codemirror/*`, `@lezer/*`; vorgebaut in `assets/css-editor.js`, Quelle in `build/editor/`) | MIT |
 | DejaVu-Schriften (in mPDF) | freie Bitstream-Vera-/DejaVu-Lizenz |
 
 Hinweis: mPDF steht unter GPL-2.0-only. Das Gesamtpaket (Anwendung + mPDF) wird deshalb unter GPL-2.0 verbreitet; wer es weitergibt, muss den Quellcode
