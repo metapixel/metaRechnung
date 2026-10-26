@@ -132,6 +132,8 @@ final class Einvoice
         $lh = Letterhead::info();
         $hideSender = $lh !== null && $lh['hideSender'];
         $hideFooter = $lh !== null && $lh['hideFooter'];
+        $design = PdfDesign::sanitize($inv['design'] ?? PdfDesign::current());
+        $inv['design'] = $design;
 
         try {
             $mpdf = new Mpdf([
@@ -139,7 +141,7 @@ final class Einvoice
                 'margin_left' => $lh['ml'] ?? 20, 'margin_right' => $lh['mr'] ?? 20,
                 'margin_top' => $lh['mt'] ?? 18, 'margin_bottom' => $lh['mb'] ?? 18,
                 'tempDir' => $tmp,
-                'default_font' => 'dejavusanscondensed', 'default_font_size' => 9.5,
+                'default_font' => $design['font'], 'default_font_size' => PdfDesign::fontSize($design),
                 'PDFA' => true, 'PDFAauto' => true, 'PDFAversion' => '3-B',
             ]);
             $mpdf->SetTitle('Rechnung ' . $inv['number']);
@@ -152,6 +154,9 @@ final class Einvoice
                 'path' => $xmlFile,
             ]]);
             $mpdf->SetAdditionalXmpRdf(self::xmpRdf());
+            if ($design['pagenum']) {
+                $mpdf->SetHTMLFooter('<div style="text-align:right; font-size:7.5pt; color:#555">Seite {PAGENO} von {nbpg}</div>');
+            }
             if ($lh !== null) {
                 if ($lh['type'] === 'pdf') {
                     $mpdf->SetDocTemplate($lh['path'], true);   // letzte Briefpapier-Seite wird für Folgeseiten wiederholt

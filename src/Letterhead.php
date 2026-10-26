@@ -157,12 +157,13 @@ final class Letterhead
     }
 
     /** Beispielrechnung für die Vorschau. */
-    public static function sampleInvoice(): array
+    public static function sampleInvoice(?array $design = null): array
     {
         $kl = Invoices::kleinunternehmer();
         $items = [
             ['pos' => 1, 'description' => 'Beispielleistung A', 'quantity' => '2', 'unit' => 'HUR', 'unit_price' => '85.00', 'vat_rate' => '19'],
-            ['pos' => 2, 'description' => 'Beispielartikel B', 'quantity' => '1', 'unit' => 'C62', 'unit_price' => '49.90', 'vat_rate' => '19'],
+            ['pos' => 2, 'description' => 'Beispielartikel B', 'quantity' => '1', 'unit' => 'C62', 'unit_price' => '49.90', 'vat_rate' => '19', 'note' => 'Mit Notiz zur Position'],
+            ['pos' => 3, 'description' => 'Beispielleistung C mit etwas längerer Beschreibung', 'quantity' => '3', 'unit' => 'C62', 'unit_price' => '12.00', 'vat_rate' => '19'],
         ];
         $inv = [
             'number' => 'VORSCHAU', 'issue_date' => date('Y-m-d'), 'delivery_date' => date('Y-m-d'),
@@ -171,6 +172,7 @@ final class Letterhead
             'c_street' => 'Beispielweg 1', 'c_zip' => '12345', 'c_city' => 'Beispielstadt', 'c_country' => 'DE',
             'c_vat_id' => null, 'c_buyer_ref' => null, 'items' => $items, 'co' => company(), 'kl' => $kl,
         ];
+        $inv['design'] = $design ?? PdfDesign::current();
         $inv['totals'] = Invoices::totals($items, $kl);
         return $inv;
     }

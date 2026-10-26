@@ -1,6 +1,6 @@
 <?php
 $cur = (string)($_GET['p'] ?? 'invoices');
-$cur = ['invoice' => 'invoices', 'invoice_edit' => 'invoices', 'customer_edit' => 'customers', 'article_edit' => 'articles', 'recurring_edit' => 'recurring', 'design' => 'settings'][$cur] ?? $cur;
+$cur = ['invoice' => 'invoices', 'invoice_edit' => 'invoices', 'customer_edit' => 'customers', 'article_edit' => 'articles', 'recurring_edit' => 'recurring', 'design' => 'settings', 'pdf_design' => 'settings'][$cur] ?? $cur;
 $nav = fn(string $p, string $label, string $icon) =>
     '<a href="' . h(BASE) . '?p=' . $p . '"' . ($cur === $p ? ' class="active" aria-current="page"' : '') . '><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-' . $icon . '"/></svg>' . h($label) . '</a>';
 $brand = '<svg class="logo" viewBox="0 0 512 512" aria-hidden="true"><use href="#logo"/></svg><span class="nm"><i>meta</i><b>Rechnung</b></span>';

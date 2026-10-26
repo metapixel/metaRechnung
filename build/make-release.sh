@@ -12,8 +12,8 @@ composer audit --no-dev || { echo "composer audit meldet Sicherheitslücken – 
 # vendor/ verschlanken: Tests, Doku, Git-Reste, nicht benötigte mPDF-Schriften (nur DejaVu bleibt)
 find vendor -type d \( -iname tests -o -iname test -o -iname docs -o -iname doc -o -iname examples -o -name .git \) -prune -exec rm -rf {} +
 find vendor -type f \( -name '*.md' -o -name 'phpunit*' -o -name '.gitattributes' -o -name '.gitignore' -o -name '*.dist' \) -delete
-# Nur nötige mPDF-Schriften (DejaVu Sans Condensed) und Wörterbücher für Thai/Khmer/Lao entfernen
-find vendor/mpdf/mpdf/ttfonts -type f ! -name 'DejaVuSansCondensed*' ! -name '.htaccess' -delete
+# Nur nötige mPDF-Schriften (DejaVu Sans, Sans Condensed, Serif Condensed) und Wörterbücher für Thai/Khmer/Lao entfernen
+find vendor/mpdf/mpdf/ttfonts -type f ! -name 'DejaVuSans.ttf' ! -name 'DejaVuSans-*' ! -name 'DejaVuSansCondensed*' ! -name 'DejaVuSerifCondensed*' ! -name '.htaccess' -delete
 rm -f vendor/mpdf/mpdf/data/linebrdict{K,T,L}.dat
 # ZUGFeRD: nur Profil EN 16931 (auch für XRechnung) bleibt; Schematron/XSLT/Schemas dienen nur der Validierung, die die App nicht nutzt
 Z=vendor/horstoeko/zugferd

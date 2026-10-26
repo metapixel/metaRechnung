@@ -5,6 +5,8 @@ document.addEventListener('submit', function (e) {
 });
 document.addEventListener('click', function (e) {
   if (e.target.hasAttribute && e.target.hasAttribute('data-select')) e.target.select();
+  var fill = e.target.closest && e.target.closest('[data-fill]');
+  if (fill) { var f = document.getElementById(fill.getAttribute('data-fill')); if (f) { f.value = fill.getAttribute('data-value'); f.dispatchEvent(new Event('input', {bubbles: true})); } }
 });
 if ('serviceWorker' in navigator && document.body.dataset.sw) {
   navigator.serviceWorker.register(document.body.dataset.sw);

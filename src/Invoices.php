@@ -75,6 +75,8 @@ final class Invoices
         $snap = $inv['snapshot'] ? json_decode((string)$inv['snapshot'], true) : null;
         $inv['co'] = $snap['company'] ?? company();
         $inv['kl'] = (bool)($snap['kl'] ?? self::kleinunternehmer());
+        // Gestaltung: Entwürfe zeigen die aktuelle, ausgestellte Rechnungen die beim Ausstellen eingefrorene (ältere: das bisherige Aussehen)
+        $inv['design'] = $snap !== null ? PdfDesign::sanitize($snap['design'] ?? PdfDesign::legacy()) : PdfDesign::current();
         $inv['totals'] = self::totals($inv['items'], $inv['kl']);
         return $inv;
     }
@@ -245,7 +247,7 @@ final class Invoices
             $st->execute([$prefix . '%']);
             $number = $prefix . str_pad((string)((int)$st->fetchColumn() + 1), 4, '0', STR_PAD_LEFT);
 
-            $snap = json_encode(['company' => company(), 'kl' => self::kleinunternehmer()], JSON_UNESCAPED_UNICODE);
+            $snap = json_encode(['company' => company(), 'kl' => self::kleinunternehmer(), 'design' => PdfDesign::current()], JSON_UNESCAPED_UNICODE);
             $pdo->prepare("UPDATE invoices SET number = ?, status = 'issued', snapshot = ?, public_token = ? WHERE id = ?")
                 ->execute([$number, $snap, bin2hex(random_bytes(16)), $id]);
             $inv = self::find($id);

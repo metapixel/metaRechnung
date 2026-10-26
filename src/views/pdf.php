@@ -1,27 +1,19 @@
-<?php /** @var array $inv @var array $co @var bool $kl */ $t = $inv['totals']; ?>
+<?php /** @var array $inv @var array $co @var bool $kl */ $t = $inv['totals']; $dz = \App\PdfDesign::sanitize($inv['design'] ?? \App\PdfDesign::current()); ?>
 <style>
-  body { font-family: dejavusanscondensed; font-size: 9.5pt; color: #111; }
-  table { border-collapse: collapse; width: 100%; }
-  th { text-align: left; border-bottom: 1px solid #333; padding: 4px 3px; font-size: 8.5pt; }
-  td { padding: 4px 3px; border-bottom: 0.5px solid #ccc; vertical-align: top; }
-  .r { text-align: right; }
-  .small { font-size: 7.5pt; color: #555; }
-  h1 { font-size: 15pt; margin: 22px 0 8px 0; }
-  .plain td { border: 0; padding: 1px 3px; }
-</style>
+<?= \App\PdfDesign::css($dz) ?></style>
 
 <?php $lg = $lh === null ? \App\Logo::info() : null; if ($lg): ?>
 <div style="text-align:<?= h($lg['align']) ?>"><img src="<?= h($lg['path']) ?>" style="width:<?= h((string)$lg['width']) ?>mm" alt="<?= h($co['name']) ?>"></div>
 <?php endif; ?>
 <?php if (empty($hideSender)): ?>
-<div style="text-align:right">
+<div style="text-align:<?= $dz['sender'] === 'left' ? 'left' : 'right' ?>">
   <b><?= h($co['name']) ?></b><br>
   <?= h($co['street']) ?><br><?= h($co['zip'] . ' ' . $co['city']) ?><br>
   <?= $co['phone'] ? h($co['phone']) . '<br>' : '' ?><?= h($co['email']) ?>
 </div>
 <?php endif; ?>
 
-<div class="small" style="margin-top:24px"><u><?= h($co['name'] . ' · ' . $co['street'] . ' · ' . $co['zip'] . ' ' . $co['city']) ?></u></div>
+<?php if ($dz['addrline']): ?><div class="small" style="margin-top:24px"><u><?= h($co['name'] . ' · ' . $co['street'] . ' · ' . $co['zip'] . ' ' . $co['city']) ?></u></div><?php else: ?><div style="margin-top:24px"></div><?php endif; ?>
 
 <table class="plain" style="margin-top:4px">
 <tr>
@@ -45,10 +37,10 @@
 
 <h1>Rechnung <?= h($inv['number']) ?></h1>
 
-<table>
+<table class="items">
   <tr><th>Pos.</th><th>Beschreibung</th><th class="r">Menge</th><th class="r">Einzelpreis</th><?php if (!$kl): ?><th class="r">MwSt</th><?php endif; ?><th class="r">Summe (netto)</th></tr>
-  <?php foreach ($inv['items'] as $it): ?>
-  <tr>
+  <?php foreach ($inv['items'] as $ix => $it): ?>
+  <tr<?= $dz['table'] === 'zebra' && $ix % 2 === 1 ? ' class="z"' : '' ?>>
     <td><?= (int)$it['pos'] ?></td>
     <td><?= h($it['description']) ?><?= !empty($it['note']) ? '<br><span class="small">' . nl2br(h($it['note'])) . '</span>' : '' ?></td>
     <td class="r"><?= h(rtrim(rtrim(number_format((float)$it['quantity'], 3, ',', ''), '0'), ',')) ?> <?= h(UNITS[$it['unit']] ?? '') ?></td>
@@ -64,12 +56,13 @@
   <?php if (!$kl): foreach ($t['taxes'] as $x): ?>
   <tr><td>USt <?= h(rtrim(rtrim(number_format($x['rate'], 2, ',', ''), '0'), ',')) ?> % auf <?= h(money($x['basis'])) ?></td><td class="r"><?= h(money($x['tax'])) ?></td></tr>
   <?php endforeach; endif; ?>
-  <tr><td style="border-top:1px solid #333"><b>Gesamtbetrag</b></td><td class="r" style="border-top:1px solid #333"><b><?= h(money($t['gross'])) ?></b></td></tr>
+  <tr><td class="sum"><b>Gesamtbetrag</b></td><td class="r sum"><b><?= h(money($t['gross'])) ?></b></td></tr>
 </table>
 <div style="clear:both"></div>
 
 <?php if ($kl): ?><p style="margin-top:16px">Kein Ausweis von Umsatzsteuer, da Kleinunternehmer gemäß § 19 UStG.</p><?php endif; ?>
 <?php if (!empty($inv['notes'])): ?><p style="margin-top:12px"><?= nl2br(h($inv['notes'])) ?></p><?php endif; ?>
+<?php if ($dz['closing'] !== ''): ?><p style="margin-top:12px"><?= nl2br(h($dz['closing'])) ?></p><?php endif; ?>
 
 <?php $gc = \App\GiroCode::enabled() ? \App\GiroCode::payload($inv) : null; ?>
 <?php if ($gc): ?>
@@ -83,10 +76,11 @@
 auf das unten genannte Konto.</p>
 <?php endif; ?>
 
-<?php if (empty($hideFooter)): ?>
+<?php if (empty($hideFooter) && $dz['footer']): ?>
 <div class="small" style="margin-top:28px; border-top:0.5px solid #999; padding-top:6px">
   <?= h($co['name']) ?><?= $co['owner'] ? ' · Inhaber: ' . h($co['owner']) : '' ?><br>
   <?= $co['tax_number'] ? 'Steuernr.: ' . h($co['tax_number']) . ' ' : '' ?><?= $co['vat_id'] ? 'USt-IdNr.: ' . h($co['vat_id']) : '' ?><br>
   <?= $co['bank'] ? h($co['bank']) . ' · ' : '' ?>IBAN: <?= h(trim(chunk_split($co['iban'], 4, ' '))) ?><?= $co['bic'] ? ' · BIC: ' . h($co['bic']) : '' ?>
+  <?= $dz['footer_text'] !== '' ? '<br>' . nl2br(h($dz['footer_text'])) : '' ?>
 </div>
 <?php endif; ?>

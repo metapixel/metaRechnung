@@ -198,3 +198,9 @@ textarea.note { margin-top:4px; min-height:2.4em; font-size:.88rem; resize:verti
 /* GiroCode */
 .girocode { margin:16px 0; text-align:center; } .girocode img { background:#fff; padding:10px; border:1px solid var(--line); border-radius:10px; max-width:100%; height:auto; }
 .girocode figcaption { margin-top:6px; font-size:.88rem; color:var(--mut); }
+
+/* PDF-Design */
+#pdfdesign fieldset { margin:10px 0; padding:8px 14px 10px; } #pdfdesign legend { font-weight:600; padding:0 6px; }
+#pdfdesign .opt { display:flex; align-items:center; gap:8px; color:inherit; padding:5px 0; min-height:32px; }
+#pdfdesign .opt input { width:auto; margin:0; }
+#pdfdesign textarea { width:100%; }

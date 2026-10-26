@@ -2,6 +2,15 @@
 
 Die aktuelle Versionsnummer steht in der Datei `VERSION` (und unten in der App sowie unter Einstellungen → System).
 
+## 1.8.0
+- **PDF-Design** (Einstellungen → „PDF-Design anpassen“): Schriftart (DejaVu Sans Condensed, DejaVu Sans, DejaVu Serif Condensed), Schriftgröße, **Akzentfarbe**, Tabellenstil
+  (Linien, schlicht, Zebra, farbiger Kopf), Absender links/rechts, Absenderzeile, Fußzeile und Seitenzahl ein-/ausblendbar, optionaler **Schlusstext** und **Fußzeilen-Zusatz**.
+  Vier **Vorlagen** (Klassisch = bisheriges Aussehen, Modern, Minimal, Elegant) füllen das Formular vor; eine **PDF-Vorschau** mit Beispieldaten zeigt das Ergebnis, ohne zu speichern.
+  Hat man ein Logo hinterlegt, schlägt die App eine passende Akzentfarbe vor (automatisch abgedunkelt für gute Lesbarkeit); ein Kontrastwert zeigt, wie lesbar die Farbe auf Weiß ist.
+- **Das Design wird beim Ausstellen festgehalten** (im Snapshot der Rechnung): Spätere Änderungen betreffen nur neue Rechnungen und Entwürfe; ältere Rechnungen werden bei Bedarf im bisherigen Aussehen neu erzeugt.
+- **Sicherheit:** Es gibt nur Aufzählungen, Zahlen und `#rrggbb` – das erzeugte PDF-CSS enthält nie freien Text; Texte werden maskiert und von Steuerzeichen befreit; CSRF-geschützt.
+- Das Paket wächst um ca. 2 MB (zusätzliche Schriften). Neue Tests `sec9` und `tests/unit/pdfdesign_test.php`; freies PDF-CSS ist bewusst noch nicht enthalten.
+
 ## 1.7.0
 - **GiroCode (EPC-QR) zum Überweisen**: Auf der Rechnung (PDF) und auf der Kunden-Statusseite (nur solange unbezahlt) erscheint ein QR-Code, den Banking-Apps scannen können –
   Empfänger, IBAN, BIC, Betrag und Verwendungszweck („Rechnung RE-…“) werden automatisch in die SEPA-Überweisung übernommen.

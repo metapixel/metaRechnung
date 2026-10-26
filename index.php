@@ -14,6 +14,7 @@ use App\Letterhead;
 use App\Articles;
 use App\Attachments;
 use App\Logo;
+use App\PdfDesign;
 use App\Mailer;
 use App\RateLimit;
 use App\Theme;
@@ -169,6 +170,52 @@ try {
                 redirect(BASE . '?p=design');
             }
             render('design', ['css' => Theme::get()]);
+            break;
+
+        case 'pdf_design':
+            $errors = [];
+            $notice = '';
+            $d = PdfDesign::current();
+            if ($post) {
+                $a = isset($_POST['template']) ? 'template' : (is_string($_POST['action'] ?? '') ? (string)$_POST['action'] : 'save');
+                [$form, $formErrors] = PdfDesign::fromForm($_POST);
+                if ($a === 'template') {
+                    $tpl = PdfDesign::template(is_string($_POST['template'] ?? '') ? (string)$_POST['template'] : '');
+                    if ($tpl === null) {
+                        $errors[] = 'Unbekannte Vorlage.';
+                        $d = $form;
+                    } else {
+                        // Vorlage ändert nur das Aussehen; Zusatztexte und Schalter aus dem Formular bleiben
+                        $d = array_merge($form, array_intersect_key($tpl, array_flip(['font', 'size', 'accent', 'table', 'sender', 'title_accent'])));
+                        $notice = 'Vorlage „' . PdfDesign::TEMPLATES[(string)$_POST['template']]['label'] . '“ geladen – noch nicht gespeichert. Mit „Vorschau“ ansehen, mit „Speichern“ übernehmen.';
+                    }
+                } elseif ($a === 'reset') {
+                    Config::save(['PDF_DESIGN' => '']);
+                    flash('PDF-Design auf das klassische Standard-Aussehen zurückgesetzt.');
+                    redirect(BASE . '?p=pdf_design');
+                } elseif ($a === 'preview' || $a === 'save') {
+                    $d = $form;
+                    if (!$formErrors && $a === 'preview') {
+                        $bytes = Einvoice::pdf(Letterhead::sampleInvoice($form));
+                        header('Content-Type: application/pdf');
+                        header('Content-Disposition: inline; filename="design-vorschau.pdf"');
+                        header('Cache-Control: no-store');
+                        header('Content-Length: ' . strlen($bytes));
+                        // Geprüft: erzeugte PDF-Daten mit festem Content-Type (kein HTML)
+                        // nosemgrep
+                        echo $bytes;
+                        exit;
+                    }
+                    if (!$formErrors) {
+                        Config::save(['PDF_DESIGN' => PdfDesign::toJson($form)]);
+                        flash('PDF-Design gespeichert. Es gilt für neu ausgestellte Rechnungen und Entwürfe; bereits ausgestellte Rechnungen bleiben unverändert.');
+                        redirect(BASE . '?p=pdf_design');
+                    }
+                    $errors = $formErrors;
+                }
+            }
+            $lg = Logo::info();
+            render('pdf_design', ['d' => $d, 'errors' => $errors, 'notice' => $notice, 'logoColor' => $lg ? PdfDesign::suggestFromImage($lg['path']) : null]);
             break;
 
         case 'recurring':
