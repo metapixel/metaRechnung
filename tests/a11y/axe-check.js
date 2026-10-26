@@ -1,5 +1,5 @@
 // Barrierefreiheits-Prüfung (axe-core, WCAG 2.2 AA) gegen eine laufende Test-Instanz.
-// Aufruf:  npm i axe-core playwright && A11Y_URL=http://127.0.0.1:8097/ A11Y_USER=kai A11Y_PASS=... node axe-check.js
+// Aufruf:  npm i axe-core playwright && A11Y_URL=http://127.0.0.1:8097/ A11Y_USER=kai A11Y_PASS=... [A11Y_STATUS=<public_token>] node axe-check.js
 // Die Instanz sollte mindestens eine Rechnung (id=1) enthalten. Beendet mit Exit-Code 1 bei Verstößen.
 const { chromium } = require('playwright'); const fs = require('fs'); const path = require('path');
 const axe = fs.readFileSync(require.resolve('axe-core/axe.min.js'), 'utf8');
@@ -17,6 +17,7 @@ const B = process.env.A11Y_URL || 'http://127.0.0.1:8097/';
     await p.goto(B); await scan('login');
     await p.fill('[name=user]', process.env.A11Y_USER || 'kai'); await p.fill('[name=pass]', process.env.A11Y_PASS || ''); await Promise.all([p.waitForNavigation(), p.click('button.primary')]);
     for (const q of ['invoices', 'invoice_edit', 'customers', 'customer_edit', 'articles', 'article_edit', 'settings', 'invoice&id=1', 'recurring', 'design', 'recurring_edit', 'recurring_edit&id=' + (process.env.A11Y_RID || '1')]) { await p.goto(B + '?p=' + q); await scan(q); }
+    if (process.env.A11Y_STATUS) { await p.goto(B + 'status.php?t=' + process.env.A11Y_STATUS); await scan('status (GiroCode)'); }
     await ctx.close();
   }
   await b.close(); process.exit(bad ? 1 : 0);

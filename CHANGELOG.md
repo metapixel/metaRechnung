@@ -2,6 +2,14 @@
 
 Die aktuelle Versionsnummer steht in der Datei `VERSION` (und unten in der App sowie unter Einstellungen → System).
 
+## 1.7.0
+- **GiroCode (EPC-QR) zum Überweisen**: Auf der Rechnung (PDF) und auf der Kunden-Statusseite (nur solange unbezahlt) erscheint ein QR-Code, den Banking-Apps scannen können –
+  Empfänger, IBAN, BIC, Betrag und Verwendungszweck („Rechnung RE-…“) werden automatisch in die SEPA-Überweisung übernommen.
+  Er erscheint nur bei gültiger IBAN (Prüfsumme), Betrag in Euro zwischen 0,01 und 999.999.999,99 € und einem Inhalt ≤ 331 Byte (EPC-Standard, Version 002).
+  Abschaltbar unter Einstellungen → Rechnungen („GiroCode“). Die Statusseite bindet ihn als Bild mit Alternativtext ein (CSP unverändert).
+- Umsetzung: Bibliothek `mpdf/qrcode` (LGPL); Eingabewerte werden von Steuerzeichen und Backslashes bereinigt (keine Feld-Einschleusung in den QR-Inhalt); `vendor.zip` wächst nur um ca. 0,3 MB.
+- Neue Tests `sec8` (der QR-Code wird aus gerendertem PDF und Statusseite wieder dekodiert) und `tests/unit/girocode_test.php`.
+
 ## 1.6.0
 - **CSS-Editor für die Oberfläche** (Einstellungen → „CSS-Editor öffnen“): CodeMirror 6 (nur CSS-Modus, lokal ausgeliefert, ~340 KB, wird nur auf dieser Seite geladen) mit Syntaxhervorhebung,
   Zeilennummern und **Live-Vorschau** direkt auf der Seite. „Vorlage einfügen“ zeigt die verfügbaren Design-Variablen (`--pri`, `--bg`, `--card`, `--r` …, auch für den dunklen Modus).

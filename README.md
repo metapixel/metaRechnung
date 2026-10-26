@@ -4,6 +4,7 @@ Schlanke, selbst gehostete Rechnungsverwaltung in PHP/MySQL für ganz normalen W
 
 - Kunden, Rechnungen mit Positionen, fortlaufende Nummern (`RE-2026-0001`), Entwürfe, Duplizieren, Kleinunternehmer-Modus
 - **ZUGFeRD/Factur-X** (PDF/A-3 mit eingebetteter XML) und **XRechnung 3.0**, mit dem KoSIT-Validator geprüft
+- **GiroCode** (EPC-QR) auf Rechnung und Statusseite: Banking-Apps füllen die Überweisung automatisch aus
 - Rechnungsversand per Mail (SMTP oder `mail()`), Link zu einer öffentlichen **Statusseite** mit Zahlungsstatus und Downloads
 - Briefpapier-Upload (PDF/PNG/JPG), Einstellungsseite, Testmail, Testbetrieb mit Reset
 - **PWA** (installierbar), responsives Layout

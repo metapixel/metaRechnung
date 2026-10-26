@@ -26,6 +26,12 @@
     <tr><td>Verwendungszweck</td><td class="r"><?= h($inv['number']) ?></td></tr>
     <?php endif; ?>
   </table>
+  <?php $gc = (!$paid && \App\GiroCode::enabled()) ? \App\GiroCode::payload($inv) : null; if ($gc): ?>
+  <figure class="girocode">
+    <img src="<?= h(\App\GiroCode::svgDataUri($gc)) ?>" width="180" height="180" alt="GiroCode zum Scannen mit der Banking-App: Überweisung an <?= h($co['name']) ?>, Betrag <?= h(money((float)$t['gross'])) ?>, Verwendungszweck Rechnung <?= h($inv['number']) ?>">
+    <figcaption>GiroCode – mit der Banking-App scannen, die Überweisung wird automatisch ausgefüllt.</figcaption>
+  </figure>
+  <?php endif; ?>
 
   <h2>Downloads</h2>
   <p>

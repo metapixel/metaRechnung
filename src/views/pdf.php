@@ -71,8 +71,17 @@
 <?php if ($kl): ?><p style="margin-top:16px">Kein Ausweis von Umsatzsteuer, da Kleinunternehmer gemäß § 19 UStG.</p><?php endif; ?>
 <?php if (!empty($inv['notes'])): ?><p style="margin-top:12px"><?= nl2br(h($inv['notes'])) ?></p><?php endif; ?>
 
+<?php $gc = \App\GiroCode::enabled() ? \App\GiroCode::payload($inv) : null; ?>
+<?php if ($gc): ?>
+<table class="plain" style="margin-top:16px"><tr>
+  <td style="width:75%; vertical-align:middle">Bitte überweisen Sie den Rechnungsbetrag bis zum <b><?= h(fdate($inv['due_date'])) ?></b> unter Angabe der Rechnungsnummer
+  auf das unten genannte Konto.<br><span class="small">Oder scannen Sie den GiroCode mit Ihrer Banking-App: Empfänger, IBAN, Betrag und Verwendungszweck werden automatisch übernommen.</span></td>
+  <td style="text-align:right; vertical-align:middle"><barcode code="<?= h(\App\GiroCode::forMpdf($gc)) ?>" type="QR" error="M" size="0.85" disableborder="1" /><br><span class="small">GiroCode</span></td>
+</tr></table>
+<?php else: ?>
 <p style="margin-top:16px">Bitte überweisen Sie den Rechnungsbetrag bis zum <b><?= h(fdate($inv['due_date'])) ?></b> unter Angabe der Rechnungsnummer
 auf das unten genannte Konto.</p>
+<?php endif; ?>
 
 <?php if (empty($hideFooter)): ?>
 <div class="small" style="margin-top:28px; border-top:0.5px solid #999; padding-top:6px">

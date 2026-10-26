@@ -27,5 +27,8 @@ $m = new Mpdf\Mpdf(['mode' => 'utf-8', 'format' => 'A4', 'tempDir' => $tmp, 'def
 $m->WriteHTML('<p>Größe € äöüß <b>fett</b> <i>kursiv</i></p>');
 $pdf = $m->Output('', 'S');
 if (!str_starts_with($pdf, '%PDF') || strlen($pdf) < 5000) { fwrite(STDERR, "PDF-Erzeugung fehlgeschlagen\n"); exit(1); }
+// GiroCode: längster zulässiger Inhalt (331 Byte) muss sich mit den verbliebenen Versionsdaten erzeugen lassen
+$gc = new Mpdf\QrCode\QrCode(str_repeat('x', 331), 'M');
+if (strlen((new Mpdf\QrCode\Output\Svg())->output($gc, 200, 'white', 'black')) < 1000) { fwrite(STDERR, "QR-Code (331 Byte) fehlgeschlagen\n"); exit(1); }
 foreach (['PHPMailer\\PHPMailer\\PHPMailer', 'setasign\\Fpdi\\Fpdi'] as $c) { if (!class_exists($c)) { fwrite(STDERR, "Klasse fehlt: $c\n"); exit(1); } }
-echo "Rauchtest ok (XML EN16931 + XRechnung, PDF/A-3, Mailer, FPDI)\n";
+echo "Rauchtest ok (XML EN16931 + XRechnung, PDF/A-3, Mailer, FPDI, QR)\n";

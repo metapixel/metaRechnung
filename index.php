@@ -423,6 +423,7 @@ try {
                         $c['INVOICE_PREFIX'] = preg_replace('/[^A-Za-z0-9]/', '', $in('INVOICE_PREFIX')) ?: 'RE';
                         $c['PAYMENT_DAYS'] = (string)max(0, (int)($in('PAYMENT_DAYS') ?: 14));
                         $c['KLEINUNTERNEHMER'] = isset($_POST['KLEINUNTERNEHMER']) ? '1' : '0';
+                        $c['GIROCODE'] = isset($_POST['GIROCODE']) ? '1' : '0';
                         $c['SMTP_PORT'] = (string)((int)$in('SMTP_PORT') ?: 587);
                         $c['SMTP_SECURE'] = in_array($in('SMTP_SECURE'), ['tls', 'ssl', 'none'], true) ? $in('SMTP_SECURE') : 'tls';
                         if ((string)($_POST['SMTP_PASS'] ?? '') !== '') {

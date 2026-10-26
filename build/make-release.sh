@@ -20,6 +20,8 @@ Z=vendor/horstoeko/zugferd
 rm -rf "$Z/make" "$Z/build" "$Z/src/schema/xslt" "$Z/src/schema/schematron"
 for p in basic basicwl extended minimum; do rm -rf "$Z/src/entities/$p" "$Z/src/yaml/$p" "$Z/src/validation/$p"; done
 rm -f "$Z"/src/schema/FACTUR-X_{BASIC,BASIC-WL,EXTENDED,MINIMUM}*.xsd
+# QR-Code (GiroCode): ein EPC-Code hat höchstens 331 Byte (= Version 14, Stufe M); Daten größerer Versionen entfallen
+for v in $(seq 15 40); do rm -f vendor/mpdf/qrcode/data/modele$v.dat vendor/mpdf/qrcode/data/qrv${v}_*.dat; done
 # Übersetzungen des Symfony-Validators (die App nutzt ihn nicht direkt)
 rm -rf vendor/symfony/validator/Resources/translations
 # Rauchtest: XML (EN16931 + XRechnung), PDF/A-3, Mailer, FPDI müssen nach dem Verschlanken funktionieren

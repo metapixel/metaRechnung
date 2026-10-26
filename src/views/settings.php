@@ -38,6 +38,8 @@ if ($co['vat_id'] === '' && $co['tax_number'] === '') { $miss[] = 'Steuernummer 
   <div class="grid2"><label>Nummernpräfix <input name="INVOICE_PREFIX" maxlength="8" value="<?= $g('INVOICE_PREFIX', 'RE') ?>"></label>
   <label>Zahlungsziel (Tage) <input type="number" min="0" name="PAYMENT_DAYS" value="<?= $g('PAYMENT_DAYS', '14') ?>"></label></div>
   <label style="color:inherit"><input type="checkbox" name="KLEINUNTERNEHMER" value="1" style="width:auto" <?= $ku ? 'checked' : '' ?>> Kleinunternehmer (§ 19 UStG, keine Umsatzsteuer)</label>
+  <label style="color:inherit"><input type="checkbox" name="GIROCODE" value="1" style="width:auto" <?= ($posted ? isset($old['GIROCODE']) : \App\GiroCode::enabled()) ? 'checked' : '' ?>> GiroCode (QR-Code zum Überweisen) auf Rechnung und Statusseite</label>
+  <p class="hint">Banking-Apps lesen daraus Empfänger, IBAN, Betrag und Verwendungszweck. Erscheint nur bei gültiger IBAN (Prüfsumme) und Rechnungsbetrag in Euro; gilt für neu ausgestellte Rechnungen.</p>
 
   <h2>E-Mail-Versand</h2>
   <p class="hint">SMTP-Server leer lassen = Mailversand über den Webspace (PHP <code>mail()</code>).</p>

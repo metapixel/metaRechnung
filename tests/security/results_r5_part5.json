@@ -1,0 +1,100 @@
+[
+ {
+  "id": "L1",
+  "sev": "H",
+  "title": "Anonym: Logo-Upload wirkungslos, Logo-Datei nicht abrufbar",
+  "ok": true,
+  "detail": "(200, 200)"
+ },
+ {
+  "id": "L2",
+  "sev": "H",
+  "title": "Upload ohne CSRF-Token → 400, nichts gespeichert",
+  "ok": true,
+  "detail": "400"
+ },
+ {
+  "id": "L3",
+  "sev": "H",
+  "title": "Gültiges PNG (mit Transparenz) wird gespeichert, Dateiname serverseitig festgelegt",
+  "ok": true,
+  "detail": "(302, ['.htaccess', 'index.html', 'logo.png'], 'Logo hochgeladen und Einstellungen gespeichert. Gilt für neu ausgestellte Rechnungen.')"
+ },
+ {
+  "id": "L4",
+  "sev": "M",
+  "title": "Logo wird mit korrektem Content-Type an angemeldete Nutzer ausgeliefert",
+  "ok": true,
+  "detail": "image/png"
+ },
+ {
+  "id": "L5",
+  "sev": "H",
+  "title": "Direktzugriff auf storage/logo/logo.png gesperrt",
+  "ok": true,
+  "detail": "403"
+ },
+ {
+  "id": "L6",
+  "sev": "H",
+  "title": "SVG, PHP/HTML/PDF mit Bild-Endung, Übergröße (Pixel/MB) und kaputte Bilder werden abgelehnt",
+  "ok": true,
+  "detail": "[]"
+ },
+ {
+  "id": "L7",
+  "sev": "H",
+  "title": "PNG mit angehängtem PHP-Code: Bild wird neu kodiert, Payload entfernt",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "L8",
+  "sev": "H",
+  "title": "Dateiname mit Pfadangabe (../../evil.php) hat keinen Einfluss",
+  "ok": true,
+  "detail": "['.htaccess', 'index.html', 'logo.png']"
+ },
+ {
+  "id": "L9",
+  "sev": "M",
+  "title": "Breite wird auf 10–120 mm begrenzt, Ausrichtung nur links/rechts",
+  "ok": true,
+  "detail": "[\"'LOGO_WIDTH' => '120'\", \"'LOGO_ALIGN' => 'right'\", \"'LOGO_FILE' => 'logo.png'\"]"
+ },
+ {
+  "id": "L10",
+  "sev": "L",
+  "title": "Ungültige Breite → Standard 50, Ausrichtung links übernommen",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "L11",
+  "sev": "H",
+  "title": "Rechnungs-PDF enthält das Logo und bleibt gültiges PDF/A-3 mit eingebettetem XML",
+  "ok": true,
+  "detail": "(200, 46231)"
+ },
+ {
+  "id": "L12",
+  "sev": "H",
+  "title": "Logo löschen ohne CSRF-Token → 400, Logo bleibt",
+  "ok": true,
+  "detail": "400"
+ },
+ {
+  "id": "L13",
+  "sev": "M",
+  "title": "Logo löschen entfernt Datei und Konfiguration",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "L14",
+  "sev": "M",
+  "title": "Keine PHP-Fehler/Warnungen im Log",
+  "ok": true,
+  "detail": "[]"
+ }
+]

@@ -11,6 +11,7 @@ Die Installationspakete enthalten unter `vendor/` folgende Bibliotheken mit ihre
 | mpdf/mpdf (und Hilfspakete) | GPL-2.0-only |
 | phpmailer/phpmailer | LGPL-2.1-only |
 | horstoeko/zugferd, horstoeko/mimedb, horstoeko/stringmanagement | MIT |
+| mpdf/qrcode | LGPL-2.1-or-later |
 | setasign/fpdi, setasign/fpdf | MIT bzw. frei nutzbar (siehe Paket) |
 | symfony/* | MIT |
 | jms/serializer, jms/metadata, doctrine/*, goetas-webservices/xsd2php-runtime | MIT |

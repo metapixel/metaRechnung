@@ -194,3 +194,7 @@ textarea.note { margin-top:4px; min-height:2.4em; font-size:.88rem; resize:verti
 .cm-cursor { border-left:2px solid var(--fg); }
 .cm-selectionBackground { background:color-mix(in srgb, var(--pri) 28%, transparent) !important; }
 @media (forced-colors:active) { .cm-editor.cm-focused { outline-color:Highlight; } }
+
+/* GiroCode */
+.girocode { margin:16px 0; text-align:center; } .girocode img { background:#fff; padding:10px; border:1px solid var(--line); border-radius:10px; max-width:100%; height:auto; }
+.girocode figcaption { margin-top:6px; font-size:.88rem; color:var(--mut); }
