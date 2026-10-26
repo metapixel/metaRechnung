@@ -15,12 +15,12 @@ $root = dirname(__DIR__, 2);
 <?php else: ?>
 <div class="scroll"><table>
   <caption class="sr">Wiederkehrende Rechnungen</caption>
-  <tr><th scope="col">Bezeichnung</th><th scope="col">Kunde</th><th scope="col">Intervall</th><th scope="col">Nächste Erstellung</th><th scope="col">Ablauf</th><th scope="col">Status</th><th scope="col"><span class="sr">Aktionen</span></th></tr>
+  <tr><th scope="col">Bezeichnung</th><th scope="col">Kunde</th><th scope="col">Intervall</th><th scope="col">Nächste Erstellung</th><th scope="col">Ablauf</th><th scope="col">Status</th></tr>
   <?php foreach ($rows as $r):
       $done = !(int)$r['active'] && $r['end_date'] !== null && $r['next_run'] > $r['end_date'];
       $st = (int)$r['active'] ? 'aktiv' : ($done ? 'beendet' : 'pausiert'); ?>
-  <tr>
-    <td><b><?= h($r['name']) ?></b></td>
+  <tr class="rowlink" data-href="<?= BASE ?>?p=recurring_edit&amp;id=<?= (int)$r['id'] ?>">
+    <td><a href="<?= BASE ?>?p=recurring_edit&amp;id=<?= (int)$r['id'] ?>"><b><?= h($r['name']) ?></b></a></td>
     <td><?= h($r['c_name']) ?></td>
     <td><?= h(\App\Recurring::FREQ[$r['frequency']]) ?></td>
     <td><?= (int)$r['active'] ? h(fdate($r['next_run'])) : '–' ?><?= (int)$r['active'] && $r['next_run'] <= date('Y-m-d') ? ' <span class="badge over">fällig</span>' : '' ?></td>
@@ -28,7 +28,6 @@ $root = dirname(__DIR__, 2);
     <td><span class="badge <?= $st === 'aktiv' ? 'paid' : 'draft' ?>"><?= h($st) ?></span>
       <?php if ($r['run_count']): ?><br><span class="muted"><?= (int)$r['run_count'] ?>× erzeugt<?= $r['last_run'] ? ', zuletzt ' . h(fdate($r['last_run'])) : '' ?><?= $r['last_invoice_id'] ? ' (<a href="' . BASE . '?p=invoice&amp;id=' . (int)$r['last_invoice_id'] . '">Rechnung</a>)' : '' ?></span><?php endif; ?>
       <?php if ($r['last_error']): ?><br><span class="err" role="alert"><?= h($r['last_error']) ?></span><?php endif; ?></td>
-    <td class="r"><a href="<?= BASE ?>?p=recurring_edit&amp;id=<?= (int)$r['id'] ?>">Bearbeiten<span class="sr">: <?= h($r['name']) ?></span></a></td>
   </tr>
   <?php endforeach; ?>
 </table></div>

@@ -4,13 +4,12 @@
 </div>
 <div class="scroll"><table>
   <caption class="sr">Kundenliste</caption>
-  <tr><th scope="col">Name</th><th scope="col">Ort</th><th scope="col">E-Mail</th><th scope="col"><span class="sr">Aktionen</span></th></tr>
+  <tr><th scope="col">Name</th><th scope="col">Ort</th><th scope="col">E-Mail</th></tr>
   <?php foreach ($customers as $c): ?>
-  <tr>
-    <td><?= h($c['name']) ?></td>
+  <tr class="rowlink" data-href="<?= BASE ?>?p=customer_edit&amp;id=<?= (int)$c['id'] ?>">
+    <td><a href="<?= BASE ?>?p=customer_edit&amp;id=<?= (int)$c['id'] ?>"><?= h($c['name']) ?></a></td>
     <td><?= h($c['zip'] . ' ' . $c['city']) ?></td>
     <td><?= h($c['email']) ?></td>
-    <td class="r"><a href="<?= BASE ?>?p=customer_edit&id=<?= (int)$c['id'] ?>">Bearbeiten</a></td>
   </tr>
   <?php endforeach; ?>
 </table></div>

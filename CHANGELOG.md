@@ -2,6 +2,9 @@
 
 Die aktuelle Versionsnummer steht in der Datei `VERSION` (und unten in der App sowie unter Einstellungen → System).
 
+## 1.8.2
+- **Kunden-, Artikel- und Wiederkehrend-Listen: ganze Zeile klickbar** wie bei den Rechnungen; der Link „Bearbeiten“ entfällt. Der Name in der ersten Spalte ist der echte Link (Tastatur/Screenreader), die Spalte „Aktionen“ ist weggefallen.
+
 ## 1.8.1
 - **Rechnungsübersicht: ganze Zeile klickbar.** Ein Klick irgendwo in der Zeile öffnet die Rechnung (Strg/Cmd/Umschalt-Klick: neuer Tab). Text per Ziehen markieren navigiert nicht; Tastatur und Screenreader nutzen weiterhin den Link in der Nummernspalte.
 
