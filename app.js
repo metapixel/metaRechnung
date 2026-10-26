@@ -8,6 +8,17 @@ document.addEventListener('click', function (e) {
   var fill = e.target.closest && e.target.closest('[data-fill]');
   if (fill) { var f = document.getElementById(fill.getAttribute('data-fill')); if (f) { f.value = fill.getAttribute('data-value'); f.dispatchEvent(new Event('input', {bubbles: true})); } }
 });
+// Ganze Tabellenzeile klickbar (Tastatur und Screenreader nutzen weiter den echten Link in der Zeile)
+document.addEventListener('click', function (e) {
+  var row = e.target.closest && e.target.closest('tr[data-href]');
+  if (!row || e.defaultPrevented || e.button !== 0 || e.target.closest('a, button, input, select, textarea, label')) return;
+  var sel = window.getSelection && window.getSelection();
+  if (sel && !sel.isCollapsed && row.contains(sel.anchorNode)) return;   // Text markieren soll nicht navigieren
+  var url;
+  try { url = new URL(row.getAttribute('data-href'), location.href); } catch (err) { return; }
+  if (url.origin !== location.origin) return;
+  if (e.ctrlKey || e.metaKey || e.shiftKey) window.open(url.href, '_blank', 'noopener'); else location.href = url.href;
+});
 if ('serviceWorker' in navigator && document.body.dataset.sw) {
   navigator.serviceWorker.register(document.body.dataset.sw);
 }

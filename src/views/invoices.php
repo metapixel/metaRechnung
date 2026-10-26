@@ -10,7 +10,7 @@
   <?php foreach ($rows as $r):
       $overdue = $r['status'] === 'issued' && $r['due_date'] < date('Y-m-d');
       $label = ['draft' => 'Entwurf', 'issued' => $overdue ? 'überfällig' : 'offen', 'paid' => 'bezahlt'][$r['status']]; ?>
-  <tr>
+  <tr class="rowlink" data-href="<?= BASE ?>?p=invoice&amp;id=<?= (int)$r['id'] ?>">
     <td><a href="<?= BASE ?>?p=invoice&id=<?= (int)$r['id'] ?>"><?= h($r['number'] ?: '—') ?></a></td>
     <td><?= h($r['c_name']) ?></td>
     <td><?= h(fdate($r['issue_date'])) ?></td>

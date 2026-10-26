@@ -2,6 +2,9 @@
 
 Die aktuelle Versionsnummer steht in der Datei `VERSION` (und unten in der App sowie unter Einstellungen → System).
 
+## 1.8.1
+- **Rechnungsübersicht: ganze Zeile klickbar.** Ein Klick irgendwo in der Zeile öffnet die Rechnung (Strg/Cmd/Umschalt-Klick: neuer Tab). Text per Ziehen markieren navigiert nicht; Tastatur und Screenreader nutzen weiterhin den Link in der Nummernspalte.
+
 ## 1.8.0
 - **PDF-Design** (Einstellungen → „PDF-Design anpassen“): Schriftart (DejaVu Sans Condensed, DejaVu Sans, DejaVu Serif Condensed), Schriftgröße, **Akzentfarbe**, Tabellenstil
   (Linien, schlicht, Zebra, farbiger Kopf), Absender links/rechts, Absenderzeile, Fußzeile und Seitenzahl ein-/ausblendbar, optionaler **Schlusstext** und **Fußzeilen-Zusatz**.
