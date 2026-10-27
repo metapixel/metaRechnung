@@ -3,6 +3,8 @@ $t = $inv['totals'];
 $kl = $inv['kl'];
 $st = $inv['status'];
 $problems = $inv['number'] ? \App\Einvoice::xrechnungProblems($inv) : [];
+$credit = \App\Invoices::isCredit($inv);
+$cancelled = !empty($inv['cancelled_by']);
 $statusUrl = $inv['public_token'] ? \App\Invoices::statusUrl($inv) : '';
 $post = fn(string $action, string $label, string $cls = '', string $confirm = '') =>
     '<form method="post" class="inline"' . ($confirm ? ' data-confirm="' . h($confirm) . '"' : '') . '>'
@@ -10,11 +12,22 @@ $post = fn(string $action, string $label, string $cls = '', string $confirm = ''
     . '<button class="btn ' . $cls . '">' . h($label) . '</button></form>';
 ?>
 <div class="row">
-  <h1><?= $inv['number'] ? 'Rechnung ' . h($inv['number']) : 'Entwurf' ?></h1>
-  <span class="badge <?= h($st) ?>"><?= ['draft' => 'Entwurf', 'issued' => 'ausgestellt', 'paid' => 'bezahlt'][$st] ?></span>
+  <h1><?= $inv['number'] ? ($credit ? 'Stornorechnung ' : 'Rechnung ') . h($inv['number']) : ($credit ? 'Entwurf Stornorechnung' : 'Entwurf') ?></h1>
+  <?php if ($cancelled): ?><span class="badge cancel">storniert</span>
+  <?php elseif ($credit && $st !== 'draft'): ?><span class="badge cancel">Storno</span>
+  <?php else: ?><span class="badge <?= h($st) ?>"><?= ['draft' => 'Entwurf', 'issued' => 'ausgestellt', 'paid' => 'bezahlt'][$st] ?></span><?php endif; ?>
 </div>
+<?php if ($credit && $inv['cancels']): ?>
+<p class="statusbox open">Storno zu Rechnung <a href="<?= BASE ?>?p=invoice&amp;id=<?= (int)$inv['cancels']['id'] ?>"><?= h($inv['cancels']['number']) ?></a> vom <?= h(fdate($inv['cancels']['issue_date'])) ?>.
+  <?= $st === 'draft' ? 'Erst mit dem Ausstellen ist die Rechnung storniert. Für ein Teilstorno lassen sich die Mengen anpassen.' : '' ?></p>
+<?php elseif ($cancelled): ?>
+<p class="statusbox late">Diese Rechnung wurde storniert durch <a href="<?= BASE ?>?p=invoice&amp;id=<?= (int)$inv['cancelled_by']['id'] ?>"><?= h($inv['cancelled_by']['number']) ?></a>.
+  <?= $st === 'paid' ? 'Die Zahlung wurde bereits verbucht – Erstattung bzw. Verrechnung bitte separat erledigen.' : '' ?></p>
+<?php elseif ($inv['storno_draft']): ?>
+<p class="statusbox open">Zu dieser Rechnung gibt es einen <a href="<?= BASE ?>?p=invoice&amp;id=<?= (int)$inv['storno_draft'] ?>">Stornoentwurf</a>.</p>
+<?php endif; ?>
 <p><b><?= h($inv['c_name']) ?></b><br><?= h($inv['c_street']) ?>, <?= h($inv['c_zip'] . ' ' . $inv['c_city']) ?><?= $inv['c_email'] ? '<br>' . h($inv['c_email']) : '' ?></p>
-<p class="muted">Rechnungsdatum <?= h(fdate($inv['issue_date'])) ?> · Leistungsdatum <?= h(fdate($inv['delivery_date'] ?: $inv['issue_date'])) ?> · fällig <?= h(fdate($inv['due_date'])) ?>
+<p class="muted">Rechnungsdatum <?= h(fdate($inv['issue_date'])) ?> · Leistungsdatum <?= h(fdate($inv['delivery_date'] ?: $inv['issue_date'])) ?><?= $credit ? '' : ' · fällig ' . h(fdate($inv['due_date'])) ?>
 <?= $inv['sent_at'] ? ' · gesendet ' . h(date('d.m.Y H:i', strtotime($inv['sent_at']))) : '' ?>
 <?= $st === 'paid' && $inv['paid_at'] ? ' · bezahlt am ' . h(fdate($inv['paid_at'])) : '' ?></p>
 
@@ -38,17 +51,20 @@ $post = fn(string $action, string $label, string $cls = '', string $confirm = ''
   <a class="btn" href="<?= BASE ?>?p=invoice_edit&id=<?= (int)$inv['id'] ?>">Bearbeiten</a>
   <a class="btn" href="<?= BASE ?>?p=draft_preview&id=<?= (int)$inv['id'] ?>" target="_blank">PDF-Vorschau</a>
   <?= $post('issue', 'Ausstellen (Nummer vergeben + PDF erzeugen)', 'primary', 'Rechnung jetzt ausstellen? Danach ist sie nicht mehr änderbar.') ?>
-  <?= $post('duplicate', 'Duplizieren') ?>
+  <?php if (!$credit): ?><?= $post('duplicate', 'Duplizieren') ?><?php endif; ?>
   <?= $post('delete', 'Löschen', 'danger', 'Entwurf wirklich löschen?') ?>
 <?php else: ?>
   <a class="btn primary" href="<?= BASE ?>?p=pdf&id=<?= (int)$inv['id'] ?>" target="_blank">PDF (ZUGFeRD) öffnen</a>
   <?php if (!$problems): ?><a class="btn" href="<?= BASE ?>?p=xrechnung&id=<?= (int)$inv['id'] ?>">XRechnung (XML)</a><?php endif; ?>
-  <?= $post('duplicate', 'Als neue Rechnung duplizieren') ?>
+  <?php if (!$credit): ?>
+    <?= $post('duplicate', $cancelled ? 'Korrigierte Rechnung erstellen (Kopie als Entwurf)' : 'Als neue Rechnung duplizieren') ?>
+    <?php if (!$cancelled && !$inv['storno_draft']): ?><?= $post('cancel', 'Stornorechnung erstellen', 'danger', 'Zu dieser Rechnung einen Stornoentwurf anlegen? Die Rechnung gilt erst als storniert, wenn du die Stornorechnung ausstellst.') ?><?php endif; ?>
+  <?php endif; ?>
 <?php endif; ?>
 </div>
 <?php if ($problems): ?><p class="hint">XRechnung nicht verfügbar – es fehlt: <?= h(implode(', ', $problems)) ?>.</p><?php endif; ?>
 
-<?php if ($st === 'issued'): ?>
+<?php if ($st === 'issued' && !$credit && !$cancelled): ?>
 <form method="post" class="card">
   <h2>Zahlungseingang</h2>
   <input type="hidden" name="csrf" value="<?= h(csrf()) ?>"><input type="hidden" name="action" value="paid">
@@ -56,14 +72,14 @@ $post = fn(string $action, string $label, string $cls = '', string $confirm = ''
   <button class="btn primary">Als bezahlt markieren</button>
   <span class="hint">Der Kunde sieht den Zahlungseingang sofort auf seiner Statusseite.</span>
 </form>
-<?php elseif ($st === 'paid'): ?>
+<?php elseif ($st === 'paid' && !$cancelled): ?>
 <div class="actions"><?= $post('unpaid', 'Zahlung zurücknehmen (wieder „offen“)', '', 'Wirklich wieder auf offen setzen?') ?></div>
 <?php endif; ?>
 
 <?php if ($st !== 'draft'): ?>
 <div class="card">
   <h2>Statusseite für den Kunden</h2>
-  <input class="copy" readonly value="<?= h($statusUrl) ?>" data-select>
+  <input class="copy" aria-label="Link zur Statusseite" readonly value="<?= h($statusUrl) ?>" data-select>
   <p class="hint">Dieser Link steht automatisch in der Rechnungsmail. Dort sieht der Kunde, ob die Zahlung eingegangen ist, und kann PDF und XRechnung herunterladen.</p>
   <a class="btn" href="<?= h($statusUrl) ?>" target="_blank">Statusseite öffnen</a>
 </div>
@@ -74,7 +90,7 @@ $post = fn(string $action, string $label, string $cls = '', string $confirm = ''
   <input type="hidden" name="action" value="send">
   <label>An <input type="email" name="to" value="<?= h($inv['c_email']) ?>" required></label>
   <label>Nachricht
-    <textarea name="message" rows="9"><?= h("Guten Tag" . ($inv['c_contact'] ? ' ' . $inv['c_contact'] : '') . ",\n\nanbei erhalten Sie die Rechnung " . $inv['number'] . " über " . money($t['gross']) . ".\nBitte überweisen Sie den Betrag bis zum " . fdate($inv['due_date']) . ".\n\nZahlungsstatus und Downloads (PDF, XRechnung):\n" . $statusUrl . "\n\nMit freundlichen Grüßen\n" . ($inv['co']['owner'] ?: $inv['co']['name'])) ?></textarea>
+    <textarea name="message" rows="9"><?= $credit ? h("Guten Tag" . ($inv['c_contact'] ? ' ' . $inv['c_contact'] : '') . ",\n\nanbei erhalten Sie die Stornorechnung " . $inv['number'] . " zur Rechnung " . ($inv['cancels']['number'] ?? '') . " über " . money($t['gross']) . ".\nBereits geleistete Zahlungen werden erstattet bzw. verrechnet.\n\nDownloads (PDF, XRechnung):\n" . $statusUrl . "\n\nMit freundlichen Grüßen\n" . ($inv['co']['owner'] ?: $inv['co']['name'])) : h("Guten Tag" . ($inv['c_contact'] ? ' ' . $inv['c_contact'] : '') . ",\n\nanbei erhalten Sie die Rechnung " . $inv['number'] . " über " . money($t['gross']) . ".\nBitte überweisen Sie den Betrag bis zum " . fdate($inv['due_date']) . ".\n\nZahlungsstatus und Downloads (PDF, XRechnung):\n" . $statusUrl . "\n\nMit freundlichen Grüßen\n" . ($inv['co']['owner'] ?: $inv['co']['name'])) ?></textarea>
   </label>
   <label>Zusätzliche Anhänge (optional, z. B. Korrekturabzüge)
     <input type="file" name="attachments[]" multiple accept=".pdf,.png,.jpg,.jpeg,.gif,.webp,.zip,.docx,.xlsx,.pptx,.odt,.ods,.txt,.csv">

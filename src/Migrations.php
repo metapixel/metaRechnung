@@ -10,7 +10,7 @@ namespace App;
 /** Schema-Updates für bestehende Installationen (läuft automatisch, einmalig). */
 final class Migrations
 {
-    public const VERSION = 5;
+    public const VERSION = 6;
 
     public static function run(): void
     {
@@ -79,6 +79,20 @@ final class Migrations
                 $pdo->exec('ALTER TABLE ' . $t . ' ADD COLUMN note TEXT NULL AFTER description');
             } catch (\PDOException $e) {
                 if ((int)($e->errorInfo[1] ?? 0) !== 1060) {
+                    throw $e;
+                }
+            }
+        }
+
+        // v6: Stornorechnung – verweist auf die stornierte Rechnung (höchstens eine Stornorechnung je Rechnung)
+        foreach ([
+            'ALTER TABLE invoices ADD COLUMN cancels_id INT UNSIGNED NULL AFTER customer_id',
+            'ALTER TABLE invoices ADD UNIQUE KEY uq_cancels (cancels_id)',
+        ] as $sql) {
+            try {
+                $pdo->exec($sql);
+            } catch (\PDOException $e) {
+                if (!in_array((int)($e->errorInfo[1] ?? 0), [1060, 1061], true)) {
                     throw $e;
                 }
             }

@@ -137,7 +137,7 @@
   "sev": "L",
   "title": "Statuslink in Mails/Ansicht wird nicht aus manipulierbarem Host-Header abgeleitet (APP_URL)",
   "ok": true,
-  "detail": "http://127.0.0.1:8097/status.php?t=15d429bb86da7a01b20b70794f42e33c"
+  "detail": "http://127.0.0.1:8097/status.php?t=69da6ea892b1df7b9d63c1638e5eaf52"
  },
  {
   "id": "D6",

@@ -35,7 +35,8 @@ if ($co['vat_id'] === '' && $co['tax_number'] === '') { $miss[] = 'Steuernummer 
   <label>Bank <input name="COMPANY_BANK" value="<?= $g('COMPANY_BANK') ?>"></label></div>
 
   <h2>Rechnungen</h2>
-  <div class="grid2"><label>Nummernpräfix <input name="INVOICE_PREFIX" maxlength="8" value="<?= $g('INVOICE_PREFIX', 'RE') ?>"></label>
+  <div class="grid3"><label>Nummernpräfix <input name="INVOICE_PREFIX" maxlength="8" value="<?= $g('INVOICE_PREFIX', 'RE') ?>"></label>
+  <label>Präfix Stornorechnungen <input name="CANCEL_PREFIX" maxlength="8" value="<?= $g('CANCEL_PREFIX', 'ST') ?>"></label>
   <label>Zahlungsziel (Tage) <input type="number" min="0" name="PAYMENT_DAYS" value="<?= $g('PAYMENT_DAYS', '14') ?>"></label></div>
   <label style="color:inherit"><input type="checkbox" name="KLEINUNTERNEHMER" value="1" style="width:auto" <?= $ku ? 'checked' : '' ?>> Kleinunternehmer (§ 19 UStG, keine Umsatzsteuer)</label>
   <label style="color:inherit"><input type="checkbox" name="GIROCODE" value="1" style="width:auto" <?= ($posted ? isset($old['GIROCODE']) : \App\GiroCode::enabled()) ? 'checked' : '' ?>> GiroCode (QR-Code zum Überweisen) auf Rechnung und Statusseite</label>

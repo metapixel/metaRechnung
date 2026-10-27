@@ -8,15 +8,18 @@
 <div class="scroll"><table>
   <tr><th scope="col">Nr.</th><th scope="col">Kunde</th><th scope="col">Datum</th><th scope="col">Fällig</th><th scope="col" class="r">Brutto</th><th scope="col">Status</th></tr>
   <?php foreach ($rows as $r):
-      $overdue = $r['status'] === 'issued' && $r['due_date'] < date('Y-m-d');
-      $label = ['draft' => 'Entwurf', 'issued' => $overdue ? 'überfällig' : 'offen', 'paid' => 'bezahlt'][$r['status']]; ?>
+      $isCredit = $r['cancels_id'] !== null; $isCancelled = (int)$r['cancelled'] > 0;
+      $overdue = $r['status'] === 'issued' && !$isCredit && !$isCancelled && $r['due_date'] < date('Y-m-d');
+      $label = ['draft' => $isCredit ? 'Entwurf (Storno)' : 'Entwurf', 'issued' => $overdue ? 'überfällig' : 'offen', 'paid' => 'bezahlt'][$r['status']];
+      $cls = $overdue ? 'over' : $r['status'];
+      if ($isCancelled) { $label = 'storniert'; $cls = 'cancel'; } elseif ($isCredit && $r['status'] !== 'draft') { $label = 'Storno'; $cls = 'cancel'; } ?>
   <tr class="rowlink" data-href="<?= BASE ?>?p=invoice&amp;id=<?= (int)$r['id'] ?>">
     <td><a href="<?= BASE ?>?p=invoice&id=<?= (int)$r['id'] ?>"><?= h($r['number'] ?: '—') ?></a></td>
     <td><?= h($r['c_name']) ?></td>
     <td><?= h(fdate($r['issue_date'])) ?></td>
-    <td><?= h(fdate($r['due_date'])) ?></td>
+    <td><?= $isCredit ? '–' : h(fdate($r['due_date'])) ?></td>
     <td class="r"><?= h(money($r['totals']['gross'])) ?></td>
-    <td><span class="badge <?= $overdue ? 'over' : h($r['status']) ?>"><?= h($label) ?></span></td>
+    <td><span class="badge <?= h($cls) ?>"><?= h($label) ?></span></td>
   </tr>
   <?php endforeach; ?>
 </table></div>

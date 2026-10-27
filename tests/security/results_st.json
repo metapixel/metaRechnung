@@ -1,0 +1,261 @@
+[
+ {
+  "id": "C1",
+  "sev": "H",
+  "title": "Ohne Login bzw. ohne CSRF-Token kein Stornoentwurf",
+  "ok": true,
+  "detail": "(200, 400)"
+ },
+ {
+  "id": "C2",
+  "sev": "M",
+  "title": "Entwürfe lassen sich nicht stornieren",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "C3",
+  "sev": "H",
+  "title": "Storno-Aktion legt genau einen Entwurf mit Bezug an und leitet dorthin weiter",
+  "ok": true,
+  "detail": "(302, '/?p=invoice&id=3')"
+ },
+ {
+  "id": "C4",
+  "sev": "H",
+  "title": "Positionen: Menge negativ (−10), Einzelpreis positiv (85), Steuersatz und Text übernommen; Kunde gleich",
+  "ok": true,
+  "detail": "-10.000\t85.00\t19.00\tWebentwicklung"
+ },
+ {
+  "id": "C5",
+  "sev": "M",
+  "title": "Hinweistext nennt Originalnummer und Datum",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "C6",
+  "sev": "H",
+  "title": "Zweiter Stornoversuch erzeugt keinen weiteren Entwurf",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "C7",
+  "sev": "M",
+  "title": "Originalseite: Link zum Stornoentwurf, kein weiterer Stornobutton",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "C8",
+  "sev": "H",
+  "title": "Menge 0 im Stornoentwurf wird abgelehnt",
+  "ok": true,
+  "detail": "302"
+ },
+ {
+  "id": "C9",
+  "sev": "H",
+  "title": "Negativer Einzelpreis im Stornoentwurf wird abgelehnt",
+  "ok": true,
+  "detail": "302"
+ },
+ {
+  "id": "C10",
+  "sev": "H",
+  "title": "Der Kunde einer Stornorechnung lässt sich nicht ändern (Manipulationsversuch ignoriert)",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "C11",
+  "sev": "M",
+  "title": "Bearbeitungsformular: Kunde fix, Menge ohne min=0, Hinweis auf Teilstorno",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "C12",
+  "sev": "H",
+  "title": "Eine Stornorechnung lässt sich nicht duplizieren",
+  "ok": true,
+  "detail": "3"
+ },
+ {
+  "id": "C13",
+  "sev": "H",
+  "title": "Stornorechnung mit positivem Gesamtbetrag wird nicht ausgestellt",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "C14",
+  "sev": "H",
+  "title": "Ausgestellt mit eigenem Nummernkreis ST-JJJJ-NNNN, Fälligkeit = Rechnungsdatum",
+  "ok": true,
+  "detail": "ST-2026-0001"
+ },
+ {
+  "id": "C15",
+  "sev": "M",
+  "title": "Nummernkreis der Rechnungen bleibt unberührt (nächste Rechnung RE-…-0002)",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "C16",
+  "sev": "H",
+  "title": "PDF: „Stornorechnung ST-…“, Bezug auf Originalnummer, negative Menge/Beträge, Erstattungshinweis, kein „Fällig am“",
+  "ok": true,
+  "detail": "                                                                                                            Test IT-Service\n                                                                                                                Musterstr. 1\n                                                   "
+ },
+ {
+  "id": "C17",
+  "sev": "H",
+  "title": "Kein GiroCode auf der Stornorechnung",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "C18",
+  "sev": "H",
+  "title": "XRechnung: Typcode 384, Bezug auf Originalrechnung (BT-25), negative Menge, negative Summen, keine Zahlungsfrist",
+  "ok": true,
+  "detail": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<rsm:CrossIndustryInvoice xmlns:rsm=\"urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100\" xmlns:qdt=\"urn:un:unece:uncefact:data:standard:QualifiedDataTy"
+ },
+ {
+  "id": "C19",
+  "sev": "H",
+  "title": "KoSIT-Validator akzeptiert die XRechnung der Stornorechnung",
+  "ok": true,
+  "detail": "l|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=\n"
+ },
+ {
+  "id": "C20",
+  "sev": "H",
+  "title": "KoSIT-Validator akzeptiert das in die PDF eingebettete ZUGFeRD-XML (EN 16931)",
+  "ok": true,
+  "detail": "l|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=\n"
+ },
+ {
+  "id": "C21",
+  "sev": "H",
+  "title": "Originalseite: „storniert durch ST-…“, kein Zahlungseingang-Formular, kein Stornobutton",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "C22",
+  "sev": "H",
+  "title": "Stornierte Rechnung lässt sich nicht mehr als bezahlt markieren",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "C23",
+  "sev": "M",
+  "title": "Stornoseite: Bezug zur Originalrechnung, Badge „Storno“, kein Zahlungsformular, kein Duplizieren/Stornieren",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "C24",
+  "sev": "M",
+  "title": "Stornorechnung lässt sich nicht als bezahlt markieren",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "C25",
+  "sev": "H",
+  "title": "Eine Stornorechnung lässt sich nicht stornieren",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "C26",
+  "sev": "M",
+  "title": "Liste: Original „storniert“, Storno „Storno“, keine Überfälligkeit",
+  "ok": true,
+  "detail": "2"
+ },
+ {
+  "id": "C27",
+  "sev": "H",
+  "title": "Statusseite der stornierten Rechnung: Hinweis „storniert“, keine IBAN, kein GiroCode, nicht „überfällig“",
+  "ok": true,
+  "detail": "<!doctype html>\n<html lang=\"de\">\n<head>\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\n<title>Rechnung RE-2026-0001 – metaRechnung</title>\n<meta name=\"theme-color\" content=\"#4f46e5\">\n<meta name=\"robots\" content=\"noindex,nofollow\">\n<link rel=\"icon\" type=\"im"
+ },
+ {
+  "id": "C28",
+  "sev": "H",
+  "title": "Statusseite der Stornorechnung: hebt Originalrechnung auf, nichts zu überweisen, kein GiroCode",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "C29",
+  "sev": "M",
+  "title": "PDF-Download über die Statusseite der Stornorechnung funktioniert",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "C30",
+  "sev": "M",
+  "title": "„Korrigierte Rechnung erstellen“ legt eine normale Kopie als Entwurf an (ohne Stornobezug)",
+  "ok": true,
+  "detail": "302"
+ },
+ {
+  "id": "C31",
+  "sev": "H",
+  "title": "Bezahlte Rechnung: Teilstorno (−4 × 100 € netto) wird ausgestellt, Summe −476,00 €, Original bleibt „bezahlt“ mit Hinweis",
+  "ok": true,
+  "detail": "0 €\n\nStorno-Test\n\nBereits geleistete Zahlungen zur stornierten Rechnung werden Ihnen erstattet bzw. mit oﬀenen Forderungen\nverrechnet. Es ist keine Zahlung erforderlich.\n\n\nTest IT-Service · Inhaber: Kai Test\nSteuernr.: 12/345/67890\nCommerzbank · IBAN: DE89 3704 0044 0532 0130 00 · BIC: COBADEFFXXX\n\f"
+ },
+ {
+  "id": "C32",
+  "sev": "M",
+  "title": "Gelöschter Stornoentwurf: Storno lässt sich neu anlegen",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "C33",
+  "sev": "M",
+  "title": "Konfiguriertes Storno-Präfix (GS) wird für den Nummernkreis verwendet",
+  "ok": true,
+  "detail": "GS-2026-0001"
+ },
+ {
+  "id": "C34",
+  "sev": "L",
+  "title": "Einstellungen: Feld „Präfix Stornorechnungen“ mit Standard ST",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "C35",
+  "sev": "M",
+  "title": "Mail zur Stornorechnung: Betreff „Stornorechnung …“ mit PDF-Anhang",
+  "ok": true,
+  "detail": "ENVELOPE: MAIL FROM:<rechnung@example.de> RCPT TO:<e@example.com>\nDate: Tue, 27 Oct 2026 07:44:02 +0100\nTo: e@example.com\nFrom: Test IT-Service <rechnung@example.de>\nReply-To: Test IT-Service <rechnun"
+ },
+ {
+  "id": "C36",
+  "sev": "H",
+  "title": "Migration: Spalte cancels_id wird bei einer 1.8-Installation automatisch ergänzt, schema_version = 6",
+  "ok": true,
+  "detail": "1"
+ },
+ {
+  "id": "C37",
+  "sev": "M",
+  "title": "Keine PHP-Fehler/Warnungen im Log",
+  "ok": true,
+  "detail": ""
+ }
+]

@@ -55,7 +55,7 @@ final class Mailer
         if (!str_contains($message, $statusUrl)) {
             $message = rtrim($message) . "\n\nZahlungsstatus und Downloads (PDF, XRechnung):\n" . $statusUrl . "\n";
         }
-        $m->Subject = 'Rechnung ' . $inv['number'] . ' von ' . $inv['co']['name'];
+        $m->Subject = (!empty($inv['cancels_id']) ? 'Stornorechnung ' : 'Rechnung ') . $inv['number'] . ' von ' . $inv['co']['name'];
         $m->Body = $message;
         $m->addStringAttachment($pdf, $inv['number'] . '.pdf', PHPMailer::ENCODING_BASE64, 'application/pdf');
         foreach ($attachments as $a) {

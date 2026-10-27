@@ -279,6 +279,7 @@ try {
             }
             render('invoice_form', [
                 'inv' => $inv,
+                'credit' => $inv && Invoices::isCredit($inv),
                 'customers' => db()->query('SELECT id, name FROM customers ORDER BY name')->fetchAll(),
                 'articles' => Articles::all(),
                 'preselect' => (int)($_GET['customer'] ?? 0),
@@ -301,12 +302,16 @@ try {
                     db()->prepare("DELETE FROM invoices WHERE id = ? AND status = 'draft'")->execute([$id]);
                     flash('Entwurf gelöscht.');
                     redirect(BASE);
-                } elseif ($a === 'paid') {
+                } elseif ($a === 'cancel') {
+                    $newId = Invoices::createCancellation($id);
+                    flash('Stornoentwurf angelegt – bitte prüfen und ausstellen. Erst mit dem Ausstellen ist die Rechnung storniert.');
+                    redirect(BASE . '?p=invoice&id=' . $newId);
+                } elseif ($a === 'paid' && !Invoices::isCredit($inv) && !$inv['cancelled_by']) {
                     $d = (string)($_POST['paid_at'] ?? '');
                     $d = preg_match('/^\d{4}-\d{2}-\d{2}$/', $d) ? $d : date('Y-m-d');
                     db()->prepare("UPDATE invoices SET status = 'paid', paid_at = ? WHERE id = ? AND status = 'issued'")->execute([$d, $id]);
                     flash('Als bezahlt markiert – auf der Statusseite des Kunden sichtbar.');
-                } elseif ($a === 'unpaid') {
+                } elseif ($a === 'unpaid' && !Invoices::isCredit($inv) && !$inv['cancelled_by']) {
                     db()->prepare("UPDATE invoices SET status = 'issued', paid_at = NULL WHERE id = ? AND status = 'paid'")->execute([$id]);
                     flash('Wieder auf „offen“ gesetzt.');
                 } elseif ($a === 'duplicate') {
@@ -437,6 +442,9 @@ try {
                     if ($days !== '' && (!ctype_digit($days) || (int)$days > 365)) {
                         $errors[] = 'Zahlungsziel: ganze Zahl von 0 bis 365 Tagen.';
                     }
+                    if ($in('CANCEL_PREFIX') !== '' && !preg_match('/^[A-Za-z0-9]{1,10}$/', $in('CANCEL_PREFIX'))) {
+                        $errors[] = 'Das Präfix für Stornorechnungen darf nur Buchstaben und Ziffern enthalten (höchstens 10 Zeichen).';
+                    }
                     if ($in('INVOICE_PREFIX') !== '' && !preg_match('/^[A-Za-z0-9]{1,10}$/', $in('INVOICE_PREFIX'))) {
                         $errors[] = 'Rechnungspräfix: 1–10 Buchstaben/Ziffern.';
                     }
@@ -468,6 +476,7 @@ try {
                         }
                         $c['COMPANY_COUNTRY'] = strtoupper($in('COMPANY_COUNTRY') ?: 'DE');
                         $c['INVOICE_PREFIX'] = preg_replace('/[^A-Za-z0-9]/', '', $in('INVOICE_PREFIX')) ?: 'RE';
+                        $c['CANCEL_PREFIX'] = preg_replace('/[^A-Za-z0-9]/', '', $in('CANCEL_PREFIX')) ?: 'ST';
                         $c['PAYMENT_DAYS'] = (string)max(0, (int)($in('PAYMENT_DAYS') ?: 14));
                         $c['KLEINUNTERNEHMER'] = isset($_POST['KLEINUNTERNEHMER']) ? '1' : '0';
                         $c['GIROCODE'] = isset($_POST['GIROCODE']) ? '1' : '0';

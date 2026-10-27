@@ -1,6 +1,6 @@
 <?php /** @var array $items @var array $articles @var bool $kl  Positionstabelle (Rechnungsentwurf und wiederkehrende Rechnung) */ ?>
   <h2>Positionen</h2>
-  <div class="scroll"><table id="items">
+  <div class="scroll"><table id="items"<?= !empty($credit) ? ' data-credit="1"' : '' ?>>
     <caption class="sr">Rechnungspositionen</caption>
     <thead><tr><th scope="col">Beschreibung</th><th scope="col">Menge</th><th scope="col">Einheit</th><th scope="col">Einzelpreis (netto)</th><?php if (!$kl): ?><th scope="col">MwSt %</th><?php endif; ?><th scope="col" class="r">Summe</th><th scope="col"><span class="sr">Aktionen</span></th></tr></thead>
     <tbody>
@@ -8,7 +8,7 @@
       <tr>
         <td><input name="desc[]" aria-label="Beschreibung" value="<?= h($it['description']) ?>" placeholder="Leistung / Artikel">
           <textarea name="note[]" rows="1" maxlength="1000" class="note" aria-label="Notiz zur Position (optional)" placeholder="Notiz (optional)"><?= h($it['note'] ?? '') ?></textarea></td>
-        <td><input name="qty[]" aria-label="Menge" type="number" step="0.001" min="0" value="<?= h(rtrim(rtrim((string)$it['quantity'], '0'), '.') ?: 1) ?>" class="s"></td>
+        <td><input name="qty[]" aria-label="Menge" type="number" step="0.001"<?= empty($credit) ? ' min="0"' : '' ?> value="<?= h(rtrim(rtrim((string)$it['quantity'], '0'), '.') ?: 1) ?>" class="s"></td>
         <td><select name="unit[]" aria-label="Einheit" class="s"><?php foreach (UNITS as $code => $lbl): ?><option value="<?= h($code) ?>" <?= $it['unit'] === $code ? 'selected' : '' ?>><?= h($lbl) ?></option><?php endforeach; ?></select></td>
         <td><input name="price[]" aria-label="Einzelpreis netto in Euro" type="number" step="0.01" value="<?= h($it['unit_price']) ?>" class="s"></td>
         <td <?= $kl ? 'hidden' : '' ?>><select name="vat[]" aria-label="MwSt-Satz in Prozent" class="s">

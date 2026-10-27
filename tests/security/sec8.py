@@ -79,13 +79,13 @@ rec('G9', 'M', 'Großer Betrag korrekt kodiert (3×1234567,89 + 19 % = 4407407,3
 # Einstellung aus (Config) → kein QR, PDF trotzdem ok
 cfgp = APP + '/config.php'; orig = open(cfgp).read()
 open(cfgp, 'w').write(orig.replace("'KLEINUNTERNEHMER' => '0',", "'KLEINUNTERNEHMER' => '0',\n  'GIROCODE' => '0',"))
-import time; time.sleep(2.5)
+import time; time.sleep(3.5)
 i5 = mk()
 rp = s.get(f'/index.php?p=pdf&id={i5}')
 rec('G10', 'H', 'GIROCODE=0: weder im PDF noch auf der Statusseite ein QR-Code; PDF weiter gültig', rp.raw[:4] == b'%PDF' and pdf_qr(rp.raw) == '' and 'GiroCode' not in anon.get(f'/status.php?t={tok(i5)}').body)
 st_ = s.get('/index.php?p=settings').body
 rec('G11', 'M', 'Einstellungsseite: Checkbox GiroCode vorhanden und abgewählt', 'name="GIROCODE"' in st_ and not re.search(r'name="GIROCODE"[^>]*checked', st_))
-open(cfgp, 'w').write(orig); time.sleep(2.5)
+open(cfgp, 'w').write(orig); time.sleep(3.5)
 st_ = s.get('/index.php?p=settings').body
 rec('G12', 'M', 'Standard: GiroCode aktiviert (Checkbox angehakt)', re.search(r'name="GIROCODE"[^>]*checked', st_) is not None)
 # Einstellung speichern über das Formular

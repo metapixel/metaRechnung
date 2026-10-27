@@ -23,7 +23,7 @@ def post(action='save', csrf=True, client=None, **kw):
     d = {k: v for k, v in d.items() if v is not None}
     if csrf: d['csrf'] = page_token(c, '/index.php?p=pdf_design')
     return c.post('/index.php?p=pdf_design', d)
-def wait(): import time; time.sleep(2.2)   # opcache für config.php
+def wait(): import time; time.sleep(3.5)   # opcache für config.php
 
 # --- Zugriff / CSRF
 pg = anon.get('/index.php?p=pdf_design'); anon.post('/index.php?p=pdf_design', dict(BASE, action='save'))

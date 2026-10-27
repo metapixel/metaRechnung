@@ -2,6 +2,18 @@
 
 Die aktuelle Versionsnummer steht in der Datei `VERSION` (und unten in der App sowie unter Einstellungen → System).
 
+## 1.9.0
+- **Stornorechnung**: Bei ausgestellten und bezahlten Rechnungen gibt es „Stornorechnung erstellen“. Daraus entsteht ein **Entwurf** mit den Positionen in negativer Menge (Einzelpreis bleibt positiv),
+  gleichem Kunden und Bezug auf die Originalrechnung; er lässt sich vor dem Ausstellen anpassen (**Teilstorno**: Mengen verkleinern oder Positionen entfernen). Erst mit dem Ausstellen gilt die Rechnung als storniert.
+- **Eigener Nummernkreis** `ST-JJJJ-NNNN` (Präfix unter Einstellungen → Rechnungen änderbar), fortlaufend und unabhängig von den Rechnungsnummern.
+- **PDF und XML:** „Stornorechnung“ mit Hinweis auf die aufgehobene Rechnung, Erstattungshinweis statt Zahlungsaufforderung, kein GiroCode. Das XML (ZUGFeRD/XRechnung) hat den Dokumenttyp 384 (Rechnungskorrektur)
+  und verweist auf die Originalnummer (BT-25); mit dem KoSIT-Validator geprüft.
+- **Barrierefreiheit:** Das Feld mit dem Statusseiten-Link hat jetzt eine Beschriftung für Screenreader.
+- **Verknüpfung und Sperren:** Original und Storno verweisen aufeinander; die Originalrechnung zeigt „storniert“ (Liste, Detailseite, Kunden-Statusseite ohne Zahlungsdaten und GiroCode). Je Rechnung nur eine Stornorechnung;
+  eine Stornorechnung lässt sich weder stornieren, duplizieren noch als bezahlt markieren; stornierte Rechnungen nicht als bezahlt. Ein gelöschter Stornoentwurf gibt das Storno wieder frei.
+  An stornierten Rechnungen steht „Korrigierte Rechnung erstellen“ (Kopie als neuer Entwurf).
+- Datenbank-Migration (Version 6) läuft automatisch. Neue Tests `sec10`. Hinweis: Die Software ersetzt keine steuerliche Beratung – bitte Umgang mit Stornos (z. B. bei bereits gezahlten Rechnungen) mit dem Steuerberater abstimmen.
+
 ## 1.8.2
 - **Kunden-, Artikel- und Wiederkehrend-Listen: ganze Zeile klickbar** wie bei den Rechnungen; der Link „Bearbeiten“ entfällt. Der Name in der ersten Spalte ist der echte Link (Tastatur/Screenreader), die Spalte „Aktionen“ ist weggefallen.
 

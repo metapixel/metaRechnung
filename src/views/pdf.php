@@ -1,4 +1,4 @@
-<?php /** @var array $inv @var array $co @var bool $kl */ $t = $inv['totals']; $dz = \App\PdfDesign::sanitize($inv['design'] ?? \App\PdfDesign::current()); ?>
+<?php /** @var array $inv @var array $co @var bool $kl */ $t = $inv['totals']; $dz = \App\PdfDesign::sanitize($inv['design'] ?? \App\PdfDesign::current()); $credit = !empty($inv['cancels_id']); ?>
 <style>
 <?= \App\PdfDesign::css($dz) ?></style>
 
@@ -29,13 +29,15 @@
       <tr><td>Rechnungs-Nr.:</td><td class="r"><b><?= h($inv['number']) ?></b></td></tr>
       <tr><td>Rechnungsdatum:</td><td class="r"><?= h(fdate($inv['issue_date'])) ?></td></tr>
       <tr><td>Leistungsdatum:</td><td class="r"><?= h(fdate($inv['delivery_date'] ?: $inv['issue_date'])) ?></td></tr>
-      <tr><td>Fällig am:</td><td class="r"><?= h(fdate($inv['due_date'])) ?></td></tr>
+      <?php if ($credit): ?><tr><td>Storno zu:</td><td class="r"><b><?= h((string)($inv['cancels']['number'] ?? '')) ?></b></td></tr>
+      <?php else: ?><tr><td>Fällig am:</td><td class="r"><?= h(fdate($inv['due_date'])) ?></td></tr><?php endif; ?>
     </table>
   </td>
 </tr>
 </table>
 
-<h1>Rechnung <?= h($inv['number']) ?></h1>
+<h1><?= $credit ? 'Stornorechnung' : 'Rechnung' ?> <?= h($inv['number']) ?></h1>
+<?php if ($credit && !empty($inv['cancels'])): ?><p>Diese Stornorechnung hebt die Rechnung <b><?= h($inv['cancels']['number']) ?></b> vom <?= h(fdate($inv['cancels']['issue_date'])) ?> auf.</p><?php endif; ?>
 
 <table class="items">
   <tr><th>Pos.</th><th>Beschreibung</th><th class="r">Menge</th><th class="r">Einzelpreis</th><?php if (!$kl): ?><th class="r">MwSt</th><?php endif; ?><th class="r">Summe (netto)</th></tr>
@@ -64,8 +66,10 @@
 <?php if (!empty($inv['notes'])): ?><p style="margin-top:12px"><?= nl2br(h($inv['notes'])) ?></p><?php endif; ?>
 <?php if ($dz['closing'] !== ''): ?><p style="margin-top:12px"><?= nl2br(h($dz['closing'])) ?></p><?php endif; ?>
 
-<?php $gc = \App\GiroCode::enabled() ? \App\GiroCode::payload($inv) : null; ?>
-<?php if ($gc): ?>
+<?php $gc = !$credit && \App\GiroCode::enabled() ? \App\GiroCode::payload($inv) : null; ?>
+<?php if ($credit): ?>
+<p style="margin-top:16px">Bereits geleistete Zahlungen zur stornierten Rechnung werden Ihnen erstattet bzw. mit offenen Forderungen verrechnet. Es ist keine Zahlung erforderlich.</p>
+<?php elseif ($gc): ?>
 <table class="plain" style="margin-top:16px"><tr>
   <td style="width:75%; vertical-align:middle">Bitte überweisen Sie den Rechnungsbetrag bis zum <b><?= h(fdate($inv['due_date'])) ?></b> unter Angabe der Rechnungsnummer
   auf das unten genannte Konto.<br><span class="small">Oder scannen Sie den GiroCode mit Ihrer Banking-App: Empfänger, IBAN, Betrag und Verwendungszweck werden automatisch übernommen.</span></td>

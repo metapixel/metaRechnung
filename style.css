@@ -207,3 +207,6 @@ textarea.note { margin-top:4px; min-height:2.4em; font-size:.88rem; resize:verti
 
 /* Ganze Zeile klickbar */
 tr.rowlink { cursor:pointer; } tr.rowlink:focus-within td { background:color-mix(in srgb, var(--pri-soft) 55%, transparent); }
+
+/* Storno */
+.badge.cancel { color:var(--bad); background:var(--bad-soft); border-color:transparent; }

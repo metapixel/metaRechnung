@@ -6,9 +6,15 @@ $sel = (int)($inv['customer_id'] ?? $preselect ?? 0);
 $issue = $inv['issue_date'] ?? date('Y-m-d');
 $due = $inv['due_date'] ?? date('Y-m-d', strtotime('+' . (int)env('PAYMENT_DAYS', '14') . ' days'));
 ?>
-<h1><?= $inv ? 'Entwurf bearbeiten' : 'Neue Rechnung' ?></h1>
+<?php $credit = !empty($credit); ?>
+<h1><?= $credit ? 'Stornoentwurf bearbeiten' : ($inv ? 'Entwurf bearbeiten' : 'Neue Rechnung') ?></h1>
 <form method="post" class="card">
   <input type="hidden" name="csrf" value="<?= h(csrf()) ?>">
+  <?php if ($credit): ?>
+  <p><b>Kunde:</b> <?= h($inv['c_name']) ?> <span class="hint">(bei einer Stornorechnung nicht änderbar)</span></p>
+  <input type="hidden" name="customer_id" value="<?= (int)$inv['customer_id'] ?>">
+  <p class="hint">Mengen negativ lassen (z. B. −2). Für ein <b>Teilstorno</b> Mengen verkleinern oder Positionen entfernen; der Einzelpreis bleibt positiv.</p>
+  <?php else: ?>
   <label>Kunde *
     <select name="customer_id" required>
       <option value="">– bitte wählen –</option>
@@ -18,6 +24,7 @@ $due = $inv['due_date'] ?? date('Y-m-d', strtotime('+' . (int)env('PAYMENT_DAYS'
     </select>
   </label>
   <p class="muted"><a href="<?= BASE ?>?p=customer_edit&next=invoice_edit">+ Neuen Kunden anlegen</a></p>
+  <?php endif; ?>
   <div class="grid3">
     <label>Rechnungsdatum <input type="date" name="issue_date" value="<?= h($issue) ?>" required></label>
     <label>Leistungsdatum <input type="date" name="delivery_date" value="<?= h($inv['delivery_date'] ?? '') ?>"></label>

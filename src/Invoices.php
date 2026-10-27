@@ -78,7 +78,69 @@ final class Invoices
         // Gestaltung: Entwürfe zeigen die aktuelle, ausgestellte Rechnungen die beim Ausstellen eingefrorene (ältere: das bisherige Aussehen)
         $inv['design'] = $snap !== null ? PdfDesign::sanitize($snap['design'] ?? PdfDesign::legacy()) : PdfDesign::current();
         $inv['totals'] = self::totals($inv['items'], $inv['kl']);
+        // Stornobezug: Stornorechnung → stornierte Rechnung; Rechnung → ihre Stornorechnung (ausgestellt oder noch Entwurf)
+        $inv['cancels'] = $inv['cancelled_by'] = $inv['storno_draft'] = null;
+        if (!empty($inv['cancels_id'])) {
+            $o = db()->prepare('SELECT id, number, issue_date FROM invoices WHERE id = ?');
+            $o->execute([(int)$inv['cancels_id']]);
+            $inv['cancels'] = $o->fetch() ?: null;
+        } else {
+            $o = db()->prepare('SELECT id, number, status FROM invoices WHERE cancels_id = ?');
+            $o->execute([$id]);
+            if ($s = $o->fetch()) {
+                if ($s['status'] === 'draft') {
+                    $inv['storno_draft'] = (int)$s['id'];
+                } else {
+                    $inv['cancelled_by'] = $s;
+                }
+            }
+        }
         return $inv;
+    }
+
+    /** Ist dies eine Stornorechnung? */
+    public static function isCredit(array $inv): bool
+    {
+        return !empty($inv['cancels_id']);
+    }
+
+    /**
+     * Legt zu einer ausgestellten Rechnung einen Stornoentwurf an: gleiche Positionen mit umgekehrtem Vorzeichen
+     * (negative Menge, Einzelpreis bleibt positiv), gleicher Kunde, Bezug auf die Originalrechnung.
+     */
+    public static function createCancellation(int $id): int
+    {
+        $pdo = db();
+        $pdo->beginTransaction();
+        try {
+            $st = $pdo->prepare('SELECT id, number, status, customer_id, issue_date, delivery_date, cancels_id FROM invoices WHERE id = ? FOR UPDATE');
+            $st->execute([$id]);
+            $src = $st->fetch();
+            if (!$src || !in_array($src['status'], ['issued', 'paid'], true)) {
+                throw new \RuntimeException('Nur ausgestellte Rechnungen können storniert werden.');
+            }
+            if ($src['cancels_id'] !== null) {
+                throw new \RuntimeException('Eine Stornorechnung kann nicht storniert werden.');
+            }
+            $ex = $pdo->prepare('SELECT COUNT(*) FROM invoices WHERE cancels_id = ?');
+            $ex->execute([$id]);
+            if ((int)$ex->fetchColumn() > 0) {
+                throw new \RuntimeException('Zu dieser Rechnung gibt es bereits eine Stornorechnung.');
+            }
+            $notes = 'Storno zu Rechnung ' . $src['number'] . ' vom ' . fdate($src['issue_date']) . '.';
+            $pdo->prepare("INSERT INTO invoices (customer_id, cancels_id, status, issue_date, delivery_date, due_date, notes) VALUES (?, ?, 'draft', CURDATE(), ?, CURDATE(), ?)")
+                ->execute([$src['customer_id'], $id, $src['delivery_date'] ?: $src['issue_date'], $notes]);
+            $new = (int)$pdo->lastInsertId();
+            // Vorzeichen umkehren, ohne negativen Einzelpreis (EN 16931 BR-27): Positionen mit negativem Preis (Rabatt) behalten die Menge
+            $pdo->prepare('INSERT INTO invoice_items (invoice_id, pos, description, note, quantity, unit, unit_price, vat_rate)
+                           SELECT ?, pos, description, note, CASE WHEN unit_price < 0 THEN quantity ELSE -quantity END, unit, ABS(unit_price), vat_rate
+                           FROM invoice_items WHERE invoice_id = ?')->execute([$new, $id]);
+            $pdo->commit();
+            return $new;
+        } catch (\Throwable $e) {
+            $pdo->rollBack();
+            throw $e;
+        }
     }
 
     public static function findByToken(string $token): ?array
@@ -100,11 +162,14 @@ final class Invoices
         $pdo = db();
         $pdo->beginTransaction();
         try {
-            $st = $pdo->prepare('SELECT customer_id, notes FROM invoices WHERE id = ?');
+            $st = $pdo->prepare('SELECT customer_id, notes, cancels_id FROM invoices WHERE id = ?');
             $st->execute([$id]);
             $src = $st->fetch();
             if (!$src) {
                 throw new \RuntimeException('Rechnung nicht gefunden.');
+            }
+            if ($src['cancels_id'] !== null) {
+                throw new \RuntimeException('Eine Stornorechnung kann nicht dupliziert werden.');
             }
             $due = date('Y-m-d', strtotime('+' . (int)env('PAYMENT_DAYS', '14') . ' days'));
             $pdo->prepare("INSERT INTO invoices (customer_id, status, issue_date, delivery_date, due_date, notes) VALUES (?, 'draft', CURDATE(), NULL, ?, ?)")
@@ -124,7 +189,8 @@ final class Invoices
     public static function listAll(): array
     {
         $rows = db()->query(
-            'SELECT i.id, i.number, i.status, i.issue_date, i.due_date, i.sent_at, i.snapshot, c.name AS c_name
+            'SELECT i.id, i.number, i.status, i.cancels_id, i.issue_date, i.due_date, i.sent_at, i.snapshot, c.name AS c_name,
+                    (SELECT COUNT(*) FROM invoices s WHERE s.cancels_id = i.id AND s.status <> \'draft\') AS cancelled
              FROM invoices i JOIN customers c ON c.id = i.customer_id
              ORDER BY i.issue_date DESC, i.id DESC'
         )->fetchAll();
@@ -145,7 +211,7 @@ final class Invoices
      * Leere Beschreibungen werden übersprungen. Wirft RuntimeException mit Positionsnummer bei Fehlern.
      * @return list<array{description:string,note:?string,quantity:float,unit:string,unit_price:float,vat_rate:float}>
      */
-    public static function parseItems(array $in): array
+    public static function parseItems(array $in, bool $credit = false): array
     {
         $out = [];
         foreach ((array)($in['desc'] ?? []) as $k => $desc) {
@@ -166,13 +232,23 @@ final class Invoices
             $out[] = [
                 'description' => $desc,
                 'note' => $note !== '' ? $note : null,
-                'quantity' => self::numStrict($in['qty'][$k] ?? '1', 'Menge', $n, 0.001, 999999.0),
+                'quantity' => $credit ? self::creditQty($in['qty'][$k] ?? '-1', $n) : self::numStrict($in['qty'][$k] ?? '1', 'Menge', $n, 0.001, 999999.0),
                 'unit' => is_string($unitIn) && array_key_exists($unitIn, UNITS) ? $unitIn : 'C62',
-                'unit_price' => self::numStrict($in['price'][$k] ?? '0', 'Einzelpreis', $n, -9999999.99, 9999999.99),
+                'unit_price' => self::numStrict($in['price'][$k] ?? '0', 'Einzelpreis', $n, $credit ? 0.0 : -9999999.99, 9999999.99),
                 'vat_rate' => self::numStrict($in['vat'][$k] ?? '19', 'MwSt-Satz', $n, 0.0, 30.0),
             ];
         }
         return $out;
+    }
+
+    /** Menge einer Stornoposition: positiv oder negativ, aber nicht 0. */
+    private static function creditQty(mixed $v, int $pos): float
+    {
+        $q = self::numStrict($v, 'Menge', $pos, -999999.0, 999999.0);
+        if (abs($q) < 0.001) {
+            throw new \RuntimeException("Position $pos: Menge darf nicht 0 sein.");
+        }
+        return $q;
     }
 
     public static function saveDraft(?int $id, array $in): int
@@ -195,6 +271,15 @@ final class Invoices
         if (mb_strlen((string)$notes) > 5000) {
             throw new \RuntimeException('Die Notiz ist zu lang (höchstens 5000 Zeichen).');
         }
+        $credit = false;
+        if ($id !== null) {
+            $own = $pdo->prepare("SELECT customer_id, cancels_id FROM invoices WHERE id = ? AND status = 'draft'");
+            $own->execute([$id]);
+            if (($row = $own->fetch()) && $row['cancels_id'] !== null) {
+                $credit = true;
+                $in['customer_id'] = $row['customer_id'];   // Der Kunde einer Stornorechnung steht fest
+            }
+        }
         $cs = db()->prepare('SELECT COUNT(*) FROM customers WHERE id = ?');
         $cs->execute([(int)($in['customer_id'] ?? 0)]);
         if (!(int)$cs->fetchColumn()) {
@@ -213,7 +298,7 @@ final class Invoices
                 $pdo->prepare('DELETE FROM invoice_items WHERE invoice_id = ?')->execute([$id]);
             }
             $ins = $pdo->prepare('INSERT INTO invoice_items (invoice_id, pos, description, note, quantity, unit, unit_price, vat_rate) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
-            foreach (self::parseItems($in) as $n => $r) {
+            foreach (self::parseItems($in, $credit) as $n => $r) {
                 $ins->execute([$id, $n + 1, $r['description'], $r['note'], $r['quantity'], $r['unit'], $r['unit_price'], $r['vat_rate']]);
             }
             $pdo->commit();
@@ -230,7 +315,7 @@ final class Invoices
         $pdo = db();
         $pdo->beginTransaction();
         try {
-            $st = $pdo->prepare('SELECT status, issue_date FROM invoices WHERE id = ? FOR UPDATE');
+            $st = $pdo->prepare('SELECT status, issue_date, cancels_id FROM invoices WHERE id = ? FOR UPDATE');
             $st->execute([$id]);
             $row = $st->fetch();
             if (!$row || $row['status'] !== 'draft') {
@@ -242,7 +327,15 @@ final class Invoices
                 throw new \RuntimeException('Die Rechnung hat keine Positionen.');
             }
 
-            $prefix = env('INVOICE_PREFIX', 'RE') . '-' . date('Y', strtotime($row['issue_date'])) . '-';
+            $credit = $row['cancels_id'] !== null;
+            if ($credit) {
+                $its = $pdo->prepare('SELECT quantity, unit_price, vat_rate FROM invoice_items WHERE invoice_id = ?');
+                $its->execute([$id]);
+                if (self::totals($its->fetchAll(), self::kleinunternehmer())['net'] >= 0) {
+                    throw new \RuntimeException('Eine Stornorechnung muss einen negativen Gesamtbetrag haben (Mengen negativ eingeben).');
+                }
+            }
+            $prefix = ($credit ? env('CANCEL_PREFIX', 'ST') : env('INVOICE_PREFIX', 'RE')) . '-' . date('Y', strtotime($row['issue_date'])) . '-';
             $st = $pdo->prepare('SELECT MAX(CAST(SUBSTRING(number, ' . (strlen($prefix) + 1) . ') AS UNSIGNED)) FROM invoices WHERE number LIKE ? FOR UPDATE');
             $st->execute([$prefix . '%']);
             $number = $prefix . str_pad((string)((int)$st->fetchColumn() + 1), 4, '0', STR_PAD_LEFT);
@@ -250,6 +343,9 @@ final class Invoices
             $snap = json_encode(['company' => company(), 'kl' => self::kleinunternehmer(), 'design' => PdfDesign::current()], JSON_UNESCAPED_UNICODE);
             $pdo->prepare("UPDATE invoices SET number = ?, status = 'issued', snapshot = ?, public_token = ? WHERE id = ?")
                 ->execute([$number, $snap, bin2hex(random_bytes(16)), $id]);
+            if ($credit) {
+                $pdo->prepare('UPDATE invoices SET due_date = issue_date WHERE id = ?')->execute([$id]);   // keine Zahlungsfrist bei Storno
+            }
             $inv = self::find($id);
             $pdf = Einvoice::pdf($inv);
             if (file_put_contents(self::pdfPath($number), $pdf) === false) {

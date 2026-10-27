@@ -207,7 +207,7 @@
   "sev": "H",
   "title": "Session-ID wird nach Login erneuert (Session Fixation)",
   "ok": true,
-  "detail": "('b2kvkmehm1s2925c76v33qh87u', '9c3irgudusto7bk556jm950ue4')"
+  "detail": "('qvq9420q1lduu85iuvvtmckv1n', 'nkua9feh8ks72kc62e20na7hd4')"
  },
  {
   "id": "M2",
@@ -221,7 +221,7 @@
   "sev": "M",
   "title": "Session-Cookie: HttpOnly + SameSite",
   "ok": true,
-  "detail": "rechnung=npea551ple8dd0h5b481nk7a1m; path=/; HttpOnly; SameSite=Lax"
+  "detail": "rechnung=cil029mihmvepv7lpalfdltr4j; path=/; HttpOnly; SameSite=Lax"
  },
  {
   "id": "M4",
@@ -235,7 +235,7 @@
   "sev": "M",
   "title": "Paralleles Raten (30 Versuche gleichzeitig) wird begrenzt: danach ist die Anmeldung gesperrt",
   "ok": true,
-  "detail": "1.3s"
+  "detail": "1.2s"
  },
  {
   "id": "M6",

@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS invoices (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   number VARCHAR(30) NULL UNIQUE,
   customer_id INT UNSIGNED NOT NULL,
+  cancels_id INT UNSIGNED NULL,
   status ENUM('draft','issued','paid') NOT NULL DEFAULT 'draft',
   issue_date DATE NOT NULL,
   delivery_date DATE NULL,
@@ -28,6 +29,7 @@ CREATE TABLE IF NOT EXISTS invoices (
   sent_at DATETIME NULL,
   paid_at DATE NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_cancels (cancels_id),
   FOREIGN KEY (customer_id) REFERENCES customers(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

@@ -51,7 +51,12 @@ final class Einvoice
         }
 
         $d = ZugferdDocumentBuilder::CreateNew($xrechnung ? ZugferdProfiles::PROFILE_XRECHNUNG_3 : ZugferdProfiles::PROFILE_EN16931);
-        $d->setDocumentInformation($inv['number'], ZugferdInvoiceType::INVOICE, new \DateTime($inv['issue_date']), 'EUR');
+        $credit = !empty($inv['cancels_id']);
+        $d->setDocumentInformation($inv['number'], $credit ? ZugferdInvoiceType::CORRECTION : ZugferdInvoiceType::INVOICE, new \DateTime($inv['issue_date']), 'EUR');
+        if ($credit && !empty($inv['cancels'])) {
+            // BT-25/BT-26: Bezug auf die stornierte Rechnung
+            $d->addDocumentInvoiceReferencedDocument((string)$inv['cancels']['number'], null, new \DateTime($inv['cancels']['issue_date']));
+        }
         if ($xrechnung) {
             $d->setDocumentBuyerReference($inv['c_buyer_ref'] ?: 'n/a');
         }
@@ -109,10 +114,12 @@ final class Einvoice
 
         $d->setDocumentSummation($t['gross'], $t['gross'], $t['net'], 0.0, 0.0, $t['net'], $t['tax'], null, 0.0);
 
-        if ($co['iban'] !== '') {
+        if ($co['iban'] !== '' && !$credit) {
             $d->addDocumentPaymentMean('58', null, null, null, null, null, $co['iban'], $co['name'], null, $co['bic'] ?: null);
         }
-        $d->addDocumentPaymentTerm('Zahlbar bis ' . fdate($inv['due_date']) . ' ohne Abzug.', new \DateTime($inv['due_date']));
+        if (!$credit) {
+            $d->addDocumentPaymentTerm('Zahlbar bis ' . fdate($inv['due_date']) . ' ohne Abzug.', new \DateTime($inv['due_date']));
+        }
 
         return $d->getContent();
     }
@@ -144,7 +151,7 @@ final class Einvoice
                 'default_font' => $design['font'], 'default_font_size' => PdfDesign::fontSize($design),
                 'PDFA' => true, 'PDFAauto' => true, 'PDFAversion' => '3-B',
             ]);
-            $mpdf->SetTitle('Rechnung ' . $inv['number']);
+            $mpdf->SetTitle((!empty($inv['cancels_id']) ? 'Stornorechnung ' : 'Rechnung ') . $inv['number']);
             $mpdf->SetAuthor($co['name']);
             $mpdf->SetAssociatedFiles([[
                 'name' => 'factur-x.xml',
