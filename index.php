@@ -8,6 +8,7 @@ declare(strict_types=1);
 require __DIR__ . '/src/bootstrap.php';
 
 use App\Config;
+use App\CustomerImport;
 use App\Einvoice;
 use App\Invoices;
 use App\Letterhead;
@@ -87,6 +88,110 @@ try {
     switch ($p) {
         case 'customers':
             render('customers', ['customers' => db()->query('SELECT * FROM customers ORDER BY name')->fetchAll()]);
+            break;
+
+        case 'customer_import':
+            if (isset($_GET['template'])) {
+                $csv = CustomerImport::templateCsv();
+                header('Content-Type: text/csv; charset=utf-8');
+                header('Content-Disposition: attachment; filename="kunden-vorlage.csv"');
+                header('Content-Length: ' . strlen($csv));
+                // Geprüft: feste Vorlage ohne Benutzereingabe
+                // nosemgrep
+                echo $csv;
+                exit;
+            }
+            $tmpDir = __DIR__ . '/storage/tmp';
+            $cleanup = static function () use ($tmpDir): void {
+                $imp = $_SESSION['import'] ?? null;
+                if (is_array($imp) && preg_match('/^import-[0-9a-f]{24}\.csv$/D', (string)($imp['file'] ?? ''))) {
+                    // Geprüft: Dateiname stammt aus der eigenen Sitzung und ist auf [0-9a-f] geprüft
+                    // nosemgrep
+                    @unlink($tmpDir . '/' . $imp['file']);
+                }
+                unset($_SESSION['import']);
+                foreach (glob($tmpDir . '/import-*.csv') ?: [] as $f) {
+                    if (filemtime($f) < time() - 3600) {
+                        // nosemgrep
+                        @unlink($f);   // Reste älter als eine Stunde
+                    }
+                }
+            };
+            $imp = $_SESSION['import'] ?? null;
+            $file = null;
+            if (is_array($imp) && preg_match('/^import-[0-9a-f]{24}\.csv$/D', (string)($imp['file'] ?? '')) && time() - (int)($imp['time'] ?? 0) < 3600 && is_file($tmpDir . '/' . $imp['file'])) {
+                $file = $tmpDir . '/' . $imp['file'];
+            }
+            $a = $post ? (is_string($_POST['action'] ?? '') ? (string)$_POST['action'] : '') : '';
+            if ($post && $a === 'cancel') {
+                $cleanup();
+                flash('Import abgebrochen.');
+                redirect(BASE . '?p=customers');
+            }
+            if ($post && $a === 'upload') {
+                $up = $_FILES['csv'] ?? null;
+                $err = (int)($up['error'] ?? UPLOAD_ERR_NO_FILE);
+                if ($err === UPLOAD_ERR_INI_SIZE || $err === UPLOAD_ERR_FORM_SIZE) {
+                    throw new RuntimeException('Die Datei ist zu groß (höchstens ' . (int)(CustomerImport::MAX_BYTES / 1048576) . ' MB).');
+                }
+                if ($err !== UPLOAD_ERR_OK || !is_uploaded_file((string)($up['tmp_name'] ?? ''))) {
+                    throw new RuntimeException('Bitte eine CSV-Datei auswählen.');
+                }
+                if ((int)($up['size'] ?? 0) > CustomerImport::MAX_BYTES) {
+                    throw new RuntimeException('Die Datei ist zu groß (höchstens ' . (int)(CustomerImport::MAX_BYTES / 1048576) . ' MB).');
+                }
+                $text = CustomerImport::decode((string)file_get_contents((string)$up['tmp_name'], false, null, 0, CustomerImport::MAX_BYTES + 1));
+                $dl = is_string($_POST['delimiter'] ?? '') ? (string)$_POST['delimiter'] : 'auto';
+                $delim = ['semicolon' => ';', 'comma' => ',', 'tab' => "\t", 'pipe' => '|'][$dl] ?? CustomerImport::detectDelimiter($text);
+                CustomerImport::parse($text, $delim);   // prüft Aufbau und Grenzen
+                if (!is_dir($tmpDir)) {
+                    mkdir($tmpDir, 0775, true);
+                }
+                $cleanup();
+                $name = 'import-' . bin2hex(random_bytes(12)) . '.csv';
+                if (file_put_contents($tmpDir . '/' . $name, $text, LOCK_EX) === false) {
+                    throw new RuntimeException('Die Datei konnte nicht zwischengespeichert werden (Schreibrechte auf storage/?).');
+                }
+                @chmod($tmpDir . '/' . $name, 0600);
+                $_SESSION['import'] = ['file' => $name, 'delim' => $delim, 'orig' => mb_substr(clean(basename((string)($up['name'] ?? 'datei.csv'))), 0, 80), 'time' => time()];
+                redirect(BASE . '?p=customer_import');
+            }
+            $view = ['step' => 'upload'];
+            if ($file !== null) {
+                $rows = CustomerImport::parse((string)file_get_contents($file), (string)$imp['delim']);
+                $hasHeader = $post ? isset($_POST['has_header']) : true;
+                $cols = 0;
+                foreach (array_slice($rows, 0, 300) as $r) {
+                    $cols = max($cols, count($r));
+                }
+                $header = $hasHeader ? array_shift($rows) : array_map(static fn($i) => 'Spalte ' . ($i + 1), range(0, max(0, $cols - 1)));
+                $cols = max($cols, count($header));
+                $mode = ($post && ($_POST['mode'] ?? '') === 'update') ? 'update' : 'skip';
+                $mapErrors = [];
+                if ($post && ($a === 'preview' || $a === 'import')) {
+                    [$map, $mapErrors] = CustomerImport::checkMap($_POST['map'] ?? [], $cols);
+                } else {
+                    $map = $hasHeader ? CustomerImport::autoMap($header) : array_fill(0, $cols, '');
+                    $map = array_pad($map, $cols, '');
+                }
+                $plan = null;
+                if (!$mapErrors) {
+                    $plan = CustomerImport::plan($rows, $map, $mode, $hasHeader ? 2 : 1);
+                    if ($post && $a === 'import') {
+                        if (($plan['counts']['new'] + $plan['counts']['update']) === 0) {
+                            $mapErrors[] = 'Es gibt keine importierbaren Zeilen.';
+                        } else {
+                            $res = CustomerImport::apply($plan, $map);
+                            $cleanup();
+                            flash($res['new'] . ' Kunde(n) angelegt, ' . $res['update'] . ' aktualisiert, ' . $plan['counts']['duplicate'] . ' als Duplikat übersprungen, ' . $plan['counts']['error'] . ' fehlerhafte Zeile(n) nicht importiert.');
+                            redirect(BASE . '?p=customers');
+                        }
+                    }
+                }
+                $view = ['step' => 'preview', 'orig' => (string)($imp['orig'] ?? ''), 'header' => $header, 'rows' => $rows, 'cols' => $cols, 'map' => $map, 'mode' => $mode,
+                         'hasHeader' => $hasHeader, 'plan' => $plan, 'errors' => $mapErrors];
+            }
+            render('customer_import', $view);
             break;
 
         case 'customer_edit':

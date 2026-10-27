@@ -1,0 +1,205 @@
+[
+ {
+  "id": "I1",
+  "sev": "H",
+  "title": "Anonym: Importseite nicht erreichbar, Upload wirkungslos",
+  "ok": true,
+  "detail": "(200, 200)"
+ },
+ {
+  "id": "I2",
+  "sev": "H",
+  "title": "Upload ohne CSRF-Token → 400, nichts zwischengespeichert",
+  "ok": true,
+  "detail": "400"
+ },
+ {
+  "id": "I3",
+  "sev": "L",
+  "title": "Vorlage: CSV mit UTF-8-BOM, Kopfzeile mit Pflichtfeldern, Download-Header",
+  "ok": true,
+  "detail": "text/csv; charset=utf-8"
+ },
+ {
+  "id": "I4",
+  "sev": "L",
+  "title": "Kundenliste verlinkt den CSV-Import",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "I5",
+  "sev": "H",
+  "title": "Upload: Datei wird mit zufälligem Namen in storage/tmp abgelegt (0600), Weiterleitung zur Vorschau, noch nichts importiert",
+  "ok": true,
+  "detail": "(302, ['/home/claude/work/sec/app/storage/tmp/import-9a0c455223342c005f377cb3.csv'])"
+ },
+ {
+  "id": "I6",
+  "sev": "H",
+  "title": "Spalten werden anhand der Überschriften automatisch zugeordnet (Firma, Kontaktperson, E-Mail-Adresse, Postleitzahl, Stadt, USt-IdNr, Leitweg-ID …)",
+  "ok": true,
+  "detail": "{0: 'name', 1: 'contact', 2: 'email', 3: 'street', 4: 'zip', 5: 'city', 6: 'country', 7: 'vat_id', 8: 'buyer_reference'}"
+ },
+ {
+  "id": "I7",
+  "sev": "H",
+  "title": "Vorschau zählt: 4 neu (Müller, Semikolon-Firma, Formel, Skript), 2 Duplikate (Bestand per E-Mail-Groß/Klein, doppelt in Datei), 4 fehlerhaft (E-Mail, Straße fehlt, Land, zu lang)",
+  "ok": true,
+  "detail": "('4', '0', '2', '4')"
+ },
+ {
+  "id": "I8",
+  "sev": "M",
+  "title": "Fehlerhafte Zeilen werden mit Zeilennummer und Grund aufgelistet",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "I9",
+  "sev": "H",
+  "title": "Vorschau schreibt nichts in die Datenbank und escapt Inhalte (kein ungefiltertes <script>)",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "I10",
+  "sev": "M",
+  "title": "„Vorschau aktualisieren“ ändert nichts an der Datenbank",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "I11",
+  "sev": "H",
+  "title": "Import: genau 4 Kunden angelegt, Weiterleitung zur Liste mit Zusammenfassung, Zwischendatei gelöscht",
+  "ok": true,
+  "detail": "(5, 302, [])"
+ },
+ {
+  "id": "I12",
+  "sev": "H",
+  "title": "Daten korrekt gespeichert (Umlaute, & , Semikolon/Anführung im Namen, Land „Österreich“→AT, Leerland→DE, Leitweg-ID)",
+  "ok": true,
+  "detail": "['Bestand GmbH\\tAltkontakt\\tBestand@Example.com\\tAltstr. 1\\t11111\\tAltstadt\\tAT\\t\\t', 'Müller & Söhne\\tErika Müller\\tmueller@example.com\\tHauptstr. 5\\t12345\\tMusterstadt\\tDE\\tDE123456789\\t', 'Firma; mit Semikolon \"und Anführung\"\\tNULL\\tNULL\\tWeg 2\\t54321\\tKöln\\tAT\\t\\t04011000-12345-67', '=SUM(A1)+1\\"
+ },
+ {
+  "id": "I13",
+  "sev": "H",
+  "title": "Formel- und Skript-Inhalte werden unverändert als Text gespeichert",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "I14",
+  "sev": "H",
+  "title": "Kundenliste maskiert die Skript-Eingabe",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "I15",
+  "sev": "M",
+  "title": "Bestandskunde blieb unverändert (Duplikat übersprungen)",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "I16",
+  "sev": "M",
+  "title": "Danach keine Import-Sitzung mehr: Seite zeigt wieder den Upload",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "I17",
+  "sev": "H",
+  "title": "Windows-1252-Datei mit Komma-Trennung wird erkannt (Umlaute korrekt in der Vorschau)",
+  "ok": true,
+  "detail": "{0: 'name', 1: 'street', 2: 'zip', 3: 'city', 4: 'email', 5: 'contact'}"
+ },
+ {
+  "id": "I18",
+  "sev": "H",
+  "title": "Modus „aktualisieren“: Bestandskunde (Name+PLZ) bekommt neue Straße/Ort; leere Zellen (E-Mail, Ansprechpartner) überschreiben nichts; Land bleibt AT",
+  "ok": true,
+  "detail": "Neuweg 7\tNeustadt\tAltkontakt\tBestand@Example.com\tAT"
+ },
+ {
+  "id": "I19",
+  "sev": "M",
+  "title": "Neuer Kunde mit Umlauten aus Windows-1252 korrekt gespeichert",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "I20",
+  "sev": "H",
+  "title": "Manipulierte Zuordnung (doppelt, unbekanntes Feld, fehlendes Pflichtfeld, Skalar) und fehlendes CSRF-Token werden abgelehnt, nichts importiert",
+  "ok": true,
+  "detail": "[('doppelt', True), ('unbekannt', True), ('Pflichtfeld Ort', True), ('Skalar statt Array', True), ('ohne CSRF', True)]"
+ },
+ {
+  "id": "I21",
+  "sev": "H",
+  "title": "Andere Sitzung sieht die hochgeladene Datei nicht und kann sie nicht importieren",
+  "ok": true,
+  "detail": "(200, 6)"
+ },
+ {
+  "id": "I22",
+  "sev": "M",
+  "title": "Abbrechen löscht die Zwischendatei",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "I23",
+  "sev": "M",
+  "title": "Ohne Kopfzeile: Spalten heißen „Spalte n“, nichts vorbelegt",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "I24",
+  "sev": "M",
+  "title": "Ohne Kopfzeile: erste Zeile wird als Datensatz importiert",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "I25",
+  "sev": "H",
+  "title": "Leere, binäre, zu große, zu lange und spaltenreiche Dateien werden mit Meldung abgelehnt (kein 500, nichts zwischengespeichert)",
+  "ok": true,
+  "detail": "[('leer', True, 302), ('binär', True, 302), ('nur Leerzeilen', True, 302), ('zu viele Zeilen', True, 302), ('zu groß', True, 302), ('zu viele Spalten', True, 302)]"
+ },
+ {
+  "id": "I26",
+  "sev": "M",
+  "title": "Upload ohne Datei: Meldung, kein 500",
+  "ok": true,
+  "detail": "302"
+ },
+ {
+  "id": "I27",
+  "sev": "M",
+  "title": "3000 Kunden werden in unter 60 s importiert",
+  "ok": true,
+  "detail": "0.4"
+ },
+ {
+  "id": "I28",
+  "sev": "M",
+  "title": "Erneuter Import derselben Datei: 0 neu, 3000 Duplikate (kein Import-Button)",
+  "ok": true,
+  "detail": "('0', '0', '3000')"
+ },
+ {
+  "id": "I29",
+  "sev": "M",
+  "title": "Keine PHP-Fehler/Warnungen im Log",
+  "ok": true,
+  "detail": ""
+ }
+]

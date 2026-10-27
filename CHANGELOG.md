@@ -2,6 +2,12 @@
 
 Die aktuelle Versionsnummer steht in der Datei `VERSION` (und unten in der App sowie unter Einstellungen → System).
 
+## 1.10.0
+- **CSV-Import für Kunden** (Kunden → „CSV-Import“): Datei hochladen (UTF-8 oder Windows-1252, Trennzeichen Semikolon/Komma/Tab wird erkannt, Download einer Vorlage), Spalten werden anhand der Überschriften automatisch zugeordnet und lassen sich ändern,
+  Vorschau mit Zählern und Fehlerliste, erst nach Bestätigung wird importiert (in einer Transaktion). Pflichtfelder: Name, Straße, PLZ, Ort. Dubletten (gleiche E-Mail oder Name + PLZ, auch innerhalb der Datei) werden standardmäßig übersprungen;
+  optional werden bestehende Kunden aktualisiert (leere Zellen überschreiben nichts). Fehlerhafte Zeilen werden mit Zeilennummer und Grund gemeldet und nicht importiert. Grenzen: 2 MB, 5000 Zeilen, 40 Spalten.
+- **Statusseite/Login:** Das Logo sitzt wieder zentriert im hellen Headerbereich.
+
 ## 1.9.0
 - **Stornorechnung**: Bei ausgestellten und bezahlten Rechnungen gibt es „Stornorechnung erstellen“. Daraus entsteht ein **Entwurf** mit den Positionen in negativer Menge (Einzelpreis bleibt positiv),
   gleichem Kunden und Bezug auf die Originalrechnung; er lässt sich vor dem Ausstellen anpassen (**Teilstorno**: Mengen verkleinern oder Positionen entfernen). Erst mit dem Ausstellen gilt die Rechnung als storniert.

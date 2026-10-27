@@ -189,7 +189,7 @@ rec('D3', 'H', 'Reflektiertes XSS über GET-Parameter und PATH_INFO (BASE aus SC
 rr = s.get(f'/index.php?p=invoice&id={inv1}', host='evil.example"><script>alert(1)</script>')
 rec('D4', 'M', 'Host-Header wird nicht unmaskiert in Seiten/Links ausgegeben', '<script>alert(1)' not in rr.body, rr.status)
 rr = s.get(f'/index.php?p=invoice&id={inv1}', host='evil.example.com')
-m = re.search(r'class="copy" readonly value="([^"]+)"', rr.body)
+m = re.search(r'class="copy"[^>]*? readonly value="([^"]+)"', rr.body)
 rec('D5', 'L', 'Statuslink in Mails/Ansicht wird nicht aus manipulierbarem Host-Header abgeleitet (APP_URL)', m and 'evil.example.com' not in m.group(1), m.group(1) if m else '')
 # E-Mail-Adresse mit HTML im Flash
 t = page_token(s)

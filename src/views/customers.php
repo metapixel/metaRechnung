@@ -1,6 +1,7 @@
 <div class="row">
   <h1>Kunden</h1>
-  <a class="btn primary" href="<?= BASE ?>?p=customer_edit">+ Neuer Kunde</a>
+  <span class="actions"><a class="btn" href="<?= BASE ?>?p=customer_import">CSV-Import</a>
+  <a class="btn primary" href="<?= BASE ?>?p=customer_edit">+ Neuer Kunde</a></span>
 </div>
 <div class="scroll"><table>
   <caption class="sr">Kundenliste</caption>

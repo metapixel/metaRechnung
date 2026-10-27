@@ -207,7 +207,7 @@
   "sev": "H",
   "title": "Session-ID wird nach Login erneuert (Session Fixation)",
   "ok": true,
-  "detail": "('qvq9420q1lduu85iuvvtmckv1n', 'nkua9feh8ks72kc62e20na7hd4')"
+  "detail": "('6r8eerngvkiclhl37ifrl3r06a', '9b4ghv7um43aqf2hvn6aqrmn1b')"
  },
  {
   "id": "M2",
@@ -221,7 +221,7 @@
   "sev": "M",
   "title": "Session-Cookie: HttpOnly + SameSite",
   "ok": true,
-  "detail": "rechnung=cil029mihmvepv7lpalfdltr4j; path=/; HttpOnly; SameSite=Lax"
+  "detail": "rechnung=9ijgfdl525ff6b6vr0o5r018at; path=/; HttpOnly; SameSite=Lax"
  },
  {
   "id": "M4",
