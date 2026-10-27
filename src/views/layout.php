@@ -16,7 +16,7 @@ if (preg_match('~<h1[^>]*>(.*?)</h1>~s', (string)($content ?? ''), $hm)) {
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title><?= h($ptitle) ?></title>
 <?php if (empty($public)): ?><link rel="manifest" href="<?= BASE ?>manifest.webmanifest">
-<?php endif; ?><meta name="theme-color" content="#4f46e5">
+<?php endif; ?><meta name="theme-color" content="#7a4589">
 <meta name="robots" content="noindex,nofollow">
 <link rel="icon" type="image/svg+xml" href="<?= BASE ?>icons/icon.svg">
 <link rel="icon" type="image/png" href="<?= BASE ?>icons/icon-192.png">
@@ -29,12 +29,12 @@ if (preg_match('~<h1[^>]*>(.*?)</h1>~s', (string)($content ?? ''), $hm)) {
 <body data-kl="<?= \App\Invoices::kleinunternehmer() ? '1' : '0' ?>" data-sw="<?= empty($public) ? h(asset('sw.js')) : '' ?>">
 <a class="skip" href="#main">Zum Inhalt springen</a>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
-  <defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4f46e5"/><stop offset="1" stop-color="#7c3aed"/></linearGradient></defs>
+  <defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9a5db0"/><stop offset="1" stop-color="#5c3069"/></linearGradient></defs>
   <symbol id="logo" viewBox="0 0 512 512">
     <rect width="512" height="512" rx="112" fill="url(#lg)"/>
     <path d="M144 116h160l64 64v216a28 28 0 0 1-28 28H144a28 28 0 0 1-28-28V144a28 28 0 0 1 28-28z" fill="#fff" fill-opacity=".96"/>
-    <path d="M304 116v48a16 16 0 0 0 16 16h48z" fill="#c7c9f5"/>
-    <path d="M168 330v-84m0 28c0-22 14-34 32-34s30 12 30 34v56m0-56c0-22 14-34 32-34s30 12 30 34v56" fill="none" stroke="#4f46e5" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M304 116v48a16 16 0 0 0 16 16h48z" fill="#e6d3ee"/>
+    <path d="M168 330v-84m0 28c0-22 14-34 32-34s30 12 30 34v56m0-56c0-22 14-34 32-34s30 12 30 34v56" fill="none" stroke="#6f3d7e" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/>
   </symbol>
   <symbol id="i-invoices" viewBox="0 0 24 24"><path d="M7 3h7l5 5v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></symbol>
   <symbol id="i-customers" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.8a3.5 3.5 0 0 1 0 6.4M18 14.2a6.5 6.5 0 0 1 3.5 5.8"/></symbol>

@@ -17,23 +17,23 @@ final class Theme
    Entferne die Kommentarzeichen vor einer Zeile und ändere den Wert. */
 
 :root {
-  /* --pri: #4f46e5;       Hauptfarbe (Buttons, Links)        */
-  /* --pri2: #7c3aed;      zweite Farbe des Verlaufs          */
-  /* --pri-soft: #eef0ff;  helle Fläche zur Hauptfarbe        */
-  /* --bg: #f4f5fb;        Seitenhintergrund                  */
+  /* --pri: #7a4589;       Hauptfarbe (Buttons, Links)        */
+  /* --pri2: #8a52a0;      zweite Farbe des Verlaufs          */
+  /* --pri-soft: #f1e8f4;  helle Fläche zur Hauptfarbe        */
+  /* --bg: #f6f3f7;        Seitenhintergrund                  */
   /* --card: #ffffff;      Karten und Tabellen                */
-  /* --fg: #161a2b;        Textfarbe                          */
-  /* --mut: #667085;       gedämpfter Text                    */
-  /* --line: #e6e8f2;      Linien                             */
+  /* --fg: #1f1520;        Textfarbe                          */
+  /* --mut: #6b6270;       gedämpfter Text                    */
+  /* --line: #e9e1ec;      Linien                             */
   /* --r: 14px;            Rundung der Karten                 */
 }
 
 /* Dunkler Modus (wenn das Gerät auf „dunkel“ steht) */
 @media (prefers-color-scheme: dark) {
   :root {
-    /* --pri: #818cf8; */
-    /* --bg: #0c0e17;  */
-    /* --card: #151826; */
+    /* --pri: #c99bd9; */
+    /* --bg: #170d15;  */
+    /* --card: #211520; */
   }
 }
 

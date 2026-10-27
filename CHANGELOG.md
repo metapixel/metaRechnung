@@ -2,6 +2,11 @@
 
 Die aktuelle Versionsnummer steht in der Datei `VERSION` (und unten in der App sowie unter Einstellungen → System).
 
+## 1.10.1
+- **Neue Hausfarbe Pflaume** (angeglichen an die metaplay-App): Primärfarbe `#7a4589` (hell) bzw. `#c99bd9` (dunkel), Verlauf-Endton `#8a52a0` / `#b57fca`, helle Flächen `#f1e8f4` / `#2f1f2d`, Hintergründe und Linien mit leichtem Pflaumenstich (dunkel `#170d15`).
+  Betrifft Oberfläche, Logo/App-Icons (SVG, PNG), `theme-color` und Manifest. Alle Textkontraste bleiben ≥ 4,5 : 1 (WCAG AA, mit axe geprüft). PDF-Vorlagen und bereits gespeicherte PDF-Designs bleiben unverändert.
+  Eigene Anpassungen über Einstellungen → Design (CSS) überschreiben die Standardwerte weiterhin; die Variablenliste im Editor zeigt die neuen Werte.
+
 ## 1.10.0
 - **CSV-Import für Kunden** (Kunden → „CSV-Import“): Datei hochladen (UTF-8 oder Windows-1252, Trennzeichen Semikolon/Komma/Tab wird erkannt, Download einer Vorlage), Spalten werden anhand der Überschriften automatisch zugeordnet und lassen sich ändern,
   Vorschau mit Zählern und Fehlerliste, erst nach Bestätigung wird importiert (in einer Transaktion). Pflichtfelder: Name, Straße, PLZ, Ort. Dubletten (gleiche E-Mail oder Name + PLZ, auch innerhalb der Datei) werden standardmäßig übersprungen;
