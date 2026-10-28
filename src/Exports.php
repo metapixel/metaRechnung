@@ -23,7 +23,10 @@ final class Exports
         $d = dirname(__DIR__) . '/storage/exports';
         if (!is_dir($d)) {
             @mkdir($d, 0775, true);
+            // Geprüft: feste Dateinamen im eigenen Export-Ordner
+            // nosemgrep
             @file_put_contents($d . '/index.html', '');
+            // nosemgrep
             @file_put_contents($d . '/.htaccess', "Require all denied\n");
         }
         return $d;
@@ -203,11 +206,15 @@ final class Exports
             }
         } catch (\Throwable $e) {
             @$zip->close();
+            // Geprüft: Pfad aus festem Ordner + zufälligem Namen (kein Benutzerpfad)
+            // nosemgrep
             @unlink($tmp);
             throw $e;
         }
         $final = $dir . '/' . $name;
         if (!@rename($tmp, $final)) {
+            // Geprüft: Pfad aus festem Ordner + zufälligem Namen (kein Benutzerpfad)
+            // nosemgrep
             @unlink($tmp);
             throw new \RuntimeException('Die ZIP-Datei konnte nicht abgelegt werden.');
         }
@@ -231,6 +238,8 @@ final class Exports
     private static function removeFile(string $file): void
     {
         if (preg_match('/^export-[0-9a-f]{24}\.zip$/D', $file)) {
+            // Geprüft: Dateiname nur nach Muster export-<24 hex>.zip, fester Ordner (kein Benutzerpfad)
+            // nosemgrep
             @unlink(self::dir() . '/' . $file);
         }
     }
