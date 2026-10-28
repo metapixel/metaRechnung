@@ -49,6 +49,8 @@ if (($_GET['dl'] ?? '') === '1') {
     Exports::recordDownload((int)$exp['id']);
     header('Content-Type: application/zip');
     header('Content-Disposition: attachment; filename="' . Exports::downloadName($exp) . '"');
+    // Geprüft: $path ist ein fester Ordner + Dateiname aus der Datenbank, der nur dem Muster export-<24 hex>.zip entspricht (Exports::path) – nicht das Token
+    // nosemgrep
     header('Content-Length: ' . (string)filesize($path));
     // Geprüft: feste, serverseitig erzeugte ZIP-Datei mit zufälligem Namen (kein Benutzerpfad)
     // nosemgrep
