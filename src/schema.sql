@@ -89,3 +89,19 @@ CREATE TABLE IF NOT EXISTS recurring_items (
   vat_rate DECIMAL(5,2) NOT NULL DEFAULT 19,
   FOREIGN KEY (recurring_id) REFERENCES recurring(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS audit_log (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  created_at DATETIME NOT NULL,
+  actor VARCHAR(64) NOT NULL,
+  ip VARCHAR(45) NOT NULL DEFAULT '',
+  action VARCHAR(40) NOT NULL,
+  entity VARCHAR(30) NOT NULL DEFAULT '',
+  entity_id INT UNSIGNED NULL,
+  summary VARCHAR(500) NOT NULL DEFAULT '',
+  prev_hash CHAR(64) NOT NULL DEFAULT '',
+  hash CHAR(64) NOT NULL,
+  KEY idx_audit_time (created_at),
+  KEY idx_audit_entity (entity, entity_id),
+  KEY idx_audit_action (action)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

@@ -10,6 +10,7 @@ require __DIR__ . '/src/bootstrap.php';
 use App\Config;
 use App\CustomerImport;
 use App\Reports;
+use App\Audit;
 use App\Einvoice;
 use App\Invoices;
 use App\Letterhead;
@@ -57,11 +58,14 @@ if (empty($_SESSION['auth'])) {
                 $_SESSION['auth'] = true;
                 $_SESSION['fp'] = auth_fingerprint();
                 $_SESSION['t0'] = time();
+                $_SESSION['user'] = env('APP_USER', 'admin');
+                Audit::log('auth.login', '', null, 'Anmeldung erfolgreich');
                 csrf();
                 redirect(BASE);
             }
             RateLimit::fail($ipKey, LOGIN_WINDOW);
             RateLimit::fail('login:all', LOGIN_WINDOW);
+            Audit::log('auth.login_failed', '', null, 'Benutzername oder Passwort falsch', is_string($_POST['user'] ?? null) ? (string)$_POST['user'] : '?');
             sleep(1);
             $error = 'Anmeldung fehlgeschlagen.';
         }
@@ -79,6 +83,7 @@ if ($post) {
 }
 if ($p === 'logout') {
     if ($post) {
+        Audit::log('auth.logout');
         $_SESSION = [];
         session_destroy();
     }
@@ -184,6 +189,7 @@ try {
                         } else {
                             $res = CustomerImport::apply($plan, $map);
                             $cleanup();
+                            Audit::log('customer.import', 'customer', null, $res['new'] . ' neu, ' . $res['update'] . ' aktualisiert, ' . $plan['counts']['duplicate'] . ' Duplikate übersprungen, ' . $plan['counts']['error'] . ' fehlerhaft (Datei: ' . ($imp['orig'] ?? '?') . ')');
                             flash($res['new'] . ' Kunde(n) angelegt, ' . $res['update'] . ' aktualisiert, ' . $plan['counts']['duplicate'] . ' als Duplikat übersprungen, ' . $plan['counts']['error'] . ' fehlerhafte Zeile(n) nicht importiert.');
                             redirect(BASE . '?p=customers');
                         }
@@ -220,6 +226,7 @@ try {
                 if ($v['vat_id'] !== null && !preg_match('/^[A-Za-z0-9 .\-\/]{1,30}$/', $v['vat_id'])) {
                     throw new RuntimeException('Die USt-IdNr. enthält unzulässige Zeichen.');
                 }
+                $isNew = !$id;
                 if ($id) {
                     db()->prepare('UPDATE customers SET name=:name, contact=:contact, email=:email, street=:street, zip=:zip, city=:city, country=:country, vat_id=:vat_id, buyer_reference=:buyer_reference WHERE id=:id')
                         ->execute($v + ['id' => $id]);
@@ -228,6 +235,7 @@ try {
                         ->execute($v);
                     $id = (int)db()->lastInsertId();
                 }
+                Audit::log($isNew ? 'customer.create' : 'customer.update', 'customer', $id, (string)$v['name']);
                 flash('Kunde gespeichert.');
                 redirect(($_GET['next'] ?? '') === 'invoice_edit' ? BASE . '?p=invoice_edit&customer=' . $id : BASE . '?p=customers');
             }
@@ -254,6 +262,20 @@ try {
             ]);
             break;
 
+        case 'audit':
+            if ($post) {
+                $res = Audit::verify();
+                flash($res['ok']
+                    ? 'Protokoll geprüft: Die Kette ist lückenlos und unverändert (' . $res['count'] . ' Einträge).'
+                    : 'ACHTUNG: Das Protokoll ist ab Eintrag Nr. ' . (int)$res['broken_id'] . ' nicht mehr konsistent (geändert oder gelöscht).');
+                redirect(BASE . '?p=audit');
+            }
+            $grp = is_string($_GET['g'] ?? '') && isset(Audit::GROUPS[(string)($_GET['g'] ?? '')]) ? (string)$_GET['g'] : '';
+            $q = is_string($_GET['q'] ?? '') ? mb_substr(clean((string)$_GET['q']), 0, 100) : '';
+            $pg = max(1, min(100000, (int)(is_string($_GET['page'] ?? '') ? $_GET['page'] : 1)));
+            render('audit', ['res' => Audit::search($grp, $q, $pg), 'grp' => $grp, 'q' => $q, 'pg' => $pg, 'per' => 100]);
+            break;
+
         case 'articles':
             render('articles', ['articles' => Articles::all()]);
             break;
@@ -266,16 +288,20 @@ try {
             }
             if ($post) {
                 if (($_POST['action'] ?? '') === 'delete' && $a) {
+                    Audit::log('article.delete', 'article', $id, (string)$a['description']);
                     Articles::delete($id);
                     flash('Artikel gelöscht. Bereits erstellte Rechnungen bleiben unverändert.');
                     redirect(BASE . '?p=articles');
                 }
                 if (($_POST['action'] ?? '') === 'duplicate' && $a) {
                     $newId = Articles::duplicate($id);
+                    Audit::log('article.duplicate', 'article', $newId, 'Kopie von Artikel #' . $id . ': ' . (string)$a['description']);
                     flash('Kopie angelegt – bitte Bezeichnung und Preis anpassen.');
                     redirect(BASE . '?p=article_edit&id=' . $newId);
                 }
-                $new = Articles::save($id ?: null, Articles::validate($_POST));
+                $vals = Articles::validate($_POST);
+                $new = Articles::save($id ?: null, $vals);
+                Audit::log($id ? 'article.update' : 'article.create', 'article', $new, (string)$vals['description']);
                 flash('Artikel gespeichert.');
                 redirect(BASE . '?p=articles');
             }
@@ -287,9 +313,11 @@ try {
                 $a = $_POST['action'] ?? 'save';
                 if ($a === 'reset') {
                     Theme::reset();
+                    Audit::log('design.css', '', null, 'Eigenes CSS entfernt');
                     flash('Eigenes CSS entfernt – das Standard-Design ist wieder aktiv.');
                 } else {
                     Theme::save(Theme::validate($_POST['css'] ?? ''));
+                    Audit::log('design.css', '', null, 'Eigenes CSS gespeichert');
                     flash('Gespeichert. Das eigene CSS gilt jetzt für alle Seiten.');
                 }
                 redirect(BASE . '?p=design');
@@ -316,6 +344,7 @@ try {
                     }
                 } elseif ($a === 'reset') {
                     Config::save(['PDF_DESIGN' => '']);
+                    Audit::log('design.pdf', '', null, 'Auf Standard zurückgesetzt');
                     flash('PDF-Design auf das klassische Standard-Aussehen zurückgesetzt.');
                     redirect(BASE . '?p=pdf_design');
                 } elseif ($a === 'preview' || $a === 'save') {
@@ -333,6 +362,7 @@ try {
                     }
                     if (!$formErrors) {
                         Config::save(['PDF_DESIGN' => PdfDesign::toJson($form)]);
+                        Audit::log('design.pdf', '', null, 'PDF-Design gespeichert');
                         flash('PDF-Design gespeichert. Es gilt für neu ausgestellte Rechnungen und Entwürfe; bereits ausgestellte Rechnungen bleiben unverändert.');
                         redirect(BASE . '?p=pdf_design');
                     }
@@ -352,9 +382,11 @@ try {
                     flash(!$res ? 'Es war nichts fällig.' : count($res) . ' Rechnung(en) erzeugt' . ($bad ? ', davon ' . $bad . ' mit Fehlern (siehe Liste).' : '.'));
                 } elseif ($a === 'cron_token') {
                     Config::save(['CRON_TOKEN' => bin2hex(random_bytes(20))]);
+                    Audit::log('recurring.token', '', null, 'Neues Cron-Token erzeugt');
                     flash('Neues Cron-Token erzeugt. Bitte den Cronjob-Aufruf (HTTP) anpassen.');
                 } elseif ($a === 'cron_token_off') {
                     Config::save(['CRON_TOKEN' => '']);
+                    Audit::log('recurring.token', '', null, 'Aufruf per HTTP deaktiviert');
                     flash('Aufruf per HTTP deaktiviert (die Kommandozeile funktioniert weiterhin).');
                 }
                 redirect(BASE . '?p=recurring');
@@ -370,11 +402,13 @@ try {
             }
             if ($post) {
                 if (($_POST['action'] ?? '') === 'delete' && $rec) {
+                    Audit::log('recurring.delete', 'recurring', $id, (string)$rec['name']);
                     Recurring::delete($id);
                     flash('Vorlage gelöscht. Bereits erzeugte Rechnungen bleiben unverändert.');
                     redirect(BASE . '?p=recurring');
                 }
-                Recurring::save($id ?: null, $_POST);
+                $rid = Recurring::save($id ?: null, $_POST);
+                Audit::log($id ? 'recurring.update' : 'recurring.create', 'recurring', $rid, clean(is_string($_POST['name'] ?? '') ? (string)$_POST['name'] : ''));
                 flash('Vorlage gespeichert.');
                 redirect(BASE . '?p=recurring');
             }
@@ -425,6 +459,7 @@ try {
                     flash('Rechnung ausgestellt, ZUGFeRD-PDF erzeugt.');
                 } elseif ($a === 'delete' && $inv['status'] === 'draft') {
                     db()->prepare("DELETE FROM invoices WHERE id = ? AND status = 'draft'")->execute([$id]);
+                    Audit::log('invoice.delete', 'invoice', $id, 'Entwurf für ' . (string)$inv['c_name']);
                     flash('Entwurf gelöscht.');
                     redirect(BASE);
                 } elseif ($a === 'cancel') {
@@ -435,9 +470,11 @@ try {
                     $d = (string)($_POST['paid_at'] ?? '');
                     $d = preg_match('/^\d{4}-\d{2}-\d{2}$/', $d) ? $d : date('Y-m-d');
                     db()->prepare("UPDATE invoices SET status = 'paid', paid_at = ? WHERE id = ? AND status = 'issued'")->execute([$d, $id]);
+                    Audit::log('invoice.paid', 'invoice', $id, $inv['number'] . ' – bezahlt am ' . $d);
                     flash('Als bezahlt markiert – auf der Statusseite des Kunden sichtbar.');
                 } elseif ($a === 'unpaid' && !Invoices::isCredit($inv) && !$inv['cancelled_by']) {
                     db()->prepare("UPDATE invoices SET status = 'issued', paid_at = NULL WHERE id = ? AND status = 'paid'")->execute([$id]);
+                    Audit::log('invoice.unpaid', 'invoice', $id, (string)$inv['number']);
                     flash('Wieder auf „offen“ gesetzt.');
                 } elseif ($a === 'duplicate') {
                     $newId = Invoices::duplicate($id);
@@ -451,6 +488,7 @@ try {
                     $extra = Attachments::collect($_FILES['attachments'] ?? null, $inv['number'] . '.pdf');
                     Mailer::sendInvoice($inv, Invoices::pdfBytes($inv), $to, (string)($_POST['message'] ?? ''), Invoices::statusUrl($inv), $extra);
                     db()->prepare('UPDATE invoices SET sent_at = NOW() WHERE id = ?')->execute([$id]);
+                    Audit::log('invoice.send', 'invoice', $id, $inv['number'] . ' an ' . $to . ($extra ? ' (+ ' . count($extra) . ' Anhänge)' : ''));
                     flash('E-Mail an ' . $to . ' gesendet' . ($extra ? ' (mit ' . count($extra) . ' zusätzlichen Anhängen)' : '') . '.');
                 }
                 redirect(BASE . '?p=invoice&id=' . $id);
@@ -610,7 +648,9 @@ try {
                         if ((string)($_POST['SMTP_PASS'] ?? '') !== '') {
                             $c['SMTP_PASS'] = (string)$_POST['SMTP_PASS'];
                         }
+                        $changed = array_keys(array_filter($c, static fn($v, $k) => (string)env($k) !== (string)$v, ARRAY_FILTER_USE_BOTH));
                         Config::save($c);
+                        Audit::log('settings.save', '', null, $changed ? 'Geändert: ' . implode(', ', $changed) : 'Gespeichert, keine Änderung');
                         flash('Einstellungen gespeichert. Bereits ausgestellte Rechnungen bleiben unverändert.');
                         redirect(BASE . '?p=settings');
                     }
@@ -620,6 +660,7 @@ try {
                         $errors[] = 'Zu viele Fehlversuche. Bitte später erneut versuchen.';
                     } elseif (!password_verify((string)($_POST['current_pass'] ?? ''), env('APP_PASSWORD_HASH'))) {
                         RateLimit::fail($pwKey, LOGIN_WINDOW);
+                        Audit::log('auth.password_failed', '', null, 'Aktuelles Passwort falsch');
                         $errors[] = 'Das aktuelle Passwort ist falsch.';
                     }
                     $newUser = clean($_POST['new_user'] ?? '');
@@ -641,7 +682,10 @@ try {
                         if ($np !== '') {
                             $c['APP_PASSWORD_HASH'] = password_hash($np, PASSWORD_DEFAULT);
                         }
+                        $oldUser = env('APP_USER', 'admin');
                         Config::save($c);
+                        Audit::log('auth.account', '', null, ($np !== '' ? 'Passwort geändert' : '') . ($np !== '' && $newUser !== $oldUser ? ', ' : '') . ($newUser !== $oldUser ? 'Benutzername geändert (neu: ' . $newUser . ')' : ''));
+                        $_SESSION['user'] = $newUser;
                         session_regenerate_id(true);
                         $_SESSION['fp'] = auth_fingerprint();   // nur diese Sitzung bleibt gültig, alle anderen werden beendet
                         flash($np !== '' ? 'Passwort geändert.' : 'Benutzername geändert.');
@@ -662,6 +706,7 @@ try {
                         $c['LETTERHEAD_FILE'] = Letterhead::store($up);
                     }
                     Config::save($c);
+                    Audit::log('settings.letterhead', '', null, $uploaded ? 'Briefpapier hochgeladen' : 'Ränder/Optionen gespeichert');
                     flash($uploaded ? 'Briefpapier hochgeladen und Einstellungen gespeichert. Gilt für neu ausgestellte Rechnungen.' : 'Briefpapier-Einstellungen gespeichert.');
                     redirect(BASE . '?p=settings');
                 } elseif ($a === 'logo') {
@@ -675,16 +720,19 @@ try {
                         $c['LOGO_FILE'] = Logo::store($up);
                     }
                     Config::save($c);
+                    Audit::log('settings.logo', '', null, $uploaded ? 'Logo hochgeladen' : 'Größe/Ausrichtung gespeichert');
                     flash($uploaded ? 'Logo hochgeladen und Einstellungen gespeichert. Gilt für neu ausgestellte Rechnungen.' : 'Logo-Einstellungen gespeichert.');
                     redirect(BASE . '?p=settings');
                 } elseif ($a === 'logo_delete') {
                     Logo::remove();
                     Config::save(['LOGO_FILE' => '']);
+                    Audit::log('settings.logo', '', null, 'Logo entfernt');
                     flash('Logo entfernt.');
                     redirect(BASE . '?p=settings');
                 } elseif ($a === 'letterhead_delete') {
                     Letterhead::remove();
                     Config::save(['LETTERHEAD_FILE' => '']);
+                    Audit::log('settings.letterhead', '', null, 'Briefpapier entfernt');
                     flash('Briefpapier entfernt.');
                     redirect(BASE . '?p=settings');
                 } elseif ($a === 'reset') {
@@ -703,6 +751,7 @@ try {
                     }
                     if (!$errors) {
                         $r = Invoices::reset(isset($_POST['keep_customers']));
+                        Audit::log('settings.reset', '', null, $r['invoices'] . ' Rechnungen, ' . $r['customers'] . ' Kunden, ' . $r['files'] . ' PDFs gelöscht');
                         flash('Zurückgesetzt: ' . $r['invoices'] . ' Rechnungen, ' . $r['customers'] . ' Kunden und ' . $r['files'] . ' PDFs gelöscht. Die Nummerierung beginnt wieder bei 1.');
                         redirect(BASE . '?p=settings');
                     }
@@ -712,6 +761,7 @@ try {
                         throw new RuntimeException('Bitte eine gültige Empfängeradresse angeben.');
                     }
                     Mailer::sendTest($to);
+                    Audit::log('settings.testmail', '', null, 'an ' . $to);
                     flash('Testmail an ' . $to . ' gesendet.');
                     redirect(BASE . '?p=settings');
                 }

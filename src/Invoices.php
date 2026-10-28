@@ -136,6 +136,7 @@ final class Invoices
                            SELECT ?, pos, description, note, CASE WHEN unit_price < 0 THEN quantity ELSE -quantity END, unit, ABS(unit_price), vat_rate
                            FROM invoice_items WHERE invoice_id = ?')->execute([$new, $id]);
             $pdo->commit();
+            Audit::log('invoice.cancel', 'invoice', $new, 'Storno zu Rechnung ' . $src['number']);
             return $new;
         } catch (\Throwable $e) {
             $pdo->rollBack();
@@ -179,6 +180,7 @@ final class Invoices
                            SELECT ?, pos, description, note, quantity, unit, unit_price, vat_rate FROM invoice_items WHERE invoice_id = ?')
                 ->execute([$new, $id]);
             $pdo->commit();
+            Audit::log('invoice.duplicate', 'invoice', $new, 'Kopie von Rechnung #' . $id);
             return $new;
         } catch (\Throwable $e) {
             $pdo->rollBack();
@@ -286,6 +288,7 @@ final class Invoices
             throw new \RuntimeException('Der gewählte Kunde existiert nicht.');
         }
 
+        $isNew = $id === null;
         $pdo->beginTransaction();
         try {
             if ($id === null) {
@@ -306,6 +309,7 @@ final class Invoices
             $pdo->rollBack();
             throw $e;
         }
+        Audit::log($isNew ? 'invoice.create' : 'invoice.update', 'invoice', $id, 'Entwurf');
         return $id;
     }
 
@@ -352,6 +356,7 @@ final class Invoices
                 throw new \RuntimeException('PDF konnte nicht gespeichert werden (Schreibrechte auf storage/?).');
             }
             $pdo->commit();
+            Audit::log('invoice.issue', 'invoice', $id, ($credit ? 'Stornorechnung ' : 'Rechnung ') . $number);
         } catch (\Throwable $e) {
             $pdo->rollBack();
             throw $e;

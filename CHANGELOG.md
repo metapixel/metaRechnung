@@ -2,6 +2,16 @@
 
 Die aktuelle Versionsnummer steht in der Datei `VERSION` (und unten in der App sowie unter Einstellungen → System).
 
+## 1.12.0
+- **Änderungsprotokoll** (Einstellungen → Protokoll): Wer hat wann was getan – Anmeldungen (auch fehlgeschlagene), Rechnungen (anlegen, ändern, ausstellen, versenden, bezahlt/offen, Storno, duplizieren, Entwurf löschen), Kunden (inkl. CSV-Import),
+  Artikel, wiederkehrende Vorlagen und deren automatische Läufe (Akteur „cron“), Einstellungen (nur Feldnamen, keine Werte), Logo/Briefpapier, PDF-Design, eigenes CSS, Zugangsdaten.
+  Jeder Eintrag enthält Zeit, Benutzer, IP-Adresse, Objekt (verlinkt) und Details; Filter nach Bereich, Suche und Seitenweise Anzeige.
+- **Manipulationsschutz:** Die Einträge werden nur angehängt (die App kann sie weder ändern noch löschen) und sind über eine SHA-256-Hash-Kette verknüpft. „Integrität prüfen“ erkennt nachträglich geänderte oder mitten aus der Kette entfernte Einträge.
+  Wer direkten Datenbankzugriff hat, kann die Kette allerdings neu berechnen oder am Ende kürzen – das Protokoll ersetzt keine Zugriffsbeschränkung auf die Datenbank.
+- Passwörter, Einstellungswerte und Lesezugriffe werden nicht protokolliert. Fehlanmeldungen werden nur im Rahmen der bestehenden Sperre (Rate-Limit) geschrieben, das Protokoll kann also nicht von außen geflutet werden.
+  Fällt das Protokoll einmal aus, läuft die eigentliche Aktion trotzdem weiter (Fehler im Server-Log).
+- **Update:** neue Tabelle `audit_log` (Schema-Version 7), wird beim ersten Aufruf automatisch angelegt.
+
 ## 1.11.1
 - **Auswertung:** Beim Überfahren (Maus) oder Fokussieren (Tastatur, Antippen) eines Monats im Diagramm erscheint der Nettoumsatz sofort über dem Balken; der Monat wird hervorgehoben. Für Screenreader trägt jeder Monat eine Beschriftung mit Betrag und Rechnungsanzahl.
 

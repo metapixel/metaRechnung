@@ -13,6 +13,7 @@ declare(strict_types=1);
 define('NO_SESSION', true);
 require __DIR__ . '/src/bootstrap.php';
 
+use App\Audit;
 use App\RateLimit;
 use App\Recurring;
 
@@ -42,6 +43,7 @@ if (!$lock || !flock($lock, LOCK_EX | LOCK_NB)) {
     exit("Ein anderer Lauf ist noch aktiv.\n");
 }
 
+Audit::setActor('cron');
 try {
     $res = Recurring::runDue();
 } catch (\Throwable $e) {

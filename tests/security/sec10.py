@@ -150,7 +150,7 @@ sql('alter table invoices drop index uq_cancels'); sql('alter table invoices dro
 open(APP + '/storage/schema_version', 'w').write('5')
 s.get('/index.php?p=invoices')
 cols = sql("select count(*) from information_schema.columns where table_schema='rechnung_sec' and table_name='invoices' and column_name='cancels_id'")
-rec('C36', 'H', 'Migration: Spalte cancels_id wird bei einer 1.8-Installation automatisch ergänzt, schema_version = 6', cols == '1' and open(APP + '/storage/schema_version').read().strip() == '6', cols)
+rec('C36', 'H', 'Migration: Spalte cancels_id wird bei einer 1.8-Installation automatisch ergänzt, schema_version = aktuell (7)', cols == '1' and open(APP + '/storage/schema_version').read().strip() == '7', cols)
 pe = open('/home/claude/work/sec/apache/php_error.log').read()
 rec('C37', 'M', 'Keine PHP-Fehler/Warnungen im Log', pe.strip() == '', pe[:300])
 save_results(label)

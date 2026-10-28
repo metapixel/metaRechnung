@@ -316,12 +316,14 @@ final class Recurring
             $pdo->prepare('UPDATE recurring SET next_run = ?, last_run = ?, last_invoice_id = ?, run_count = run_count + 1, last_error = NULL, active = ? WHERE id = ?')
                 ->execute([$next->format('Y-m-d'), $today->format('Y-m-d'), $inv, $finished ? 0 : 1, $rid]);
             $pdo->commit();
+            Audit::log('recurring.run', 'invoice', $inv, 'Entwurf aus Vorlage „' . $r['name'] . '“ (#' . $rid . ') angelegt');
         } catch (\Throwable $e) {
             if ($pdo->inTransaction()) {
                 $pdo->rollBack();
             }
             $msg = 'Erzeugen fehlgeschlagen: ' . $e->getMessage();
             $pdo->prepare('UPDATE recurring SET last_error = ? WHERE id = ?')->execute([mb_substr($msg, 0, 500), $rid]);
+            Audit::log('recurring.error', 'recurring', $rid, mb_substr($msg, 0, 400));
             return ['id' => $rid, 'name' => (string)($r['name'] ?? ''), 'status' => 'fehler', 'invoice_id' => null, 'message' => $msg];
         }
 
@@ -340,6 +342,7 @@ final class Recurring
             }
         } catch (\Throwable $e) {
             $message = $message . ', aber: ' . $e->getMessage();
+            Audit::log('recurring.error', 'invoice', $inv, mb_substr($message, 0, 400));
             $status = 'fehler';
             $pdo->prepare('UPDATE recurring SET last_error = ? WHERE id = ?')->execute([mb_substr($message, 0, 500), $rid]);
         }
@@ -367,5 +370,6 @@ final class Recurring
         $text = self::render((string)($r['mail_message'] ?: self::DEFAULT_MAIL), $vars);
         Mailer::sendInvoice($inv, Invoices::pdfBytes($inv), $to, $text, $url);
         db()->prepare('UPDATE invoices SET sent_at = NOW() WHERE id = ?')->execute([$invoiceId]);
+        Audit::log('invoice.send', 'invoice', $invoiceId, $inv['number'] . ' an ' . $to . ' (wiederkehrend)');
     }
 }

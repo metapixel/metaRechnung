@@ -10,7 +10,7 @@ namespace App;
 /** Schema-Updates für bestehende Installationen (läuft automatisch, einmalig). */
 final class Migrations
 {
-    public const VERSION = 6;
+    public const VERSION = 7;
 
     public static function run(): void
     {
@@ -97,6 +97,23 @@ final class Migrations
                 }
             }
         }
+
+        // v7: Änderungsprotokoll (Hash-Kette)
+        $pdo->exec("CREATE TABLE IF NOT EXISTS audit_log (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  created_at DATETIME NOT NULL,
+  actor VARCHAR(64) NOT NULL,
+  ip VARCHAR(45) NOT NULL DEFAULT '',
+  action VARCHAR(40) NOT NULL,
+  entity VARCHAR(30) NOT NULL DEFAULT '',
+  entity_id INT UNSIGNED NULL,
+  summary VARCHAR(500) NOT NULL DEFAULT '',
+  prev_hash CHAR(64) NOT NULL DEFAULT '',
+  hash CHAR(64) NOT NULL,
+  KEY idx_audit_time (created_at),
+  KEY idx_audit_entity (entity, entity_id),
+  KEY idx_audit_action (action)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 
         @file_put_contents($file, (string)self::VERSION);
     }
