@@ -2,6 +2,10 @@
 
 Die aktuelle Versionsnummer steht in der Datei `VERSION` (und unten in der App sowie unter Einstellungen → System).
 
+## 1.10.2
+- **Artikel:** In der Detailansicht eines Artikels gibt es „Als neu duplizieren“. Die Kopie übernimmt Notiz, Einheit, Preis und MwSt, die Bezeichnung bekommt den Zusatz „ (Kopie)“; danach öffnet sich die Kopie zum Anpassen.
+- **Hintergrund:** Der Seitenhintergrund ist standardmäßig `#f4e9db` (helles Beige; Linien und Felder leicht warm getönt, Manifest angepasst). Der dunkle Modus bleibt unverändert; Texte erreichen weiterhin mindestens 4,5 : 1 Kontrast.
+
 ## 1.10.1
 - **Neue Hausfarbe Pflaume** (angeglichen an die metaplay-App): Primärfarbe `#7a4589` (hell) bzw. `#c99bd9` (dunkel), Verlauf-Endton `#8a52a0` / `#b57fca`, helle Flächen `#f1e8f4` / `#2f1f2d`, Hintergründe und Linien mit leichtem Pflaumenstich (dunkel `#170d15`).
   Betrifft Oberfläche, Logo/App-Icons (SVG, PNG), `theme-color` und Manifest. Alle Textkontraste bleiben ≥ 4,5 : 1 (WCAG AA, mit axe geprüft). PDF-Vorlagen und bereits gespeicherte PDF-Designs bleiben unverändert.

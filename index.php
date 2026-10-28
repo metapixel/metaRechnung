@@ -255,6 +255,11 @@ try {
                     flash('Artikel gelöscht. Bereits erstellte Rechnungen bleiben unverändert.');
                     redirect(BASE . '?p=articles');
                 }
+                if (($_POST['action'] ?? '') === 'duplicate' && $a) {
+                    $newId = Articles::duplicate($id);
+                    flash('Kopie angelegt – bitte Bezeichnung und Preis anpassen.');
+                    redirect(BASE . '?p=article_edit&id=' . $newId);
+                }
                 $new = Articles::save($id ?: null, Articles::validate($_POST));
                 flash('Artikel gespeichert.');
                 redirect(BASE . '?p=articles');

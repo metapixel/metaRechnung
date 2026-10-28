@@ -56,6 +56,21 @@ final class Articles
         return (int)db()->lastInsertId();
     }
 
+    /** Legt eine Kopie des Artikels an (Bezeichnung mit „ (Kopie)“) und gibt die neue ID zurück. */
+    public static function duplicate(int $id): int
+    {
+        $a = self::find($id);
+        if (!$a) {
+            throw new \RuntimeException('Artikel nicht gefunden.');
+        }
+        $suffix = ' (Kopie)';
+        $desc = mb_substr((string)$a['description'], 0, 500 - mb_strlen($suffix)) . $suffix;
+        return self::save(null, [
+            'description' => $desc, 'note' => $a['note'], 'unit' => $a['unit'],
+            'unit_price' => $a['unit_price'], 'vat_rate' => $a['vat_rate'],
+        ]);
+    }
+
     public static function delete(int $id): void
     {
         db()->prepare('DELETE FROM articles WHERE id = ?')->execute([$id]);

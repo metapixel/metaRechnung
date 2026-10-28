@@ -33,6 +33,10 @@ $vat = (float)($a['vat_rate'] ?? 19);
   <a class="btn" href="<?= BASE ?>?p=articles">Abbrechen</a>
 </form>
 <?php if ($a): ?>
+<form method="post" class="actions" style="margin-top:12px">
+  <input type="hidden" name="csrf" value="<?= h(csrf()) ?>"><input type="hidden" name="action" value="duplicate">
+  <button class="btn">Als neu duplizieren</button>
+</form>
 <form method="post" data-confirm="Artikel wirklich löschen? Bereits erstellte Rechnungen bleiben unverändert.">
   <input type="hidden" name="csrf" value="<?= h(csrf()) ?>"><input type="hidden" name="action" value="delete">
   <button class="btn danger">Artikel löschen</button>

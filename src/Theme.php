@@ -20,11 +20,11 @@ final class Theme
   /* --pri: #7a4589;       Hauptfarbe (Buttons, Links)        */
   /* --pri2: #8a52a0;      zweite Farbe des Verlaufs          */
   /* --pri-soft: #f1e8f4;  helle Fläche zur Hauptfarbe        */
-  /* --bg: #f6f3f7;        Seitenhintergrund                  */
+  /* --bg: #f4e9db;        Seitenhintergrund                  */
   /* --card: #ffffff;      Karten und Tabellen                */
   /* --fg: #1f1520;        Textfarbe                          */
   /* --mut: #6b6270;       gedämpfter Text                    */
-  /* --line: #e9e1ec;      Linien                             */
+  /* --line: #e8dccb;      Linien                             */
   /* --r: 14px;            Rundung der Karten                 */
 }
 
