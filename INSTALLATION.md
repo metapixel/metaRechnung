@@ -81,3 +81,9 @@ Unter **Einstellungen → Briefpapier** kannst du ein A4-Briefpapier hochladen: 
   KoSIT-Validator (XRechnung-Konfiguration 3.0.2) für Regelbesteuerung (19/7/0 %) und Kleinunternehmer geprüft: akzeptiert.
   Die PDF/A-3-Konformität der PDF-Hülle selbst ist nicht mit einem PDF/A-Validator (z. B. veraPDF) geprüft. Bitte stimme die Steuerlogik mit dem Steuerberater ab.
 - Nicht enthalten: Reverse-Charge, innergemeinschaftliche Lieferungen, Rabatte, Gutschriften/Stornos, Anzahlungen, XRechnung/Leitweg-ID.
+
+## Export für den Steuerberater und Protokoll
+
+- **Einstellungen → Export:** erzeugt ein ZIP (Rechnungs-PDFs, optional XRechnung-XML, CSV-Übersicht) in `storage/exports/` und einen geheimen, befristeten Abruf-Link (`export.php`). Für den Link in der E-Mail muss unter „Adresse der App“ die **APP_URL** gesetzt sein. Die PHP-Erweiterung **zip** wird benötigt. Abgelaufene Exporte löscht die App beim nächsten Aufruf der Exportseite selbst.
+- **Einstellungen → Protokoll:** Änderungsprotokoll mit Prüfsummen-Kette (Tabelle `audit_log`). Es wird nie automatisch gelöscht. „Integrität prüfen“ zeigt, ob Einträge nachträglich verändert wurden.
+- Beim Update werden die Tabellen `audit_log` und `exports` beim ersten Aufruf automatisch angelegt.

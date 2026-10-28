@@ -131,7 +131,7 @@ rec('L31', 'H', 'Fällt das Protokoll aus, funktioniert die eigentliche Aktion w
 # Migration von v6: Tabelle fehlt, schema_version 6
 sql('DROP TABLE audit_log'); open(APP + '/storage/schema_version', 'w').write('6'); subprocess.run(['chown', 'www-data', APP + '/storage/schema_version'])
 anon.get('/index.php'); time.sleep(1)
-rec('L32', 'H', 'Update von v6: Tabelle wird automatisch angelegt, schema_version = 7', sql("select count(*) from information_schema.tables where table_schema=database() and table_name='audit_log'") == '1' and open(APP + '/storage/schema_version').read().strip() == '7')
+rec('L32', 'H', 'Update von v6: Tabelle wird automatisch angelegt, schema_version = aktuell', sql("select count(*) from information_schema.tables where table_schema=database() and table_name='audit_log'") == '1' and open(APP + '/storage/schema_version').read().strip() == SCHEMA_CUR)
 cust('Nach Migration'); rec('L33', 'M', 'Nach der Migration wird wieder protokolliert (Kette beginnt neu)', n() == 1 and last()[1] == 'customer.create' and sql('select prev_hash from audit_log') == '')
 
 # --- Cron / parallele Schreiber

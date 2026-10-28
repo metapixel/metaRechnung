@@ -64,6 +64,22 @@ final class Mailer
         $m->send();
     }
 
+    /** Zugangslink zu einem Export (ohne Anhang) */
+    public static function sendExportLink(array $exp, string $to, string $message, string $url): void
+    {
+        $co = company();
+        $m = self::make();
+        $m->addAddress($to);
+        if (env('MAIL_BCC') !== '') {
+            $m->addBCC(env('MAIL_BCC'));
+        }
+        $msg = rtrim($message) . "\n\nDownload (" . $exp['label'] . ', ' . (int)$exp['invoice_count'] . " Belege):\n" . $url
+            . "\nDer Link ist gültig bis " . date('d.m.Y', strtotime((string)$exp['expires_at'])) . ".\n";
+        $m->Subject = 'Rechnungsexport ' . $exp['label'] . ' von ' . $co['name'];
+        $m->Body = $msg;
+        $m->send();
+    }
+
     public static function sendTest(string $to): void
     {
         $m = self::make();

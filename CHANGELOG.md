@@ -2,6 +2,14 @@
 
 Die aktuelle Versionsnummer steht in der Datei `VERSION` (und unten in der App sowie unter Einstellungen → System).
 
+## 1.13.0
+- **Export für den Steuerberater** (Einstellungen → Export): Zeitraum wählen (letzter Monat/Quartal/Jahr, laufendes Jahr oder frei), daraus entsteht ein **ZIP** mit allen Rechnungen als PDF (ZUGFeRD), auf Wunsch zusätzlich XRechnung-XML, einer **CSV-Übersicht** (Rechnungsausgangsbuch: Nummer, Datum, Kunde, Netto je Steuersatz, USt, Brutto, Status, bezahlt am, Storno-Bezug; Semikolon, UTF-8, Dezimalkomma) und einer LIESMICH.
+  Textzellen mit Formelzeichen am Anfang (=, +, -, @) werden in der CSV entschärft.
+- Das ZIP liegt geschützt unter `storage/exports/` (zufälliger Dateiname, von außen nicht abrufbar). Abruf über einen **eigenen, geheimen Link** (`export.php?t=…`, ohne Login, befristet auf 7/14/30/90 Tage) mit Landingpage und Download-Button.
+  Der Link lässt sich **per E-Mail** senden (ohne Anhang; Empfänger wird für das nächste Mal gemerkt) – direkt beim Erstellen oder später aus der Liste. Abgelaufene Exporte werden samt Datei automatisch gelöscht; vorher können sie jederzeit gelöscht (Link ungültig) werden.
+- **Sicherheit:** Token-Abrufe und Downloads sind je IP begrenzt; ungültige, abgelaufene und manipulierte Tokens liefern nur „nicht gültig“. Erstellen, Senden, Löschen und jeder Download über den Link stehen im **Protokoll**.
+- **Update:** neue Tabelle `exports` (Schema-Version 8), wird automatisch angelegt. Für den Mailversand muss die **APP_URL** gesetzt sein (Einstellungen → Adresse der App), damit der Link in der Mail stimmt.
+
 ## 1.12.0
 - **Änderungsprotokoll** (Einstellungen → Protokoll): Wer hat wann was getan – Anmeldungen (auch fehlgeschlagene), Rechnungen (anlegen, ändern, ausstellen, versenden, bezahlt/offen, Storno, duplizieren, Entwurf löschen), Kunden (inkl. CSV-Import),
   Artikel, wiederkehrende Vorlagen und deren automatische Läufe (Akteur „cron“), Einstellungen (nur Feldnamen, keine Werte), Logo/Briefpapier, PDF-Design, eigenes CSS, Zugangsdaten.

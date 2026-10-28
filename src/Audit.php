@@ -30,12 +30,13 @@ final class Audit
         'settings.save' => 'Einstellungen geändert', 'settings.letterhead' => 'Briefpapier geändert', 'settings.logo' => 'Logo geändert',
         'settings.testmail' => 'Testmail gesendet', 'settings.reset' => 'Testdaten zurückgesetzt',
         'design.css' => 'Eigenes CSS geändert', 'design.pdf' => 'PDF-Design geändert',
+        'export.create' => 'Export erstellt', 'export.send' => 'Export-Link per E-Mail versendet', 'export.delete' => 'Export gelöscht', 'export.download' => 'Export heruntergeladen (Link)',
     ];
 
     /** Filtergruppen der Anzeige (Präfix vor dem Punkt) */
     public const GROUPS = [
         'invoice' => 'Rechnungen', 'customer' => 'Kunden', 'article' => 'Artikel', 'recurring' => 'Wiederkehrend',
-        'settings' => 'Einstellungen', 'design' => 'Design', 'auth' => 'Anmeldung',
+        'export' => 'Export', 'settings' => 'Einstellungen', 'design' => 'Design', 'auth' => 'Anmeldung',
     ];
 
     private static ?string $actor = null;

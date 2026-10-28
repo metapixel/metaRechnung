@@ -65,6 +65,7 @@ if ($co['vat_id'] === '' && $co['tax_number'] === '') { $miss[] = 'Steuernummer 
 </form>
 
 <div class="card"><h2>PDF-Design</h2><p class="muted">Schrift, Größe, Akzentfarbe und Tabellenstil der Rechnungs-PDFs; Vorlagen und Vorschau.</p><a class="btn" href="<?= BASE ?>?p=pdf_design">PDF-Design anpassen</a></div>
+<div class="card"><h2>Export für den Steuerberater</h2><p class="muted">ZIP mit Rechnungen (PDF, XML) und CSV-Übersicht für einen Zeitraum, abrufbar über einen befristeten Link – auf Wunsch per E-Mail.</p><a class="btn" href="<?= BASE ?>?p=exports">Export erstellen</a></div>
 <div class="card"><h2>Protokoll</h2><p class="muted">Wer hat wann was geändert: Rechnungen, Kunden, Einstellungen, Anmeldungen. Die Einträge sind durch eine Prüfsummen-Kette gegen nachträgliche Änderungen geschützt.</p><a class="btn" href="<?= BASE ?>?p=audit">Protokoll öffnen</a></div>
 <div class="card"><h2>Darstellung</h2><p class="muted">Eigenes CSS für die Oberfläche (Farben, Rundungen, Schriftgröße) mit Editor und Live-Vorschau.</p><a class="btn" href="<?= BASE ?>?p=design">CSS-Editor öffnen</a></div>
 

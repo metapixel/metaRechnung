@@ -224,3 +224,4 @@ tr.rowlink { cursor:pointer; } tr.rowlink:focus-within td { background:color-mix
 .chart g.mon:focus-visible rect.bar { stroke:var(--fg); stroke-width:2px; }
 .chart g.mon:hover rect.hit, .chart g.mon:focus rect.hit { fill:color-mix(in srgb, var(--pri-soft) 60%, transparent); }
 section.card { margin-bottom:18px; } section.card h2 { margin-top:0; }
+.scroll td input.copy { min-width:260px; }

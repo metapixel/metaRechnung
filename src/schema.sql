@@ -105,3 +105,21 @@ CREATE TABLE IF NOT EXISTS audit_log (
   KEY idx_audit_entity (entity, entity_id),
   KEY idx_audit_action (action)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS exports (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  token CHAR(32) NOT NULL UNIQUE,
+  file VARCHAR(60) NOT NULL,
+  label VARCHAR(100) NOT NULL,
+  period_from DATE NOT NULL,
+  period_to DATE NOT NULL,
+  invoice_count INT UNSIGNED NOT NULL DEFAULT 0,
+  size_bytes BIGINT UNSIGNED NOT NULL DEFAULT 0,
+  with_xml TINYINT(1) NOT NULL DEFAULT 0,
+  created_at DATETIME NOT NULL,
+  expires_at DATETIME NOT NULL,
+  downloads INT UNSIGNED NOT NULL DEFAULT 0,
+  last_download DATETIME NULL,
+  sent_to VARCHAR(190) NULL,
+  sent_at DATETIME NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

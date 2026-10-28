@@ -2,6 +2,7 @@
 import http.client, re, json, time, uuid, subprocess, html, threading, socket, os, urllib.parse
 
 HOST, PORT = os.environ.get('RG_HOST', '127.0.0.1'), int(os.environ.get('RG_PORT', '8097'))
+SCHEMA_CUR = re.search(r'VERSION = (\d+);', open(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'src', 'Migrations.php')).read()).group(1)   # aktuelle Schema-Version der App
 APP = os.environ.get('RG_APP', '/home/claude/work/sec/app')   # Installationsordner der Test-Instanz
 DB = os.environ.get('RG_DB', 'rechnung_sec')
 RES = []

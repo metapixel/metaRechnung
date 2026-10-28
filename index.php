@@ -11,6 +11,7 @@ use App\Config;
 use App\CustomerImport;
 use App\Reports;
 use App\Audit;
+use App\Exports;
 use App\Einvoice;
 use App\Invoices;
 use App\Letterhead;
@@ -260,6 +261,70 @@ try {
                 'perMonth' => Reports::perMonth($inv, $year),
                 'pun' => Reports::punctuality($inv, date('Y-m-d')), 'kl' => Invoices::kleinunternehmer(),
             ]);
+            break;
+
+        case 'exports':
+            $errors = [];
+            Exports::purgeExpired();
+            if ($post) {
+                $a = (string)($_POST['action'] ?? '');
+                $in = fn(string $k): string => is_string($_POST[$k] ?? '') ? (string)$_POST[$k] : '';
+                try {
+                    if ($a === 'create') {
+                        [$from, $to, $label] = Exports::period($in('mode'), $in('from'), $in('to'), new DateTimeImmutable('today'));
+                        $id = Exports::create($from, $to, $label, isset($_POST['with_xml']), (int)$in('days'));
+                        $exp = Exports::find($id);
+                        Audit::log('export.create', 'export', $id, $label . ': ' . (int)$exp['invoice_count'] . ' Belege, gültig bis ' . date('d.m.Y', strtotime((string)$exp['expires_at'])));
+                        $msg = 'Export erstellt (' . (int)$exp['invoice_count'] . ' Belege).';
+                        if (isset($_POST['send'])) {
+                            $addr = trim($in('mail_to'));
+                            try {
+                                Exports::send($id, $addr, mb_substr(clean($in('message'), true), 0, 3000));
+                                Audit::log('export.send', 'export', $id, 'an ' . $addr);
+                                $msg .= ' Link per E-Mail an ' . $addr . ' gesendet.';
+                                $rememberMail = $addr;
+                            } catch (Throwable $e) {
+                                $msg .= ' Der E-Mail-Versand ist fehlgeschlagen: ' . $e->getMessage() . ' (Du kannst ihn in der Liste unten erneut versuchen.)';
+                            }
+                        }
+                        if (!empty($rememberMail) && $rememberMail !== env('EXPORT_EMAIL')) {
+                            try {
+                                Config::save(['EXPORT_EMAIL' => $rememberMail]);
+                            } catch (Throwable $e) {
+                                // Adresse konnte nicht gemerkt werden (config.php nicht beschreibbar) – unkritisch
+                            }
+                        }
+                        flash($msg);
+                        redirect(BASE . '?p=exports');
+                    } elseif ($a === 'send') {
+                        $id = (int)$in('id');
+                        $addr = trim($in('to'));
+                        Exports::send($id, $addr, mb_substr(clean($in('message'), true), 0, 3000));
+                        Audit::log('export.send', 'export', $id, 'an ' . $addr);
+                        if ($addr !== env('EXPORT_EMAIL')) {
+                            try {
+                                Config::save(['EXPORT_EMAIL' => $addr]);
+                            } catch (Throwable $e) {
+                                // unkritisch
+                            }
+                        }
+                        flash('Link per E-Mail an ' . $addr . ' gesendet.');
+                        redirect(BASE . '?p=exports');
+                    } elseif ($a === 'delete') {
+                        $id = (int)$in('id');
+                        $ex = Exports::find($id);
+                        if ($ex) {
+                            Exports::delete($id);
+                            Audit::log('export.delete', 'export', $id, (string)$ex['label']);
+                            flash('Export gelöscht – der Link ist nicht mehr gültig.');
+                        }
+                        redirect(BASE . '?p=exports');
+                    }
+                } catch (RuntimeException $e) {
+                    $errors[] = $e->getMessage();
+                }
+            }
+            render('exports', ['errors' => $errors, 'old' => $post ? $_POST : [], 'rows' => Exports::all()]);
             break;
 
         case 'audit':
