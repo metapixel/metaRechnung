@@ -217,4 +217,10 @@ tr.rowlink { cursor:pointer; } tr.rowlink:focus-within td { background:color-mix
 .chart line { stroke:var(--line); stroke-width:1; }
 .chart rect.bar { fill:var(--pri); } .chart rect.bar.neg { fill:var(--bad); }
 .chart text { fill:var(--mut); font-size:11px; }
+.chart .hit { fill:transparent; } .chart g.mon { outline:0; cursor:default; }
+.chart .val { opacity:0; fill:var(--fg); font-size:13px; font-weight:700; paint-order:stroke; stroke:var(--card); stroke-width:4px; stroke-linejoin:round; pointer-events:none; transition:opacity .08s; }
+.chart g.mon:hover .val, .chart g.mon:focus .val { opacity:1; }
+.chart g.mon:hover rect.bar, .chart g.mon:focus rect.bar { filter:brightness(1.15); }
+.chart g.mon:focus-visible rect.bar { stroke:var(--fg); stroke-width:2px; }
+.chart g.mon:hover rect.hit, .chart g.mon:focus rect.hit { fill:color-mix(in srgb, var(--pri-soft) 60%, transparent); }
 section.card { margin-bottom:18px; } section.card h2 { margin-top:0; }

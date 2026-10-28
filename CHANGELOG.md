@@ -2,6 +2,9 @@
 
 Die aktuelle Versionsnummer steht in der Datei `VERSION` (und unten in der App sowie unter Einstellungen → System).
 
+## 1.11.1
+- **Auswertung:** Beim Überfahren (Maus) oder Fokussieren (Tastatur, Antippen) eines Monats im Diagramm erscheint der Nettoumsatz sofort über dem Balken; der Monat wird hervorgehoben. Für Screenreader trägt jeder Monat eine Beschriftung mit Betrag und Rechnungsanzahl.
+
 ## 1.11.0
 - **Auswertung** (neuer Menüpunkt): **Umsatz je Monat** eines wählbaren Jahres (Säulendiagramm mit Textalternative und Tabelle, netto/brutto) und **Umsatz je Jahr** inklusive noch offener Beträge.
   Grundlage sind ausgestellte und bezahlte Rechnungen (keine Entwürfe); der Umsatz zählt im Monat des Rechnungsdatums, Stornorechnungen mindern ihn im Monat ihres Rechnungsdatums.

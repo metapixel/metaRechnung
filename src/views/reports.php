@@ -9,7 +9,7 @@ $all = $pun[0]; $per = array_slice($pun, 1, null, true);
 // Diagramm: Balken je Monat (Nettoumsatz); negative Monate (Storno überwiegt) nach unten
 $vals = array_map(fn($m) => $m['net'], $perMonth);
 $pmax = max(0.0, max($vals)); $nmax = abs(min(0.0, min($vals)));
-$W = 720; $H = 190; $top = 12; $bot = 26; $ph = $H - $top - $bot;
+$W = 720; $H = 200; $top = 24; $bot = 26; $ph = $H - $top - $bot;
 $span = $pmax + $nmax; $sc = $span > 0 ? $ph / $span : 0; $base = $top + $pmax * $sc;
 ?>
 <div class="row">
@@ -31,11 +31,17 @@ $span = $pmax + $nmax; $sc = $span > 0 ? $ph / $span : 0; $base = $top + $pmax *
 <section class="card" aria-labelledby="h-month">
   <h2 id="h-month">Umsatz <?= (int)$year ?> je Monat</h2>
   <?php if ($span > 0): ?>
-  <svg class="chart" viewBox="0 0 <?= $W ?> <?= $H ?>" role="img" aria-label="Säulendiagramm: Nettoumsatz je Monat <?= (int)$year ?>. Die Werte stehen in der Tabelle darunter.">
+  <svg class="chart" viewBox="0 0 <?= $W ?> <?= $H ?>" role="group" aria-label="Säulendiagramm: Nettoumsatz je Monat <?= (int)$year ?> – Wert beim Überfahren oder Fokussieren, alle Werte auch in der Tabelle darunter">
     <line x1="0" x2="<?= $W ?>" y1="<?= round($base, 1) ?>" y2="<?= round($base, 1) ?>"/>
-    <?php foreach ($perMonth as $m => $v): $x = 6 + ($m - 1) * 59.5; $bh = $sc ? abs($v['net']) * $sc : 0; $neg = $v['net'] < 0; ?>
-      <rect class="bar<?= $neg ? ' neg' : '' ?>" x="<?= round($x, 1) ?>" width="46" rx="4" y="<?= round($neg ? $base : $base - $bh, 1) ?>" height="<?= round(max($bh, $v['net'] != 0 ? 1.5 : 0), 1) ?>"><title><?= h($mlong[$m - 1] . ': ' . money($v['net'])) ?></title></rect>
-      <text x="<?= round($x + 23, 1) ?>" y="<?= $H - 8 ?>" text-anchor="middle"><?= h($mn[$m - 1]) ?></text>
+    <?php foreach ($perMonth as $m => $v):
+        $x = 6 + ($m - 1) * 59.5; $bh = $sc ? abs($v['net']) * $sc : 0; $neg = $v['net'] < 0; $cx = max(44, min($W - 44, $x + 23));
+        $ly = $neg ? $base - 6 : max(12, $base - $bh - 6); // negativ: oberhalb der Nulllinie (unten liegt die Monatsbeschriftung) ?>
+      <g class="mon" tabindex="0" role="img" aria-label="<?= h($mlong[$m - 1] . ' ' . $year . ': ' . money($v['net']) . ' netto, ' . $v['count'] . ' Rechnung' . ($v['count'] === 1 ? '' : 'en')) ?>">
+        <rect class="hit" x="<?= round($x - 6, 1) ?>" y="0" width="58" height="<?= $H ?>"/>
+        <rect class="bar<?= $neg ? ' neg' : '' ?>" x="<?= round($x, 1) ?>" width="46" rx="4" y="<?= round($neg ? $base : $base - $bh, 1) ?>" height="<?= round(max($bh, $v['net'] != 0 ? 1.5 : 0), 1) ?>"/>
+        <text class="val" x="<?= round($cx, 1) ?>" y="<?= round($ly, 1) ?>" text-anchor="middle"><?= h(money($v['net'])) ?></text>
+        <text x="<?= round($x + 23, 1) ?>" y="<?= $H - 8 ?>" text-anchor="middle"><?= h($mn[$m - 1]) ?></text>
+      </g>
     <?php endforeach; ?>
   </svg>
   <?php else: ?>
