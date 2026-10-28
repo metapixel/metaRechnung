@@ -8,7 +8,7 @@ clear_rl()
 s = authed(); anon = C()
 today = datetime.date.today(); iso = today.isoformat()
 EXP = APP + '/storage/exports'
-def mails(): return sorted(glob.glob(MAILS + '/*.eml'))
+def mails(): return sorted(glob.glob(MAILS + '/*.eml'), key=lambda f: (os.path.getmtime(f), f))
 def n_exp(): return int(sql('select count(*) from exports'))
 def files(): return glob.glob(EXP + '/export-*.zip')
 def tok(): return sql('select token from exports order by id desc limit 1')
