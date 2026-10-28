@@ -48,11 +48,11 @@ nav a, .navbtn {
 nav a:hover, .navbtn:hover { background:var(--pri-soft); color:var(--pri); text-decoration:none; }
 nav a.active { background:var(--pri-soft); color:var(--pri); }
 nav form.inline { display:inline-flex; margin:0 0 0 4px; }
-@media (max-width:640px) {
+@media (max-width:1180px) {
   header { flex-wrap:wrap; gap:6px 10px; }
-  nav { width:100%; justify-content:space-between; flex-wrap:wrap; gap:2px; }
-  nav a, .navbtn { padding:7px 10px; font-size:.88rem; }
+  nav { width:100%; flex-wrap:wrap; gap:2px 4px; }
 }
+@media (max-width:640px) { nav { justify-content:space-between; gap:2px; } nav a, .navbtn { padding:7px 10px; font-size:.88rem; } }
 
 /* ---------- Inhalt ---------- */
 main { flex:1 0 auto; width:100%; max-width:1000px; margin:0 auto; padding:clamp(14px,3vw,30px) clamp(12px,3vw,24px) 28px; }
@@ -105,7 +105,8 @@ form.inline { display:inline-block; margin:0 6px 8px 0; } .actions { margin:18px
 table { width:100%; border-collapse:collapse; }
 th, td { padding:12px 14px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }
 th { font-size:.72rem; text-transform:uppercase; letter-spacing:.06em; color:var(--mut); font-weight:700; background:color-mix(in srgb, var(--field) 70%, var(--card)); white-space:nowrap; }
-tr:last-child td { border-bottom:0; }
+tr:last-child td, tr:last-child th[scope=row] { border-bottom:0; }
+th[scope=row] { font-size:inherit; text-transform:none; letter-spacing:0; color:var(--fg); font-weight:600; background:none; white-space:normal; }
 tbody tr, table tr:not(:first-child) { transition:background .12s; }
 .scroll table tr:not(:first-child):hover td { background:color-mix(in srgb, var(--pri-soft) 55%, transparent); }
 .card > table { border:1px solid var(--line); border-radius:var(--r-s); overflow:hidden; }
@@ -210,3 +211,10 @@ tr.rowlink { cursor:pointer; } tr.rowlink:focus-within td { background:color-mix
 
 /* Storno */
 .badge.cancel { color:var(--bad); background:var(--bad-soft); border-color:transparent; }
+
+/* Auswertung */
+.chart { width:100%; height:auto; max-height:240px; margin:6px 0 14px; display:block; }
+.chart line { stroke:var(--line); stroke-width:1; }
+.chart rect.bar { fill:var(--pri); } .chart rect.bar.neg { fill:var(--bad); }
+.chart text { fill:var(--mut); font-size:11px; }
+section.card { margin-bottom:18px; } section.card h2 { margin-top:0; }

@@ -9,6 +9,7 @@ require __DIR__ . '/src/bootstrap.php';
 
 use App\Config;
 use App\CustomerImport;
+use App\Reports;
 use App\Einvoice;
 use App\Invoices;
 use App\Letterhead;
@@ -237,6 +238,20 @@ try {
                 $c = $st->fetch() ?: null;
             }
             render('customer_form', ['c' => $c]);
+            break;
+
+        case 'reports':
+            $inv = Reports::invoices();
+            $years = Reports::years($inv);
+            $year = (int)($_GET['year'] ?? 0);
+            if (!in_array($year, $years, true)) {
+                $year = in_array((int)date('Y'), $years, true) ? (int)date('Y') : ($years[0] ?? (int)date('Y'));
+            }
+            render('reports', [
+                'years' => $years, 'year' => $year, 'perYear' => Reports::perYear($inv),
+                'perMonth' => Reports::perMonth($inv, $year),
+                'pun' => Reports::punctuality($inv, date('Y-m-d')), 'kl' => Invoices::kleinunternehmer(),
+            ]);
             break;
 
         case 'articles':

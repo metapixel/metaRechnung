@@ -2,6 +2,13 @@
 
 Die aktuelle Versionsnummer steht in der Datei `VERSION` (und unten in der App sowie unter Einstellungen → System).
 
+## 1.11.0
+- **Auswertung** (neuer Menüpunkt): **Umsatz je Monat** eines wählbaren Jahres (Säulendiagramm mit Textalternative und Tabelle, netto/brutto) und **Umsatz je Jahr** inklusive noch offener Beträge.
+  Grundlage sind ausgestellte und bezahlte Rechnungen (keine Entwürfe); der Umsatz zählt im Monat des Rechnungsdatums, Stornorechnungen mindern ihn im Monat ihres Rechnungsdatums.
+- **Zahlungsverhalten je Kunde:** Anzahl bezahlter Rechnungen, Anteil pünktlicher Zahlungen (Zahlungsdatum ≤ Fälligkeit), durchschnittliche Zahlungsdauer, durchschnittlicher Verzug bei verspäteten Zahlungen, aktuell überfällige Forderungen
+  und eine Einstufung („pünktlich“ ab 90 %, „meist pünktlich“ ab 60 %, sonst „oft verspätet“; erst ab drei bezahlten Rechnungen). Stornierte Rechnungen und Stornorechnungen fließen nicht ein.
+- **Oberfläche:** Die Navigation bricht bereits unterhalb von 1180 px um (vorher lief sie bei mittleren Fensterbreiten über); Zeilenüberschriften in Tabellen werden nicht mehr als Spaltenkopf dargestellt.
+
 ## 1.10.2
 - **Artikel:** In der Detailansicht eines Artikels gibt es „Als neu duplizieren“. Die Kopie übernimmt Notiz, Einheit, Preis und MwSt, die Bezeichnung bekommt den Zusatz „ (Kopie)“; danach öffnet sich die Kopie zum Anpassen.
 - **Hintergrund:** Der Seitenhintergrund ist standardmäßig `#f4e9db` (helles Beige; Linien und Felder leicht warm getönt, Manifest angepasst). Der dunkle Modus bleibt unverändert; Texte erreichen weiterhin mindestens 4,5 : 1 Kontrast.

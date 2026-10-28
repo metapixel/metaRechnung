@@ -4,6 +4,7 @@ Schlanke, selbst gehostete Rechnungsverwaltung in PHP/MySQL für ganz normalen W
 
 - Kunden, Rechnungen mit Positionen, fortlaufende Nummern (`RE-2026-0001`), Entwürfe, Duplizieren, Kleinunternehmer-Modus
 - **ZUGFeRD/Factur-X** (PDF/A-3 mit eingebetteter XML) und **XRechnung 3.0**, mit dem KoSIT-Validator geprüft
+- **Auswertung:** Umsatz je Monat/Jahr, Zahlungsverhalten der Kunden
 - **CSV-Import** bestehender Kundendaten (Vorschau, Spaltenzuordnung, Dublettenerkennung)
 - **Stornorechnungen** (eigener Nummernkreis, Bezug auf die Originalrechnung, XML-Typ 384, Teilstorno)
 - **PDF-Design**: Schrift, Akzentfarbe, Tabellenstil, Vorlagen und Vorschau; wird beim Ausstellen festgehalten
