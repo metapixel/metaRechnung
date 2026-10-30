@@ -58,6 +58,11 @@ if ($co['vat_id'] === '' && $co['tax_number'] === '') { $miss[] = 'Steuernummer 
   <label>Absendername <input name="MAIL_FROM_NAME" value="<?= $g('MAIL_FROM_NAME') ?>"></label>
   <label>BCC an dich (optional) <input type="email" name="MAIL_BCC" value="<?= $g('MAIL_BCC') ?>"></label></div>
 
+  <h2 id="steuerberater">Steuerberater</h2>
+  <p class="hint">Standard-Ansprechpartner für den <a href="<?= BASE ?>?p=exports">Export</a>: Die Adresse ist dort vorausgefüllt, der Name erscheint in der Anrede der Mail.</p>
+  <div class="grid2"><label>Ansprechpartner:in <input name="TAX_ADVISOR_NAME" maxlength="120" value="<?= $g('TAX_ADVISOR_NAME') ?>" placeholder="Vorname Nachname"></label>
+  <label>E-Mail <input type="email" name="TAX_ADVISOR_EMAIL" maxlength="190" value="<?= $g('TAX_ADVISOR_EMAIL') ?>" placeholder="steuerberater@example.com"></label></div>
+
   <h2>Adresse der App</h2>
   <label>Öffentliche Adresse (optional)
     <input name="APP_URL" value="<?= $g('APP_URL') ?>" placeholder="https://deine-domain.de/rechnung/">

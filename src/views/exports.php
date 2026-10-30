@@ -1,5 +1,7 @@
 <?php
-$mail = env('EXPORT_EMAIL');
+$adv = env('TAX_ADVISOR_EMAIL');
+$advName = env('TAX_ADVISOR_NAME');
+$mail = $adv !== '' ? $adv : env('EXPORT_EMAIL');
 $expired = fn(array $r) => $r['expires_at'] < date('Y-m-d H:i:s');
 $mb = fn($b) => number_format($b / 1048576, 1, ',', '.') . ' MB';
 ?>
@@ -8,7 +10,7 @@ $mb = fn($b) => number_format($b / 1048576, 1, ',', '.') . ' MB';
 <?php if (!\App\Exports::available()): ?><div class="card warnbox"><p class="err" role="alert">Die PHP-Erweiterung „zip“ fehlt. Bitte im Hosting-Panel aktivieren.</p></div><?php endif; ?>
 <?php if ($errors): ?><div class="card warnbox"><?php foreach ($errors as $e): ?><p class="err" role="alert"><?= h($e) ?></p><?php endforeach; ?></div><?php endif; ?>
 
-<form method="post" class="card" autocomplete="off">
+<form method="post" class="card" autocomplete="off" enctype="multipart/form-data">
   <input type="hidden" name="csrf" value="<?= h(csrf()) ?>"><input type="hidden" name="action" value="create">
   <h2>Neuen Export erstellen</h2>
   <div class="grid3">
@@ -28,8 +30,18 @@ $mb = fn($b) => number_format($b / 1048576, 1, ',', '.') . ' MB';
     </label>
     <label style="align-self:end"><input type="checkbox" name="with_xml" value="1" <?= !$old || isset($old['with_xml']) ? 'checked' : '' ?>> XRechnung-XML zusätzlich beilegen</label>
   </div>
+  <h3>Unterlagen beilegen <span class="hint">(optional)</span></h3>
+  <p class="hint">Die Dateien kommen unverändert in den Ordner <code>zusatzunterlagen/</code> des Exports (ZIP-Dateien werden nicht entpackt). Je Datei höchstens <?= (int)(\App\Exports::docLimit() / 1048576) ?> MB (Server-Limit <?= h(ini_get('upload_max_filesize')) ?>).</p>
+  <div class="grid3">
+    <?php foreach (\App\Exports::DOC_SLOTS as $slot => [$lbl, , $exts]): ?>
+    <label><?= h($lbl) ?> <span class="hint">(<?= h(strtoupper(implode(' oder ', $exts))) ?>)</span>
+      <input type="file" name="doc_<?= h($slot) ?>" accept="<?= h(implode(',', array_map(fn($x) => '.' . $x, $exts))) ?>"></label>
+    <?php endforeach; ?>
+  </div>
   <h3>Link per E-Mail senden <span class="hint">(optional)</span></h3>
-  <label>E-Mail-Adresse des Steuerberaters <input type="email" name="mail_to" maxlength="190" value="<?= h($old['mail_to'] ?? $mail) ?>" placeholder="steuerberater@example.com"></label>
+  <?php if ($adv !== '' || $advName !== ''): ?><p class="hint">Standard-Ansprechpartner: <b><?= h($advName ?: 'ohne Namen') ?></b><?= $adv !== '' ? ' &lt;' . h($adv) . '&gt;' : '' ?> – <a href="<?= BASE ?>?p=settings#steuerberater">ändern</a></p>
+  <?php else: ?><p class="hint">Tipp: Hinterlege den Steuerberater einmalig in den <a href="<?= BASE ?>?p=settings#steuerberater">Einstellungen</a>, dann ist er hier vorausgefüllt.</p><?php endif; ?>
+  <label>E-Mail-Adresse<?= $advName !== '' ? ' von ' . h($advName) : ' des Steuerberaters' ?> <input type="email" name="mail_to" maxlength="190" value="<?= h($old['mail_to'] ?? $mail) ?>" placeholder="steuerberater@example.com"></label>
   <label>Nachricht <span class="hint">Der Link und die Gültigkeit werden automatisch angehängt.</span>
     <textarea name="message" rows="6" maxlength="3000"><?= h($old['message'] ?? \App\Exports::defaultMessage()) ?></textarea>
   </label>

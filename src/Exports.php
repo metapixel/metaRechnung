@@ -139,8 +139,90 @@ final class Exports
         return preg_replace('/[^A-Za-z0-9._-]+/', '_', $n) ?: 'rechnung';
     }
 
-    /** Erstellt den Export und gibt die ID zurück. */
-    public static function create(string $from, string $to, string $label, bool $withXml, int $days): int
+    /** Upload-Felder für zusätzliche Unterlagen: Schlüssel => [Bezeichnung, fester Dateiname im ZIP (null = Originalname), erlaubte Endungen] */
+    public const DOC_SLOTS = [
+        'bank' => ['Kontoauszüge', 'Kontoauszuege.zip', ['zip']],
+        'incoming' => ['Rechnungseingang (Eingangsrechnungen)', 'Rechnungseingang.zip', ['zip']],
+        'other' => ['Weitere Unterlagen', null, ['zip', 'pdf']],
+    ];
+    public const DOC_MAX = 25 * 1024 * 1024;
+
+    /** Größte erlaubte Einzeldatei (Byte): 25 MB, höchstens das Upload-Limit des Servers. */
+    public static function docLimit(): int
+    {
+        $b = static function (string $s): int {
+            $s = trim($s);
+            $n = (int)$s;
+            return $s === '' ? 0 : match (strtolower(substr($s, -1))) { 'g' => $n * 1024 ** 3, 'm' => $n * 1024 ** 2, 'k' => $n * 1024, default => $n };
+        };
+        $lim = min(self::DOC_MAX, $b((string)ini_get('upload_max_filesize')) ?: PHP_INT_MAX);
+        $post = $b((string)ini_get('post_max_size'));
+        return $post > 0 ? min($lim, $post) : $lim;
+    }
+
+    /**
+     * Prüft die hochgeladenen Zusatzunterlagen ($_FILES doc_bank, doc_incoming, doc_other). Dateityp wird am Inhalt geprüft;
+     * die Dateien werden später unverändert (ohne sie zu entpacken) in den Export gelegt.
+     * @return list<array{slot:string,label:string,path:string,name:string,store:string,size:int}>
+     */
+    public static function uploads(array $files): array
+    {
+        $out = [];
+        foreach (self::DOC_SLOTS as $slot => [$label, $fixed, $exts]) {
+            $f = $files['doc_' . $slot] ?? null;
+            if (!is_array($f) || !isset($f['error']) || is_array($f['error'])) {
+                continue;
+            }
+            $err = (int)$f['error'];
+            if ($err === UPLOAD_ERR_NO_FILE) {
+                continue;
+            }
+            if ($err === UPLOAD_ERR_INI_SIZE || $err === UPLOAD_ERR_FORM_SIZE) {
+                throw new \RuntimeException($label . ': Die Datei ist größer als das Upload-Limit des Servers (' . ini_get('upload_max_filesize') . ').');
+            }
+            if ($err !== UPLOAD_ERR_OK) {
+                throw new \RuntimeException($label . ': Der Upload ist fehlgeschlagen (Fehlercode ' . $err . ').');
+            }
+            $tmp = (string)($f['tmp_name'] ?? '');
+            if (!is_uploaded_file($tmp)) {
+                throw new \RuntimeException($label . ': Ungültiger Upload.');
+            }
+            $size = (int)filesize($tmp);
+            if ($size <= 0) {
+                throw new \RuntimeException($label . ': Die Datei ist leer.');
+            }
+            if ($size > self::docLimit()) {
+                throw new \RuntimeException($label . ': Die Datei ist größer als ' . (int)(self::docLimit() / 1048576) . ' MB.');
+            }
+            $name = Attachments::safeName((string)($f['name'] ?? ''));
+            $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+            if ($name === '' || !in_array($ext, $exts, true)) {
+                throw new \RuntimeException($label . ': Erlaubt ist nur ' . strtoupper(implode(' oder ', $exts)) . '.');
+            }
+            $head = (string)file_get_contents($tmp, false, null, 0, 8);
+            if ($ext === 'pdf') {
+                $ok = str_starts_with($head, '%PDF-');
+            } else {
+                $z = new \ZipArchive();
+                $ok = str_starts_with($head, "PK\x03\x04") && $z->open($tmp, \ZipArchive::CHECKCONS) === true && $z->numFiles > 0;
+                if ($ok) {
+                    $z->close();
+                }
+            }
+            if (!$ok) {
+                throw new \RuntimeException($label . ': Der Inhalt ist kein gültiges ' . strtoupper($ext) . '.');
+            }
+            $store = $fixed ?? self::safeName(pathinfo($name, PATHINFO_FILENAME)) . '.' . $ext;
+            $out[] = ['slot' => $slot, 'label' => $label, 'path' => $tmp, 'name' => $name, 'store' => $store, 'size' => $size];
+        }
+        return $out;
+    }
+
+    /**
+     * Erstellt den Export und gibt die ID zurück.
+     * @param list<array{slot:string,label:string,path:string,name:string,store:string,size:int}> $extra geprüfte Zusatzunterlagen (uploads())
+     */
+    public static function create(string $from, string $to, string $label, bool $withXml, int $days, array $extra = []): int
     {
         if (!self::available()) {
             throw new \RuntimeException('Die PHP-Erweiterung „zip“ fehlt – der Export kann nicht erstellt werden.');
@@ -188,6 +270,10 @@ final class Exports
                 }
             }
             $zip->addFromString('rechnungsausgangsbuch.csv', self::csv($invs));
+            foreach ($extra as $x) {
+                $zip->addFile($x['path'], 'zusatzunterlagen/' . $x['store']);
+                $zip->setCompressionName('zusatzunterlagen/' . $x['store'], \ZipArchive::CM_STORE);   // bereits komprimierte Dateien unverändert ablegen
+            }
             $co = company();
             $readme = "Rechnungsexport – " . $co['name'] . "\r\n"
                 . "Zeitraum (Rechnungsdatum): " . fdate($from) . ' bis ' . fdate($to) . "\r\n"
@@ -198,6 +284,7 @@ final class Exports
                 . "- rechnungsausgangsbuch.csv  Übersicht aller Belege (Semikolon, UTF-8, Dezimalkomma; Stornorechnungen mit negativen Beträgen)\r\n"
                 . "- rechnungen/  Rechnungen als PDF (ZUGFeRD, enthalten das XML bereits eingebettet)\r\n"
                 . ($withXml ? "- xrechnung/  Rechnungen als XRechnung-XML (CII)\r\n" : '')
+                . ($extra ? "- zusatzunterlagen/  Vom Aussteller beigelegte Unterlagen (unverändert, nicht geöffnet):\r\n" . implode('', array_map(static fn($x) => '    ' . $x['store'] . '  ' . $x['label'] . ' (Originaldatei: ' . $x['name'] . ")\r\n", $extra)) : '')
                 . ($skipped ? "\r\nHinweis: Für folgende Belege konnte kein XRechnung-XML erzeugt werden (Pflichtangaben fehlen): " . implode(', ', $skipped) . "\r\n" : '')
                 . "\r\nHinweis: Der Umsatz zählt nach Rechnungsdatum. Bezahlt-Daten entsprechen dem in der App erfassten Zahlungseingang.\r\n";
             $zip->addFromString('LIESMICH.txt', $readme);
@@ -323,8 +410,10 @@ final class Exports
     public static function defaultMessage(string $label = ''): string
     {
         $co = company();
+        $name = trim(env('TAX_ADVISOR_NAME'));
         return Templates::render('mail_export_body', [
             'FIRMA' => $co['name'], 'ABSENDER' => $co['owner'] ?: $co['name'], 'ZEITRAUM' => $label,
+            'ANSPRECHPARTNER' => $name, 'ANREDE' => 'Guten Tag' . ($name !== '' ? ' ' . $name : ''),
         ]);
     }
 }

@@ -10,7 +10,7 @@
     <tr><td>Größe</td><td class="r"><?= h(number_format($exp['size_bytes'] / 1048576, 1, ',', '.')) ?> MB</td></tr>
     <tr><td>Link gültig bis</td><td class="r"><?= h(date('d.m.Y', strtotime((string)$exp['expires_at']))) ?></td></tr>
   </table>
-  <p>Das ZIP enthält die Rechnungen als PDF (ZUGFeRD)<?= $exp['with_xml'] ? ', XRechnung-XML' : '' ?> und eine CSV-Übersicht (Rechnungsausgangsbuch).</p>
+  <p>Das ZIP enthält die Rechnungen als PDF (ZUGFeRD)<?= $exp['with_xml'] ? ', XRechnung-XML' : '' ?>, eine CSV-Übersicht (Rechnungsausgangsbuch) und gegebenenfalls beigelegte Unterlagen (Ordner zusatzunterlagen).</p>
   <p><a class="btn primary" href="?t=<?= h($t) ?>&amp;dl=1">ZIP herunterladen</a></p>
 </div>
 <?php endif; ?>

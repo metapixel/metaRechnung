@@ -275,10 +275,11 @@ try {
                 try {
                     if ($a === 'create') {
                         [$from, $to, $label] = Exports::period($in('mode'), $in('from'), $in('to'), new DateTimeImmutable('today'));
-                        $id = Exports::create($from, $to, $label, isset($_POST['with_xml']), (int)$in('days'));
+                        $extra = Exports::uploads($_FILES);
+                        $id = Exports::create($from, $to, $label, isset($_POST['with_xml']), (int)$in('days'), $extra);
                         $exp = Exports::find($id);
-                        Audit::log('export.create', 'export', $id, $label . ': ' . (int)$exp['invoice_count'] . ' Belege, gültig bis ' . date('d.m.Y', strtotime((string)$exp['expires_at'])));
-                        $msg = 'Export erstellt (' . (int)$exp['invoice_count'] . ' Belege).';
+                        Audit::log('export.create', 'export', $id, $label . ': ' . (int)$exp['invoice_count'] . ' Belege' . ($extra ? ' + ' . count($extra) . ' Unterlagen (' . implode(', ', array_column($extra, 'store')) . ')' : '') . ', gültig bis ' . date('d.m.Y', strtotime((string)$exp['expires_at'])));
+                        $msg = 'Export erstellt (' . (int)$exp['invoice_count'] . ' Belege' . ($extra ? ', ' . count($extra) . ' beigelegte Unterlagen' : '') . ').';
                         if (isset($_POST['send'])) {
                             $addr = trim($in('mail_to'));
                             try {
@@ -817,6 +818,12 @@ try {
                     if ($in('CANCEL_PREFIX') !== '' && !preg_match('/^[A-Za-z0-9]{1,10}$/', $in('CANCEL_PREFIX'))) {
                         $errors[] = 'Das Präfix für Stornorechnungen darf nur Buchstaben und Ziffern enthalten (höchstens 10 Zeichen).';
                     }
+                    if (mb_strlen($in('TAX_ADVISOR_NAME')) > 120) {
+                        $errors[] = 'Steuerberater: Der Name ist zu lang (höchstens 120 Zeichen).';
+                    }
+                    if ($in('TAX_ADVISOR_EMAIL') !== '' && (!filter_var($in('TAX_ADVISOR_EMAIL'), FILTER_VALIDATE_EMAIL) || mb_strlen($in('TAX_ADVISOR_EMAIL')) > 190)) {
+                        $errors[] = 'Steuerberater: ungültige E-Mail-Adresse.';
+                    }
                     if ($in('OFFER_PREFIX') !== '' && !preg_match('/^[A-Za-z0-9]{1,10}$/', $in('OFFER_PREFIX'))) {
                         $errors[] = 'Angebotspräfix: 1–10 Buchstaben/Ziffern.';
                     }
@@ -850,7 +857,7 @@ try {
                         $c = [];
                         foreach (['COMPANY_NAME', 'COMPANY_OWNER', 'COMPANY_STREET', 'COMPANY_ZIP', 'COMPANY_CITY', 'COMPANY_EMAIL', 'COMPANY_PHONE',
                                   'COMPANY_TAX_NUMBER', 'COMPANY_VAT_ID', 'COMPANY_IBAN', 'COMPANY_BIC', 'COMPANY_BANK',
-                                  'SMTP_HOST', 'SMTP_USER', 'MAIL_FROM', 'MAIL_FROM_NAME', 'MAIL_BCC', 'APP_URL'] as $k) {
+                                  'SMTP_HOST', 'SMTP_USER', 'MAIL_FROM', 'MAIL_FROM_NAME', 'MAIL_BCC', 'APP_URL', 'TAX_ADVISOR_NAME', 'TAX_ADVISOR_EMAIL'] as $k) {
                             $c[$k] = $in($k);
                         }
                         $c['COMPANY_COUNTRY'] = strtoupper($in('COMPANY_COUNTRY') ?: 'DE');

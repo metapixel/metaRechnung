@@ -2,6 +2,13 @@
 
 Die aktuelle Versionsnummer steht in der Datei `VERSION` (und unten in der App sowie unter Einstellungen → System).
 
+## 1.15.0
+- **Steuerberater als Standard-Ansprechpartner:** Einstellungen → Steuerberater (Name und E-Mail). Beim Export ist die Adresse vorausgefüllt, der Name steht in der Anrede der Mail (`{anrede}` bzw. `{ansprechpartner}` in der Vorlage „Export“).
+- **Zusatzunterlagen im Export:** Beim Erstellen lassen sich Dateien beilegen – **Kontoauszüge** (ZIP), **Rechnungseingang** (ZIP) und **Weitere Unterlagen** (ZIP oder PDF). Sie liegen unverändert im Ordner `zusatzunterlagen/` des Export-ZIP und sind im LIESMICH und im Protokoll aufgeführt; der Steuerberater bekommt alles über denselben befristeten Link.
+  Sicherheit: Typ wird am Inhalt geprüft (gültiges, nicht leeres ZIP bzw. PDF), nur die Endungen ZIP/PDF sind erlaubt, Dateinamen werden bereinigt, ZIP-Dateien werden nie entpackt; höchstens 25 MB je Datei (und nicht mehr als das Upload-Limit des Servers).
+  Ist eine der Dateien ungültig, wird kein Export angelegt.
+- Keine Datenbankänderung.
+
 ## 1.14.1
 - **Angebote nachträglich änderbar:** Auch ausgestellte (versendete, angenommene, umgewandelte) Angebote lassen sich bearbeiten. Die Nummer bleibt, das PDF wird mit dem beim Ausstellen eingefrorenen Firmen-/Design-Stand neu erzeugt; ein bereits aus dem Angebot erstellter Rechnungsentwurf bleibt unverändert. Ein ausgestelltes Angebot braucht mindestens eine Position. Die Änderung steht im Protokoll. (Rechnungen bleiben nach dem Ausstellen unveränderlich.)
 
