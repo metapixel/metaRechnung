@@ -114,6 +114,7 @@ final class Offers
         $items = Invoices::parseItems($in);
 
         $isNew = $id === null;
+        $issued = false;
         $pdo->beginTransaction();
         try {
             if ($id === null) {
@@ -121,25 +122,44 @@ final class Offers
                     ->execute([(int)$in['customer_id'], $issue, $valid, $notes]);
                 $id = (int)$pdo->lastInsertId();
             } else {
-                $u = $pdo->prepare("UPDATE offers SET customer_id = ?, issue_date = ?, valid_until = ?, notes = ? WHERE id = ? AND status = 'draft'");
-                $u->execute([(int)$in['customer_id'], $issue, $valid, $notes, $id]);
-                $chk = $pdo->prepare("SELECT COUNT(*) FROM offers WHERE id = ? AND status = 'draft'");
+                $chk = $pdo->prepare('SELECT status FROM offers WHERE id = ? FOR UPDATE');
                 $chk->execute([$id]);
-                if (!(int)$chk->fetchColumn()) {
-                    throw new \RuntimeException('Nur Entwürfe können bearbeitet werden.');
+                $was = $chk->fetchColumn();
+                if ($was === false) {
+                    throw new \RuntimeException('Angebot nicht gefunden.');
                 }
+                $issued = $was !== 'draft';
+                if ($issued && !$items) {
+                    throw new \RuntimeException('Ein ausgestelltes Angebot braucht mindestens eine Position.');
+                }
+                $pdo->prepare('UPDATE offers SET customer_id = ?, issue_date = ?, valid_until = ?, notes = ? WHERE id = ?')
+                    ->execute([(int)$in['customer_id'], $issue, $valid, $notes, $id]);
                 $pdo->prepare('DELETE FROM offer_items WHERE offer_id = ?')->execute([$id]);
             }
             $ins = $pdo->prepare('INSERT INTO offer_items (offer_id, pos, description, note, quantity, unit, unit_price, vat_rate) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
             foreach ($items as $n => $r) {
                 $ins->execute([$id, $n + 1, $r['description'], $r['note'], $r['quantity'], $r['unit'], $r['unit_price'], $r['vat_rate']]);
             }
+            if ($issued) {
+                // Nachträgliche Änderung eines ausgestellten Angebots: Nummer bleibt, das PDF wird neu erzeugt (mit dem eingefrorenen Firmen-/Design-Stand)
+                $o = self::find($id);
+                $pdf = self::pdf($o);
+                $dir = dirname(self::pdfPath((string)$o['number']));
+                if (!is_dir($dir)) {
+                    mkdir($dir, 0775, true);
+                }
+                // Geprüft: Pfad wird serverseitig gebildet (fester Ordner, Nummer auf [A-Za-z0-9_-] beschränkt)
+                // nosemgrep
+                if (file_put_contents(self::pdfPath((string)$o['number']), $pdf) === false) {
+                    throw new \RuntimeException('PDF konnte nicht gespeichert werden (Schreibrechte auf storage/?).');
+                }
+            }
             $pdo->commit();
         } catch (\Throwable $e) {
             $pdo->rollBack();
             throw $e;
         }
-        Audit::log($isNew ? 'offer.create' : 'offer.update', 'offer', $id, 'Entwurf');
+        Audit::log($isNew ? 'offer.create' : 'offer.update', 'offer', $id, $issued ? 'Ausgestelltes Angebot nachträglich geändert (PDF neu erzeugt)' : 'Entwurf');
         return $id;
     }
 

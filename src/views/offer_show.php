@@ -48,6 +48,7 @@ $post = fn(string $action, string $label, string $cls = '', string $confirm = ''
   <?= $post('delete', 'Löschen', 'danger', 'Entwurf wirklich löschen?') ?>
 <?php else: ?>
   <a class="btn primary" href="<?= BASE ?>?p=offer_pdf&id=<?= (int)$off['id'] ?>" target="_blank">PDF öffnen</a>
+  <a class="btn" href="<?= BASE ?>?p=offer_edit&id=<?= (int)$off['id'] ?>">Bearbeiten</a>
   <?php if (!$off['invoice'] && $st !== 'declined'): ?><?= $post('convert', 'In Rechnung wandeln', 'primary', 'Aus diesem Angebot einen Rechnungsentwurf anlegen? Das Angebot gilt danach als angenommen.') ?><?php endif; ?>
   <?= $post('duplicate', 'Als neues Angebot duplizieren') ?>
   <?php if ($st === 'open'): ?>

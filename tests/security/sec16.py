@@ -73,14 +73,36 @@ rec('O10', 'H', 'Angebots-PDF: „Angebot“, Nummer, Gültigkeit, Einleitung un
 rec('O11', 'M', 'Angebots-PDF ist kein ZUGFeRD (keine eingebettete factur-x.xml)', b'factur-x' not in open(pdf1, 'rb').read(), '')
 r = act(o1, 'issue'); rec('O12', 'M', 'Erneutes Ausstellen wirkungslos (Nummer bleibt)', sql(f'select number from offers where id={o1}') == no1, r.status)
 r = s.get(f'/index.php?p=offer_edit&id={o1}')
-rec('O13', 'H', 'Ausgestelltes Angebot ist nicht mehr bearbeitbar (Seite und POST)', r.status == 302 and 'Nur Entwürfe' in s.get('/index.php?p=offers').body + s.get(r.h('location') or '/').body, r.status)
-s.post(f'/index.php?p=offer_edit&id={o1}', {'csrf': page_token(s, '/index.php?p=offer_edit'), 'customer_id': c1, 'issue_date': iso, 'valid_until': '', 'notes': 'GEÄNDERT', 'desc[]': ['geändert'], 'qty[]': ['1'], 'unit[]': ['LS'], 'price[]': ['1'], 'vat[]': ['19']})
-rec('O14', 'H', 'POST auf ausgestelltes Angebot ändert nichts', sql(f'select count(*) from offer_items where offer_id={o1} and description=\'geändert\'') == '0' and 'GEÄNDERT' not in (sql(f'select notes from offers where id={o1}') or ''), '')
+rec('O13', 'H', 'Ausgestelltes Angebot ist bearbeitbar: Formular mit Hinweis, Nummer im Titel, Daten vorbelegt', r.status == 200 and 'bereits ausgestellt' in r.body and f'Angebot {no1} bearbeiten' in r.body and 'Änderungen speichern' in r.body and 'Beratung' in r.body, r.status)
+rec('O14', 'M', 'Detailseite eines ausgestellten Angebots bietet „Bearbeiten“ an', f'p=offer_edit&id={o1}' in s.get(f'/index.php?p=offer&id={o1}').body, '')
 r = s.get(f'/index.php?p=offer_pdf&id={o1}')
 rec('O15', 'M', 'offer_pdf liefert das gespeicherte PDF (inline, application/pdf)', r.status == 200 and r.raw == open(pdf1, 'rb').read() and 'inline' in r.h('content-disposition'), r.status)
 o2, _ = offer(c1, price='10,00'); act(o2, 'issue'); no2 = sql(f'select number from offers where id={o2}')
 rec('O16', 'M', 'Zweites Angebot bekommt fortlaufende Nummer 0002', no2 == f'AN-{y}-0002', no2)
 r = act(999999, 'issue'); rec('O17', 'L', 'Unbekanntes Angebot: 404', s.get('/index.php?p=offer&id=999999').status == 404, '')
+
+# --- Nachträgliche Änderung ausgestellter Angebote
+oe, _ = offer(c1, price='100,00', desc='Alte Leistung'); act(oe, 'issue'); noe = sql(f'select number from offers where id={oe}')
+snap0 = sql(f'select snapshot from offers where id={oe}'); pdf_e = f'{APP}/storage/offers/{noe}.pdf'; b0 = open(pdf_e, 'rb').read()
+pe = f'/index.php?p=offer_edit&id={oe}'
+r = s.post(pe, {'csrf': page_token(s, pe), 'customer_id': c1, 'issue_date': iso, 'valid_until': (today + datetime.timedelta(days=60)).isoformat(), 'notes': 'Neuer Hinweis',
+                'desc[]': ['Neue Leistung'], 'qty[]': ['3'], 'unit[]': ['HUR'], 'price[]': ['200,00'], 'vat[]': ['19']})
+tx = pdftext(pdf_e)
+rec('N1', 'H', 'Änderung eines ausgestellten Angebots: gespeichert, Nummer und Status unverändert, Positionen ersetzt', r.status == 302 and sql(f'select number, status from offers where id={oe}') == f'{noe}\topen' and sql(f'select group_concat(description) from offer_items where offer_id={oe}') == 'Neue Leistung' and sql(f'select notes from offers where id={oe}') == 'Neuer Hinweis', (r.status, r.h('location')))
+rec('N2', 'H', 'PDF wurde neu erzeugt: neue Position, Summe 714,00 €, neues Gültigkeitsdatum; alte Position weg', open(pdf_e, 'rb').read() != b0 and 'Neue Leistung' in tx and '714,00' in tx and 'Alte Leistung' not in tx and (today + datetime.timedelta(days=60)).strftime('%d.%m.%Y') in tx and 'Neuer Hinweis' in tx, tx[:200])
+rec('N3', 'M', 'Eingefrorener Stand (Snapshot) bleibt, offer_pdf liefert die neue Fassung', sql(f'select snapshot from offers where id={oe}') == snap0 and s.get(f'/index.php?p=offer_pdf&id={oe}').raw == open(pdf_e, 'rb').read(), '')
+rec('N4', 'M', 'Meldung „PDF neu erzeugt“ und Protokolleintrag zur nachträglichen Änderung', 'PDF neu erzeugt' in s.get(f'/index.php?p=offer&id={oe}').body and sql("select count(*) from audit_log where action='offer.update' and entity_id=%s and summary like 'Ausgestelltes Angebot%%'" % oe) == '1', '')
+r = s.post(pe, {'csrf': page_token(s, pe), 'customer_id': c1, 'issue_date': iso, 'valid_until': '', 'notes': '', 'desc[]': [''], 'qty[]': ['1'], 'unit[]': ['LS'], 'price[]': ['1'], 'vat[]': ['19']})
+rec('N5', 'H', 'Ausgestelltes Angebot ohne Position wird abgelehnt, bisherige Positionen bleiben', sql(f'select count(*) from offer_items where offer_id={oe}') == '1' and open(pdf_e, 'rb').read()[:5] == b'%PDF-', r.status)
+oc = s.get('/index.php?p=offers').body
+act(oe, 'accepted'); act(oe, 'convert'); ie = int(sql('select max(id) from invoices'))
+r = s.post(pe, {'csrf': page_token(s, pe), 'customer_id': c1, 'issue_date': iso, 'valid_until': '', 'notes': 'Nach Umwandlung', 'desc[]': ['Nochmal neu'], 'qty[]': ['1'], 'unit[]': ['LS'], 'price[]': ['1,00'], 'vat[]': ['19']})
+rec('N6', 'M', 'Auch ein angenommenes/umgewandeltes Angebot ist änderbar; die bereits erzeugte Rechnung bleibt unberührt', sql(f'select group_concat(description) from offer_items where offer_id={oe}') == 'Nochmal neu' and sql(f'select group_concat(description) from invoice_items where invoice_id={ie}') == 'Neue Leistung' and sql(f'select status from offers where id={oe}') == 'accepted', '')
+r = s.post(pe, {'csrf': 'x', 'customer_id': c1, 'desc[]': ['hack'], 'qty[]': ['1'], 'unit[]': ['LS'], 'price[]': ['1'], 'vat[]': ['19']})
+r2 = anon.post(pe, {'customer_id': c1, 'desc[]': ['hack'], 'qty[]': ['1'], 'unit[]': ['LS'], 'price[]': ['1'], 'vat[]': ['19']})
+rec('N7', 'H', 'Änderung ohne CSRF-Token bzw. anonym wirkungslos', sql(f'select count(*) from offer_items where description=\'hack\'') == '0', (r.status, r2.status))
+r = s.post(pe, {'csrf': page_token(s, pe), 'customer_id': c1, 'issue_date': iso, 'valid_until': yd, 'notes': '', 'desc[]': ['x'], 'qty[]': ['1'], 'unit[]': ['LS'], 'price[]': ['1'], 'vat[]': ['19']})
+rec('N8', 'M', 'Ungültiges Gültigkeitsdatum bei ausgestelltem Angebot: abgelehnt, nichts geändert', sql(f'select group_concat(description) from offer_items where offer_id={oe}') == 'Nochmal neu', r.status)
 
 # --- Mail
 m0 = len(mails())

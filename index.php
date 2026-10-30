@@ -448,8 +448,8 @@ try {
         case 'offer_edit':
             $id = (int)($_GET['id'] ?? 0);
             $off = $id ? Offers::find($id) : null;
-            if ($id && (!$off || $off['status'] !== 'draft')) {
-                throw new RuntimeException('Nur Entwürfe können bearbeitet werden.');
+            if ($id && !$off) {
+                throw new RuntimeException('Angebot nicht gefunden.');
             }
             if ($post) {
                 if (!(int)($_POST['customer_id'] ?? 0)) {
@@ -459,7 +459,7 @@ try {
                 if (($_POST['after'] ?? '') === 'preview') {
                     redirect(BASE . '?p=offer_preview&id=' . $newId);
                 }
-                flash('Entwurf gespeichert.');
+                flash($off && $off['status'] !== 'draft' ? 'Angebot geändert, PDF neu erzeugt.' : 'Entwurf gespeichert.');
                 redirect(BASE . '?p=offer&id=' . $newId);
             }
             render('offer_form', [

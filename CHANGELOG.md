@@ -2,6 +2,9 @@
 
 Die aktuelle Versionsnummer steht in der Datei `VERSION` (und unten in der App sowie unter Einstellungen → System).
 
+## 1.14.1
+- **Angebote nachträglich änderbar:** Auch ausgestellte (versendete, angenommene, umgewandelte) Angebote lassen sich bearbeiten. Die Nummer bleibt, das PDF wird mit dem beim Ausstellen eingefrorenen Firmen-/Design-Stand neu erzeugt; ein bereits aus dem Angebot erstellter Rechnungsentwurf bleibt unverändert. Ein ausgestelltes Angebot braucht mindestens eine Position. Die Änderung steht im Protokoll. (Rechnungen bleiben nach dem Ausstellen unveränderlich.)
+
 ## 1.14.0
 - **Angebote** (neuer Menüpunkt): eigener Belegtyp mit eigener Nummer (`AN-2026-0001`, Präfix einstellbar), **Gültig-bis-Datum** (Standard 30 Tage, einstellbar), Positionen wie bei Rechnungen (inkl. Artikelauswahl), PDF-Vorschau, Ausstellen (Nummer + unveränderliches PDF, Stand von Firma/Design/Texten wird eingefroren) und Versand per Mail mit PDF.
   Status: Entwurf → offen → angenommen / abgelehnt; „abgelaufen“ ergibt sich automatisch aus dem Gültigkeitsdatum. Duplizieren und Löschen von Entwürfen wie bei Rechnungen.
