@@ -314,6 +314,13 @@ try {
                         }
                         flash('Link per E-Mail an ' . $addr . ' gesendet.');
                         redirect(BASE . '?p=exports');
+                    } elseif ($a === 'extend') {
+                        $id = (int)$in('id');
+                        $new = Exports::extend($id, (int)$in('days'));
+                        $ex = Exports::find($id);
+                        Audit::log('export.extend', 'export', $id, $ex['label'] . ': gültig bis ' . date('d.m.Y', strtotime($new)));
+                        flash('Link verlängert – gültig bis ' . date('d.m.Y', strtotime($new)) . '. Der bisherige Link funktioniert wieder.');
+                        redirect(BASE . '?p=exports');
                     } elseif ($a === 'delete') {
                         $id = (int)$in('id');
                         $ex = Exports::find($id);

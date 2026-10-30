@@ -34,7 +34,7 @@ final class Audit
         'offer.issue' => 'Angebot ausgestellt', 'offer.send' => 'Angebot per E-Mail versendet', 'offer.accepted' => 'Angebot als angenommen markiert',
         'offer.declined' => 'Angebot als abgelehnt markiert', 'offer.reopen' => 'Angebot wieder auf offen gesetzt', 'offer.convert' => 'Angebot in Rechnung gewandelt',
         'offer.duplicate' => 'Angebot dupliziert', 'invoice.remind' => 'Zahlungserinnerung versendet', 'settings.templates' => 'Textvorlagen geändert',
-        'export.create' => 'Export erstellt', 'export.send' => 'Export-Link per E-Mail versendet', 'export.delete' => 'Export gelöscht', 'export.download' => 'Export heruntergeladen (Link)',
+        'export.create' => 'Export erstellt', 'export.send' => 'Export-Link per E-Mail versendet', 'export.extend' => 'Export-Link verlängert', 'export.delete' => 'Export gelöscht', 'export.download' => 'Export heruntergeladen (Link)',
     ];
 
     /** Filtergruppen der Anzeige (Präfix vor dem Punkt) */

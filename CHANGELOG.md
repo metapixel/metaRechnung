@@ -2,6 +2,10 @@
 
 Die aktuelle Versionsnummer steht in der Datei `VERSION` (und unten in der App sowie unter Einstellungen → System).
 
+## 1.15.1
+- **Export-Links nachträglich verlängern:** In der Exportliste gibt es je Export „Verlängern“ (7/14/30/90 Tage). Bei einem noch gültigen Link werden die Tage ans Ablaufdatum angehängt; ein **abgelaufener Link lässt sich reaktivieren** – es gilt wieder derselbe Link, der Steuerberater muss keinen neuen bekommen. Insgesamt ist ein Link nie länger als 180 Tage ab heute gültig.
+- Abgelaufene Exporte werden nicht mehr sofort gelöscht, sondern bleiben **30 Tage** samt Datei erhalten (in der Liste mit Löschdatum); erst danach werden sie automatisch entfernt. Der Abruf über den Link ist während dieser Zeit weiterhin gesperrt, bis du verlängerst. Verlängerungen stehen im Protokoll.
+
 ## 1.15.0
 - **Steuerberater als Standard-Ansprechpartner:** Einstellungen → Steuerberater (Name und E-Mail). Beim Export ist die Adresse vorausgefüllt, der Name steht in der Anrede der Mail (`{anrede}` bzw. `{ansprechpartner}` in der Vorlage „Export“).
 - **Zusatzunterlagen im Export:** Beim Erstellen lassen sich Dateien beilegen – **Kontoauszüge** (ZIP), **Rechnungseingang** (ZIP) und **Weitere Unterlagen** (ZIP oder PDF). Sie liegen unverändert im Ordner `zusatzunterlagen/` des Export-ZIP und sind im LIESMICH und im Protokoll aufgeführt; der Steuerberater bekommt alles über denselben befristeten Link.

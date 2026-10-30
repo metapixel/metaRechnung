@@ -6,7 +6,7 @@ $expired = fn(array $r) => $r['expires_at'] < date('Y-m-d H:i:s');
 $mb = fn($b) => number_format($b / 1048576, 1, ',', '.') . ' MB';
 ?>
 <h1>Export für den Steuerberater</h1>
-<p class="muted">Erstellt ein ZIP mit allen Rechnungen eines Zeitraums (PDF/ZUGFeRD, optional XRechnung-XML) und einer CSV-Übersicht. Das ZIP liegt geschützt auf dem Server (<code>storage/exports/</code>) und wird über einen geheimen, befristeten Link abgerufen, den du per E-Mail senden kannst. Nach Ablauf wird die Datei automatisch gelöscht.</p>
+<p class="muted">Erstellt ein ZIP mit allen Rechnungen eines Zeitraums (PDF/ZUGFeRD, optional XRechnung-XML) und einer CSV-Übersicht. Das ZIP liegt geschützt auf dem Server (<code>storage/exports/</code>) und wird über einen geheimen, befristeten Link abgerufen, den du per E-Mail senden kannst. Nach Ablauf lässt sich der Link noch <?= \App\Exports::GRACE_DAYS ?> Tage lang verlängern, danach wird die Datei automatisch gelöscht.</p>
 <?php if (!\App\Exports::available()): ?><div class="card warnbox"><p class="err" role="alert">Die PHP-Erweiterung „zip“ fehlt. Bitte im Hosting-Panel aktivieren.</p></div><?php endif; ?>
 <?php if ($errors): ?><div class="card warnbox"><?php foreach ($errors as $e): ?><p class="err" role="alert"><?= h($e) ?></p><?php endforeach; ?></div><?php endif; ?>
 
@@ -61,7 +61,7 @@ $mb = fn($b) => number_format($b / 1048576, 1, ',', '.') . ' MB';
     <th scope="row"><?= h($r['label']) ?><br><span class="muted"><?= h(date('d.m.Y H:i', strtotime((string)$r['created_at']))) ?><?= $r['with_xml'] ? ' · mit XML' : '' ?></span></th>
     <td class="r"><?= (int)$r['invoice_count'] ?></td>
     <td class="r"><?= h($mb((int)$r['size_bytes'])) ?></td>
-    <td><?= h(date('d.m.Y', strtotime((string)$r['expires_at']))) ?><?= $expired($r) ? ' <span class="badge over">abgelaufen</span>' : '' ?></td>
+    <td><?= h(date('d.m.Y', strtotime((string)$r['expires_at']))) ?><?= $expired($r) ? ' <span class="badge over">abgelaufen</span><br><span class="muted">wird am ' . h(date('d.m.Y', strtotime((string)$r['expires_at'] . ' +' . \App\Exports::GRACE_DAYS . ' days'))) . ' gelöscht</span>' : '' ?></td>
     <td class="r"><?= (int)$r['downloads'] ?><?= $r['last_download'] ? '<br><span class="muted">zuletzt ' . h(date('d.m.Y H:i', strtotime((string)$r['last_download']))) . '</span>' : '' ?></td>
     <td>
       <?php if (!$expired($r)): ?>
@@ -81,6 +81,12 @@ $mb = fn($b) => number_format($b / 1048576, 1, ',', '.') . ' MB';
         </form>
       </details>
       <?php endif; ?>
+      <form method="post" class="inline">
+        <input type="hidden" name="csrf" value="<?= h(csrf()) ?>"><input type="hidden" name="action" value="extend"><input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
+        <label class="sr" for="ext<?= (int)$r['id'] ?>">Verlängern um</label>
+        <select id="ext<?= (int)$r['id'] ?>" name="days"><?php foreach (\App\Exports::VALID_DAYS as $d): ?><option value="<?= $d ?>" <?= $d === 14 ? 'selected' : '' ?>><?= $d ?> Tage</option><?php endforeach; ?></select>
+        <button class="btn"><?= $expired($r) ? 'Link reaktivieren' : 'Verlängern' ?></button>
+      </form>
       <form method="post" data-confirm="Export wirklich löschen? Der Link funktioniert danach nicht mehr.">
         <input type="hidden" name="csrf" value="<?= h(csrf()) ?>"><input type="hidden" name="action" value="delete"><input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
         <button class="btn danger">Löschen</button>

@@ -310,11 +310,16 @@ final class Exports
         return (int)db()->lastInsertId();
     }
 
-    /** Löscht abgelaufene Exporte samt Datei. */
+    /** Nach Ablauf bleibt der Export noch so viele Tage erhalten und lässt sich verlängern, bevor er samt Datei gelöscht wird. */
+    public const GRACE_DAYS = 30;
+    /** Ein Link ist nie länger als so viele Tage ab heute gültig (auch nach mehrfachem Verlängern). */
+    public const MAX_DAYS = 180;
+
+    /** Löscht Exporte samt Datei, die vor mehr als GRACE_DAYS Tagen abgelaufen sind. */
     public static function purgeExpired(): int
     {
         $n = 0;
-        foreach (db()->query('SELECT id, file FROM exports WHERE expires_at < NOW()')->fetchAll() as $r) {
+        foreach (db()->query('SELECT id, file FROM exports WHERE expires_at < DATE_SUB(NOW(), INTERVAL ' . self::GRACE_DAYS . ' DAY)')->fetchAll() as $r) {
             self::removeFile((string)$r['file']);
             db()->prepare('DELETE FROM exports WHERE id = ?')->execute([$r['id']]);
             $n++;
@@ -405,6 +410,29 @@ final class Exports
         }
         Mailer::sendExportLink($r, $to, $message, self::url($r));
         db()->prepare('UPDATE exports SET sent_to = ?, sent_at = NOW() WHERE id = ?')->execute([mb_substr($to, 0, 190), $id]);
+    }
+
+    /**
+     * Verlängert die Gültigkeit des Links (auch nach Ablauf, solange die Datei noch da ist; derselbe Link gilt wieder).
+     * Bei einem noch gültigen Link werden die Tage an das bisherige Ablaufdatum angehängt, bei einem abgelaufenen ab jetzt gezählt.
+     * @return string neues Ablaufdatum (Y-m-d H:i:s)
+     */
+    public static function extend(int $id, int $days): string
+    {
+        if (!in_array($days, self::VALID_DAYS, true)) {
+            $days = 14;
+        }
+        $r = self::find($id);
+        if (!$r) {
+            throw new \RuntimeException('Export nicht gefunden.');
+        }
+        if (self::path($r) === null) {
+            throw new \RuntimeException('Die Datei des Exports existiert nicht mehr – bitte einen neuen Export erstellen.');
+        }
+        db()->prepare('UPDATE exports SET expires_at = LEAST(DATE_ADD(GREATEST(expires_at, NOW()), INTERVAL ? DAY), DATE_ADD(NOW(), INTERVAL ' . self::MAX_DAYS . ' DAY)) WHERE id = ?')
+            ->execute([$days, $id]);
+        $n = self::find($id);
+        return (string)$n['expires_at'];
     }
 
     public static function defaultMessage(string $label = ''): string
