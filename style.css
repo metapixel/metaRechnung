@@ -78,10 +78,13 @@ input:hover, select:hover, textarea:hover { border-color:color-mix(in srgb, var(
 input:focus, select:focus, textarea:focus { outline:0; border-color:var(--pri); box-shadow:var(--ring); background:var(--card); }
 input[type=checkbox], input[type=radio] { display:inline-block; width:auto; margin:0 8px 0 0; accent-color:var(--pri); vertical-align:-2px; }
 input[type=file] { padding:8px; }
+/* iOS/Safari: Datumsfelder haben eine feste Eigenbreite und ragen sonst aus der Karte */
+input[type=date], input[type=time], input[type=month], input[type=datetime-local] { min-width:0; max-width:100%; box-sizing:border-box; }
+.grid2 > *, .grid3 > * { min-width:0; }
 input.s, select.s { min-width:80px; }
 fieldset { border:1px solid var(--line); border-radius:var(--r); }
 .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:4px 16px; } .grid3 { display:grid; grid-template-columns:repeat(3,1fr); gap:4px 16px; }
-@media (max-width:640px) { .grid2, .grid3 { grid-template-columns:1fr; } }
+@media (max-width:640px) { .grid2, .grid3 { grid-template-columns:minmax(0,1fr); } }
 
 /* ---------- Buttons ---------- */
 .btn {
@@ -103,6 +106,8 @@ form.inline { display:inline-block; margin:0 6px 8px 0; } .actions { margin:18px
 .scroll { position:relative; overflow-x:auto; background:var(--card); border:1px solid var(--line); border-radius:var(--r); box-shadow:var(--shadow); }
 .card .scroll { box-shadow:none; }
 table { width:100%; border-collapse:collapse; }
+/* Schlüssel-Wert-Tabellen auf öffentlichen Seiten (Statusseite): lange Werte (IBAN, Empfänger) umbrechen statt überstehen */
+table.kv td.r { white-space:normal; overflow-wrap:anywhere; word-break:break-word; }
 th, td { padding:12px 14px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }
 th { font-size:.72rem; text-transform:uppercase; letter-spacing:.06em; color:var(--mut); font-weight:700; background:color-mix(in srgb, var(--field) 70%, var(--card)); white-space:nowrap; }
 tr:last-child td, tr:last-child th[scope=row] { border-bottom:0; }

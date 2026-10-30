@@ -2,6 +2,10 @@
 
 Die aktuelle Versionsnummer steht in der Datei `VERSION` (und unten in der App sowie unter Einstellungen → System).
 
+## 1.15.2
+- **Mobile Darstellung:** Auf dem Smartphone ragten zwei Stellen aus der Seite: die Datumsfelder „Von/Bis“ im Export-Formular (iOS-Datumsfelder weiten die einspaltige Formularspalte) und die Zahlungsdaten auf der Statusseite für den Kunden (lange IBAN/Empfänger-Zeilen). Beide umbrechen bzw. passen sich jetzt der Breite an.
+  Alle Seiten wurden zusätzlich bei 375 px Breite auf seitliches Überstehen geprüft.
+
 ## 1.15.1
 - **Export-Links nachträglich verlängern:** In der Exportliste gibt es je Export „Verlängern“ (7/14/30/90 Tage). Bei einem noch gültigen Link werden die Tage ans Ablaufdatum angehängt; ein **abgelaufener Link lässt sich reaktivieren** – es gilt wieder derselbe Link, der Steuerberater muss keinen neuen bekommen. Insgesamt ist ein Link nie länger als 180 Tage ab heute gültig.
 - Abgelaufene Exporte werden nicht mehr sofort gelöscht, sondern bleiben **30 Tage** samt Datei erhalten (in der Liste mit Löschdatum); erst danach werden sie automatisch entfernt. Der Abruf über den Link ist während dieser Zeit weiterhin gesperrt, bis du verlängerst. Verlängerungen stehen im Protokoll.

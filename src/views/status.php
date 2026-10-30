@@ -24,7 +24,7 @@
     </p>
   <?php endif; ?>
 
-  <table>
+  <table class="kv">
     <tr><td>Rechnungsdatum</td><td class="r"><?= h(fdate($inv['issue_date'])) ?></td></tr>
     <tr><td><?= $credit ? 'Gutschriftbetrag (brutto)' : 'Rechnungsbetrag (brutto)' ?></td><td class="r"><b><?= h(money($t['gross'])) ?></b></td></tr>
     <?php if ($open && $co['iban'] !== ''): ?>
