@@ -5,6 +5,8 @@ $st = $inv['status'];
 $problems = $inv['number'] ? \App\Einvoice::xrechnungProblems($inv) : [];
 $credit = \App\Invoices::isCredit($inv);
 $cancelled = !empty($inv['cancelled_by']);
+$tvars = \App\Templates::vars($inv);
+$overdue = $st === 'issued' && !$credit && !$cancelled && $inv['due_date'] < date('Y-m-d');
 $statusUrl = $inv['public_token'] ? \App\Invoices::statusUrl($inv) : '';
 $post = fn(string $action, string $label, string $cls = '', string $confirm = '') =>
     '<form method="post" class="inline"' . ($confirm ? ' data-confirm="' . h($confirm) . '"' : '') . '>'
@@ -26,6 +28,9 @@ $post = fn(string $action, string $label, string $cls = '', string $confirm = ''
 <?php elseif ($inv['storno_draft']): ?>
 <p class="statusbox open">Zu dieser Rechnung gibt es einen <a href="<?= BASE ?>?p=invoice&amp;id=<?= (int)$inv['storno_draft'] ?>">Stornoentwurf</a>.</p>
 <?php endif; ?>
+<?php if (!empty($inv['offer_id'])): $ofr = \App\Offers::find((int)$inv['offer_id']); if ($ofr): ?>
+<p class="muted">Erstellt aus Angebot <a href="<?= BASE ?>?p=offer&amp;id=<?= (int)$ofr['id'] ?>"><?= h($ofr['number']) ?></a>.</p>
+<?php endif; endif; ?>
 <p><b><?= h($inv['c_name']) ?></b><br><?= h($inv['c_street']) ?>, <?= h($inv['c_zip'] . ' ' . $inv['c_city']) ?><?= $inv['c_email'] ? '<br>' . h($inv['c_email']) : '' ?></p>
 <p class="muted">Rechnungsdatum <?= h(fdate($inv['issue_date'])) ?> · Leistungsdatum <?= h(fdate($inv['delivery_date'] ?: $inv['issue_date'])) ?><?= $credit ? '' : ' · fällig ' . h(fdate($inv['due_date'])) ?>
 <?= $inv['sent_at'] ? ' · gesendet ' . h(date('d.m.Y H:i', strtotime($inv['sent_at']))) : '' ?>
@@ -76,6 +81,19 @@ $post = fn(string $action, string $label, string $cls = '', string $confirm = ''
 <div class="actions"><?= $post('unpaid', 'Zahlung zurücknehmen (wieder „offen“)', '', 'Wirklich wieder auf offen setzen?') ?></div>
 <?php endif; ?>
 
+<?php if ($overdue): ?>
+<form method="post" class="card warnbox">
+  <h2>Zahlungserinnerung</h2>
+  <p>Die Rechnung war am <?= h(fdate($inv['due_date'])) ?> fällig.<?= (int)$inv['reminder_count'] > 0 ? ' Bisher ' . (int)$inv['reminder_count'] . ' Erinnerung(en), zuletzt am ' . h(date('d.m.Y', strtotime((string)$inv['reminded_at']))) . '.' : '' ?></p>
+  <input type="hidden" name="csrf" value="<?= h(csrf()) ?>"><input type="hidden" name="action" value="remind">
+  <label>An <input type="email" name="to" value="<?= h($inv['c_email']) ?>" required></label>
+  <label>Betreff <input name="subject" maxlength="190" value="<?= h(\App\Templates::render('mail_reminder_subject', $tvars)) ?>"></label>
+  <label>Nachricht <textarea name="message" rows="10"><?= h(\App\Templates::render('mail_reminder_body', $tvars)) ?></textarea></label>
+  <p class="hint">Die Rechnung hängt als PDF an. Texte: <a href="<?= BASE ?>?p=templates">Textvorlagen</a>.</p>
+  <button class="btn primary">Erinnerung senden</button>
+</form>
+<?php endif; ?>
+
 <?php if ($st !== 'draft'): ?>
 <div class="card">
   <h2>Statusseite für den Kunden</h2>
@@ -89,8 +107,9 @@ $post = fn(string $action, string $label, string $cls = '', string $confirm = ''
   <input type="hidden" name="csrf" value="<?= h(csrf()) ?>">
   <input type="hidden" name="action" value="send">
   <label>An <input type="email" name="to" value="<?= h($inv['c_email']) ?>" required></label>
+  <label>Betreff <input name="subject" maxlength="190" value="<?= h($credit ? 'Stornorechnung ' . $inv['number'] . ' von ' . $inv['co']['name'] : \App\Templates::render('mail_invoice_subject', $tvars)) ?>"></label>
   <label>Nachricht
-    <textarea name="message" rows="9"><?= $credit ? h("Guten Tag" . ($inv['c_contact'] ? ' ' . $inv['c_contact'] : '') . ",\n\nanbei erhalten Sie die Stornorechnung " . $inv['number'] . " zur Rechnung " . ($inv['cancels']['number'] ?? '') . " über " . money($t['gross']) . ".\nBereits geleistete Zahlungen werden erstattet bzw. verrechnet.\n\nDownloads (PDF, XRechnung):\n" . $statusUrl . "\n\nMit freundlichen Grüßen\n" . ($inv['co']['owner'] ?: $inv['co']['name'])) : h("Guten Tag" . ($inv['c_contact'] ? ' ' . $inv['c_contact'] : '') . ",\n\nanbei erhalten Sie die Rechnung " . $inv['number'] . " über " . money($t['gross']) . ".\nBitte überweisen Sie den Betrag bis zum " . fdate($inv['due_date']) . ".\n\nZahlungsstatus und Downloads (PDF, XRechnung):\n" . $statusUrl . "\n\nMit freundlichen Grüßen\n" . ($inv['co']['owner'] ?: $inv['co']['name'])) ?></textarea>
+    <textarea name="message" rows="9"><?= $credit ? h("Guten Tag" . ($inv['c_contact'] ? ' ' . $inv['c_contact'] : '') . ",\n\nanbei erhalten Sie die Stornorechnung " . $inv['number'] . " zur Rechnung " . ($inv['cancels']['number'] ?? '') . " über " . money($t['gross']) . ".\nBereits geleistete Zahlungen werden erstattet bzw. verrechnet.\n\nDownloads (PDF, XRechnung):\n" . $statusUrl . "\n\nMit freundlichen Grüßen\n" . ($inv['co']['owner'] ?: $inv['co']['name'])) : h(\App\Templates::render('mail_invoice_body', $tvars)) ?></textarea>
   </label>
   <label>Zusätzliche Anhänge (optional, z. B. Korrekturabzüge)
     <input type="file" name="attachments[]" multiple accept=".pdf,.png,.jpg,.jpeg,.gif,.webp,.zip,.docx,.xlsx,.pptx,.odt,.ods,.txt,.csv">

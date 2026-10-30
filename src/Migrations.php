@@ -10,7 +10,7 @@ namespace App;
 /** Schema-Updates für bestehende Installationen (läuft automatisch, einmalig). */
 final class Migrations
 {
-    public const VERSION = 8;
+    public const VERSION = 9;
 
     public static function run(): void
     {
@@ -133,6 +133,49 @@ final class Migrations
   sent_to VARCHAR(190) NULL,
   sent_at DATETIME NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+        // v9: Angebote (+ Positionen), Bezug Rechnung → Angebot, Zahlungserinnerungen
+        $pdo->exec("CREATE TABLE IF NOT EXISTS offers (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  number VARCHAR(30) NULL UNIQUE,
+  customer_id INT UNSIGNED NOT NULL,
+  status ENUM('draft','open','accepted','declined') NOT NULL DEFAULT 'draft',
+  issue_date DATE NOT NULL,
+  valid_until DATE NOT NULL,
+  notes TEXT NULL,
+  snapshot MEDIUMTEXT NULL,
+  invoice_id INT UNSIGNED NULL,
+  sent_at DATETIME NULL,
+  decided_at DATE NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (customer_id) REFERENCES customers(id),
+  FOREIGN KEY (invoice_id) REFERENCES invoices(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        $pdo->exec("CREATE TABLE IF NOT EXISTS offer_items (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  offer_id INT UNSIGNED NOT NULL,
+  pos SMALLINT UNSIGNED NOT NULL,
+  description VARCHAR(500) NOT NULL,
+  note TEXT NULL,
+  quantity DECIMAL(12,3) NOT NULL DEFAULT 1,
+  unit VARCHAR(8) NOT NULL DEFAULT 'C62',
+  unit_price DECIMAL(12,2) NOT NULL DEFAULT 0,
+  vat_rate DECIMAL(5,2) NOT NULL DEFAULT 19,
+  FOREIGN KEY (offer_id) REFERENCES offers(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        foreach ([
+            'ALTER TABLE invoices ADD COLUMN offer_id INT UNSIGNED NULL AFTER cancels_id',
+            'ALTER TABLE invoices ADD COLUMN reminded_at DATETIME NULL',
+            'ALTER TABLE invoices ADD COLUMN reminder_count SMALLINT UNSIGNED NOT NULL DEFAULT 0',
+        ] as $sql) {
+            try {
+                $pdo->exec($sql);
+            } catch (\PDOException $e) {
+                if ((int)($e->errorInfo[1] ?? 0) !== 1060) {
+                    throw $e;
+                }
+            }
+        }
 
         @file_put_contents($file, (string)self::VERSION);
     }

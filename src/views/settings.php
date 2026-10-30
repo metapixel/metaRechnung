@@ -38,6 +38,8 @@ if ($co['vat_id'] === '' && $co['tax_number'] === '') { $miss[] = 'Steuernummer 
   <div class="grid3"><label>Nummernpräfix <input name="INVOICE_PREFIX" maxlength="8" value="<?= $g('INVOICE_PREFIX', 'RE') ?>"></label>
   <label>Präfix Stornorechnungen <input name="CANCEL_PREFIX" maxlength="8" value="<?= $g('CANCEL_PREFIX', 'ST') ?>"></label>
   <label>Zahlungsziel (Tage) <input type="number" min="0" name="PAYMENT_DAYS" value="<?= $g('PAYMENT_DAYS', '14') ?>"></label></div>
+  <div class="grid2"><label>Präfix Angebote <input name="OFFER_PREFIX" maxlength="8" value="<?= $g('OFFER_PREFIX', 'AN') ?>"></label>
+  <label>Angebote gültig (Tage) <input type="number" min="1" max="365" name="OFFER_VALID_DAYS" value="<?= $g('OFFER_VALID_DAYS', '30') ?>"></label></div>
   <label style="color:inherit"><input type="checkbox" name="KLEINUNTERNEHMER" value="1" style="width:auto" <?= $ku ? 'checked' : '' ?>> Kleinunternehmer (§ 19 UStG, keine Umsatzsteuer)</label>
   <label style="color:inherit"><input type="checkbox" name="GIROCODE" value="1" style="width:auto" <?= ($posted ? isset($old['GIROCODE']) : \App\GiroCode::enabled()) ? 'checked' : '' ?>> GiroCode (QR-Code zum Überweisen) auf Rechnung und Statusseite</label>
   <p class="hint">Banking-Apps lesen daraus Empfänger, IBAN, Betrag und Verwendungszweck. Erscheint nur bei gültiger IBAN (Prüfsumme) und Rechnungsbetrag in Euro; gilt für neu ausgestellte Rechnungen.</p>
@@ -64,6 +66,7 @@ if ($co['vat_id'] === '' && $co['tax_number'] === '') { $miss[] = 'Steuernummer 
   <button class="btn primary">Einstellungen speichern</button>
 </form>
 
+<div class="card"><h2>Textvorlagen</h2><p class="muted">E-Mail-Texte (Rechnung, Angebot, Zahlungserinnerung, Export) und Texte auf dem PDF – mit Platzhaltern wie {nummer}, {faellig} oder {betrag}.</p><a class="btn" href="<?= BASE ?>?p=templates">Textvorlagen bearbeiten</a></div>
 <div class="card"><h2>PDF-Design</h2><p class="muted">Schrift, Größe, Akzentfarbe und Tabellenstil der Rechnungs-PDFs; Vorlagen und Vorschau.</p><a class="btn" href="<?= BASE ?>?p=pdf_design">PDF-Design anpassen</a></div>
 <div class="card"><h2>Export für den Steuerberater</h2><p class="muted">ZIP mit Rechnungen (PDF, XML) und CSV-Übersicht für einen Zeitraum, abrufbar über einen befristeten Link – auf Wunsch per E-Mail.</p><a class="btn" href="<?= BASE ?>?p=exports">Export erstellen</a></div>
 <div class="card"><h2>Protokoll</h2><p class="muted">Wer hat wann was geändert: Rechnungen, Kunden, Einstellungen, Anmeldungen. Die Einträge sind durch eine Prüfsummen-Kette gegen nachträgliche Änderungen geschützt.</p><a class="btn" href="<?= BASE ?>?p=audit">Protokoll öffnen</a></div>

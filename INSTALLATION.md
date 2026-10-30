@@ -82,6 +82,12 @@ Unter **Einstellungen → Briefpapier** kannst du ein A4-Briefpapier hochladen: 
   Die PDF/A-3-Konformität der PDF-Hülle selbst ist nicht mit einem PDF/A-Validator (z. B. veraPDF) geprüft. Bitte stimme die Steuerlogik mit dem Steuerberater ab.
 - Nicht enthalten: Reverse-Charge, innergemeinschaftliche Lieferungen, Rabatte, Gutschriften/Stornos, Anzahlungen, XRechnung/Leitweg-ID.
 
+## Angebote, Textvorlagen und Zahlungserinnerung
+
+- **Angebote** (Menü „Angebote“): Nummer `AN-JJJJ-NNNN`, Präfix und Standard-Gültigkeit unter Einstellungen → Rechnungen. Die ausgestellten Angebots-PDFs liegen in `storage/offers/` (nicht öffentlich abrufbar) – bitte wie `storage/invoices/` sichern. „In Rechnung wandeln“ erzeugt einen Rechnungsentwurf.
+- **Textvorlagen** (Einstellungen → Textvorlagen) werden in `config.php` gespeichert (Schlüssel `TPL_…`). Platzhalter in geschweiften Klammern, z. B. `{nummer}`, `{faellig}`, `{betrag}`, `{link}`; die Liste steht auf der Seite selbst.
+- **Zahlungserinnerung:** erscheint an überfälligen Rechnungen; Versand wie die Rechnungsmail (SMTP bzw. `mail()`), mit der Rechnung als PDF im Anhang.
+
 ## Export für den Steuerberater und Protokoll
 
 - **Einstellungen → Export:** erzeugt ein ZIP (Rechnungs-PDFs, optional XRechnung-XML, CSV-Übersicht) in `storage/exports/` und einen geheimen, befristeten Abruf-Link (`export.php`). Für den Link in der E-Mail muss unter „Adresse der App“ die **APP_URL** gesetzt sein. Die PHP-Erweiterung **zip** wird benötigt. Abgelaufene Exporte löscht die App beim nächsten Aufruf der Exportseite selbst.

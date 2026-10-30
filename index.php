@@ -23,6 +23,8 @@ use App\Mailer;
 use App\RateLimit;
 use App\Theme;
 use App\Recurring;
+use App\Offers;
+use App\Templates;
 
 $p = $_GET['p'] ?? 'invoices';
 $post = $_SERVER['REQUEST_METHOD'] === 'POST';
@@ -238,7 +240,8 @@ try {
                 }
                 Audit::log($isNew ? 'customer.create' : 'customer.update', 'customer', $id, (string)$v['name']);
                 flash('Kunde gespeichert.');
-                redirect(($_GET['next'] ?? '') === 'invoice_edit' ? BASE . '?p=invoice_edit&customer=' . $id : BASE . '?p=customers');
+                $next = (string)($_GET['next'] ?? '');
+                redirect(in_array($next, ['invoice_edit', 'offer_edit'], true) ? BASE . '?p=' . $next . '&customer=' . $id : BASE . '?p=customers');
             }
             $c = null;
             if ($id) {
@@ -438,6 +441,135 @@ try {
             render('pdf_design', ['d' => $d, 'errors' => $errors, 'notice' => $notice, 'logoColor' => $lg ? PdfDesign::suggestFromImage($lg['path']) : null]);
             break;
 
+        case 'offers':
+            render('offers', ['rows' => Offers::listAll()]);
+            break;
+
+        case 'offer_edit':
+            $id = (int)($_GET['id'] ?? 0);
+            $off = $id ? Offers::find($id) : null;
+            if ($id && (!$off || $off['status'] !== 'draft')) {
+                throw new RuntimeException('Nur Entwürfe können bearbeitet werden.');
+            }
+            if ($post) {
+                if (!(int)($_POST['customer_id'] ?? 0)) {
+                    throw new RuntimeException('Bitte einen Kunden wählen.');
+                }
+                $newId = Offers::saveDraft($id ?: null, $_POST);
+                if (($_POST['after'] ?? '') === 'preview') {
+                    redirect(BASE . '?p=offer_preview&id=' . $newId);
+                }
+                flash('Entwurf gespeichert.');
+                redirect(BASE . '?p=offer&id=' . $newId);
+            }
+            render('offer_form', [
+                'off' => $off,
+                'customers' => db()->query('SELECT id, name FROM customers ORDER BY name')->fetchAll(),
+                'articles' => Articles::all(),
+                'preselect' => (int)($_GET['customer'] ?? 0),
+            ]);
+            break;
+
+        case 'offer':
+            $id = (int)($_GET['id'] ?? 0);
+            $off = Offers::find($id);
+            if (!$off) {
+                http_response_code(404);
+                exit('Angebot nicht gefunden.');
+            }
+            if ($post) {
+                $a = $_POST['action'] ?? '';
+                if ($a === 'issue') {
+                    Offers::issue($id);
+                    flash('Angebot ausgestellt, PDF erzeugt.');
+                } elseif ($a === 'delete' && $off['status'] === 'draft') {
+                    db()->prepare("DELETE FROM offers WHERE id = ? AND status = 'draft'")->execute([$id]);
+                    Audit::log('offer.delete', 'offer', $id, 'Entwurf für ' . (string)$off['c_name']);
+                    flash('Entwurf gelöscht.');
+                    redirect(BASE . '?p=offers');
+                } elseif ($a === 'accepted' || $a === 'declined' || $a === 'reopen') {
+                    Offers::setStatus($id, $a === 'reopen' ? 'open' : $a);
+                    flash(['accepted' => 'Als angenommen markiert.', 'declined' => 'Als abgelehnt markiert.', 'reopen' => 'Wieder auf „offen“ gesetzt.'][$a]);
+                } elseif ($a === 'convert') {
+                    $newId = Offers::convert($id);
+                    flash('Rechnungsentwurf aus dem Angebot angelegt – bitte prüfen und ausstellen.');
+                    redirect(BASE . '?p=invoice&id=' . $newId);
+                } elseif ($a === 'duplicate') {
+                    $newId = Offers::duplicate($id);
+                    flash('Kopie als neuer Entwurf angelegt – bitte Daten prüfen und anpassen.');
+                    redirect(BASE . '?p=offer_edit&id=' . $newId);
+                } elseif ($a === 'send' && $off['number']) {
+                    $to = trim((string)($_POST['to'] ?? ''));
+                    if (!filter_var($to, FILTER_VALIDATE_EMAIL)) {
+                        throw new RuntimeException('Ungültige E-Mail-Adresse.');
+                    }
+                    Mailer::sendOffer($off, Offers::pdfBytes($off), $to, (string)($_POST['message'] ?? ''), is_string($_POST['subject'] ?? null) ? mb_substr(clean($_POST['subject']), 0, 190) : '');
+                    db()->prepare('UPDATE offers SET sent_at = NOW() WHERE id = ?')->execute([$id]);
+                    Audit::log('offer.send', 'offer', $id, $off['number'] . ' an ' . $to);
+                    flash('Angebot an ' . $to . ' gesendet.');
+                }
+                redirect(BASE . '?p=offer&id=' . $id);
+            }
+            render('offer_show', ['off' => $off]);
+            break;
+
+        case 'offer_pdf':
+        case 'offer_preview':
+            $off = Offers::find((int)($_GET['id'] ?? 0));
+            if (!$off) {
+                http_response_code(404);
+                exit('Angebot nicht gefunden.');
+            }
+            if ($p === 'offer_preview') {
+                // Vorschau eines Entwurfs: nur erzeugt und ausgeliefert, nichts gespeichert, keine Nummer vergeben
+                if ($off['status'] !== 'draft') {
+                    redirect(BASE . '?p=offer_pdf&id=' . (int)$off['id']);
+                }
+                $off['number'] = 'ENTWURF';
+                $bytes = Offers::pdf($off);
+                $fname = 'angebot-vorschau.pdf';
+            } else {
+                if (!$off['number']) {
+                    http_response_code(404);
+                    exit('PDF nicht gefunden.');
+                }
+                $bytes = Offers::pdfBytes($off);
+                $fname = preg_replace('/[^A-Za-z0-9_-]/', '_', (string)$off['number']) . '.pdf';
+            }
+            header('Content-Type: application/pdf');
+            header('Content-Disposition: inline; filename="' . $fname . '"');
+            header('Cache-Control: no-store');
+            header('Content-Length: ' . strlen($bytes));
+            // Geprüft: erzeugte PDF-Daten mit festem Content-Type (kein HTML), keine Benutzereingabe
+            // nosemgrep
+            echo $bytes;
+            exit;
+
+        case 'templates':
+            $errors = [];
+            $old = null;
+            if ($post) {
+                if (($_POST['action'] ?? '') === 'reset') {
+                    Templates::resetAll();
+                    Audit::log('settings.templates', '', null, 'Auf Standardtexte zurückgesetzt');
+                    flash('Alle Textvorlagen auf die Standardtexte zurückgesetzt.');
+                    redirect(BASE . '?p=templates');
+                }
+                $res = Templates::validate($_POST);
+                if ($res['errors']) {
+                    $errors = $res['errors'];
+                    $old = $res['values'];
+                } else {
+                    $changed = array_keys(array_filter($res['values'], static fn($v, $k) => Templates::get($k) !== $v, ARRAY_FILTER_USE_BOTH));
+                    Templates::save($res['values']);
+                    Audit::log('settings.templates', '', null, $changed ? 'Geändert: ' . implode(', ', $changed) : 'Gespeichert, keine Änderung');
+                    flash('Textvorlagen gespeichert. Texte auf bereits ausgestellten PDFs bleiben unverändert.');
+                    redirect(BASE . '?p=templates');
+                }
+            }
+            render('templates', ['errors' => $errors, 'old' => $old]);
+            break;
+
         case 'recurring':
             if ($post) {
                 $a = $_POST['action'] ?? '';
@@ -545,13 +677,25 @@ try {
                     $newId = Invoices::duplicate($id);
                     flash('Kopie als neuer Entwurf angelegt – bitte Daten prüfen und anpassen.');
                     redirect(BASE . '?p=invoice_edit&id=' . $newId);
+                } elseif ($a === 'remind' && $inv['status'] === 'issued' && !Invoices::isCredit($inv) && !$inv['cancelled_by']) {
+                    if ($inv['due_date'] >= date('Y-m-d')) {
+                        throw new RuntimeException('Die Rechnung ist noch nicht überfällig.');
+                    }
+                    $to = trim((string)($_POST['to'] ?? ''));
+                    if (!filter_var($to, FILTER_VALIDATE_EMAIL)) {
+                        throw new RuntimeException('Ungültige E-Mail-Adresse.');
+                    }
+                    Mailer::sendInvoice($inv, Invoices::pdfBytes($inv), $to, (string)($_POST['message'] ?? ''), Invoices::statusUrl($inv), [], is_string($_POST['subject'] ?? null) ? mb_substr(clean($_POST['subject']), 0, 190) : null);
+                    db()->prepare('UPDATE invoices SET reminded_at = NOW(), reminder_count = reminder_count + 1 WHERE id = ?')->execute([$id]);
+                    Audit::log('invoice.remind', 'invoice', $id, $inv['number'] . ' an ' . $to . ' (' . ((int)$inv['reminder_count'] + 1) . '. Erinnerung)');
+                    flash('Zahlungserinnerung an ' . $to . ' gesendet.');
                 } elseif ($a === 'send' && $inv['number']) {
                     $to = trim((string)($_POST['to'] ?? ''));
                     if (!filter_var($to, FILTER_VALIDATE_EMAIL)) {
                         throw new RuntimeException('Ungültige E-Mail-Adresse.');
                     }
                     $extra = Attachments::collect($_FILES['attachments'] ?? null, $inv['number'] . '.pdf');
-                    Mailer::sendInvoice($inv, Invoices::pdfBytes($inv), $to, (string)($_POST['message'] ?? ''), Invoices::statusUrl($inv), $extra);
+                    Mailer::sendInvoice($inv, Invoices::pdfBytes($inv), $to, (string)($_POST['message'] ?? ''), Invoices::statusUrl($inv), $extra, is_string($_POST['subject'] ?? null) ? mb_substr(clean($_POST['subject']), 0, 190) : null);
                     db()->prepare('UPDATE invoices SET sent_at = NOW() WHERE id = ?')->execute([$id]);
                     Audit::log('invoice.send', 'invoice', $id, $inv['number'] . ' an ' . $to . ($extra ? ' (+ ' . count($extra) . ' Anhänge)' : ''));
                     flash('E-Mail an ' . $to . ' gesendet' . ($extra ? ' (mit ' . count($extra) . ' zusätzlichen Anhängen)' : '') . '.');
@@ -673,6 +817,13 @@ try {
                     if ($in('CANCEL_PREFIX') !== '' && !preg_match('/^[A-Za-z0-9]{1,10}$/', $in('CANCEL_PREFIX'))) {
                         $errors[] = 'Das Präfix für Stornorechnungen darf nur Buchstaben und Ziffern enthalten (höchstens 10 Zeichen).';
                     }
+                    if ($in('OFFER_PREFIX') !== '' && !preg_match('/^[A-Za-z0-9]{1,10}$/', $in('OFFER_PREFIX'))) {
+                        $errors[] = 'Angebotspräfix: 1–10 Buchstaben/Ziffern.';
+                    }
+                    $ov = $in('OFFER_VALID_DAYS');
+                    if ($ov !== '' && (!ctype_digit($ov) || (int)$ov < 1 || (int)$ov > 365)) {
+                        $errors[] = 'Gültigkeit von Angeboten: ganze Zahl von 1 bis 365 Tagen.';
+                    }
                     if ($in('INVOICE_PREFIX') !== '' && !preg_match('/^[A-Za-z0-9]{1,10}$/', $in('INVOICE_PREFIX'))) {
                         $errors[] = 'Rechnungspräfix: 1–10 Buchstaben/Ziffern.';
                     }
@@ -705,6 +856,8 @@ try {
                         $c['COMPANY_COUNTRY'] = strtoupper($in('COMPANY_COUNTRY') ?: 'DE');
                         $c['INVOICE_PREFIX'] = preg_replace('/[^A-Za-z0-9]/', '', $in('INVOICE_PREFIX')) ?: 'RE';
                         $c['CANCEL_PREFIX'] = preg_replace('/[^A-Za-z0-9]/', '', $in('CANCEL_PREFIX')) ?: 'ST';
+                        $c['OFFER_PREFIX'] = preg_replace('/[^A-Za-z0-9]/', '', $in('OFFER_PREFIX')) ?: 'AN';
+                        $c['OFFER_VALID_DAYS'] = (string)max(1, (int)($in('OFFER_VALID_DAYS') ?: 30));
                         $c['PAYMENT_DAYS'] = (string)max(0, (int)($in('PAYMENT_DAYS') ?: 14));
                         $c['KLEINUNTERNEHMER'] = isset($_POST['KLEINUNTERNEHMER']) ? '1' : '0';
                         $c['GIROCODE'] = isset($_POST['GIROCODE']) ? '1' : '0';

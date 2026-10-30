@@ -2,6 +2,7 @@
 
 Schlanke, selbst gehostete Rechnungsverwaltung in PHP/MySQL für ganz normalen Webspace (kein Docker, kein SSH nötig).
 
+- **Angebote** (eigener Nummernkreis, Gültigkeit, PDF, Mailversand) mit „In Rechnung wandeln“, **Textvorlagen** mit Platzhaltern für Mails und PDF, Zahlungserinnerung für überfällige Rechnungen
 - Kunden, Rechnungen mit Positionen, fortlaufende Nummern (`RE-2026-0001`), Entwürfe, Duplizieren, Kleinunternehmer-Modus
 - **ZUGFeRD/Factur-X** (PDF/A-3 mit eingebetteter XML) und **XRechnung 3.0**, mit dem KoSIT-Validator geprüft
 - **Steuerberater-Export** (ZIP mit PDFs, XML und CSV, befristeter Zugangslink per Mail)

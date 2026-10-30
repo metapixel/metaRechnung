@@ -45,7 +45,7 @@ final class Mailer
     }
 
     /** @param array<int, array{path:string,name:string,mime:string}> $attachments zusätzliche, bereits geprüfte Anhänge (Attachments::collect) */
-    public static function sendInvoice(array $inv, string $pdf, string $to, string $message, string $statusUrl, array $attachments = []): void
+    public static function sendInvoice(array $inv, string $pdf, string $to, string $message, string $statusUrl, array $attachments = [], ?string $subject = null): void
     {
         $m = self::make();
         $m->addAddress($to);
@@ -55,12 +55,29 @@ final class Mailer
         if (!str_contains($message, $statusUrl)) {
             $message = rtrim($message) . "\n\nZahlungsstatus und Downloads (PDF, XRechnung):\n" . $statusUrl . "\n";
         }
-        $m->Subject = (!empty($inv['cancels_id']) ? 'Stornorechnung ' : 'Rechnung ') . $inv['number'] . ' von ' . $inv['co']['name'];
+        $subject = $subject !== null ? clean($subject) : '';
+        $m->Subject = $subject !== '' ? $subject
+            : (!empty($inv['cancels_id']) ? 'Stornorechnung ' . $inv['number'] . ' von ' . $inv['co']['name'] : Templates::fill(Templates::get('mail_invoice_subject'), Templates::vars($inv)));
         $m->Body = $message;
         $m->addStringAttachment($pdf, $inv['number'] . '.pdf', PHPMailer::ENCODING_BASE64, 'application/pdf');
         foreach ($attachments as $a) {
             $m->addAttachment($a['path'], $a['name'], PHPMailer::ENCODING_BASE64, $a['mime']);
         }
+        $m->send();
+    }
+
+    /** Angebot per Mail (PDF im Anhang) */
+    public static function sendOffer(array $offer, string $pdf, string $to, string $message, string $subject): void
+    {
+        $m = self::make();
+        $m->addAddress($to);
+        if (env('MAIL_BCC') !== '') {
+            $m->addBCC(env('MAIL_BCC'));
+        }
+        $subject = clean($subject);
+        $m->Subject = $subject !== '' ? $subject : Templates::fill(Templates::get('mail_offer_subject'), Templates::vars($offer, 'offer'));
+        $m->Body = $message;
+        $m->addStringAttachment($pdf, $offer['number'] . '.pdf', PHPMailer::ENCODING_BASE64, 'application/pdf');
         $m->send();
     }
 

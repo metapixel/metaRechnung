@@ -78,6 +78,8 @@ final class Invoices
         // Gestaltung: Entwürfe zeigen die aktuelle, ausgestellte Rechnungen die beim Ausstellen eingefrorene (ältere: das bisherige Aussehen)
         $inv['design'] = $snap !== null ? PdfDesign::sanitize($snap['design'] ?? PdfDesign::legacy()) : PdfDesign::current();
         $inv['totals'] = self::totals($inv['items'], $inv['kl']);
+        // Texte auf dem PDF: Entwürfe zeigen die aktuellen Vorlagen, ausgestellte Rechnungen die beim Ausstellen eingefrorenen (ältere: die früheren Festtexte)
+        $inv['tpl'] = $snap !== null ? ($snap['tpl'] ?? Templates::legacyPdf()) : Templates::pick(Templates::PDF_INVOICE);
         // Stornobezug: Stornorechnung → stornierte Rechnung; Rechnung → ihre Stornorechnung (ausgestellt oder noch Entwurf)
         $inv['cancels'] = $inv['cancelled_by'] = $inv['storno_draft'] = null;
         if (!empty($inv['cancels_id'])) {
@@ -344,7 +346,7 @@ final class Invoices
             $st->execute([$prefix . '%']);
             $number = $prefix . str_pad((string)((int)$st->fetchColumn() + 1), 4, '0', STR_PAD_LEFT);
 
-            $snap = json_encode(['company' => company(), 'kl' => self::kleinunternehmer(), 'design' => PdfDesign::current()], JSON_UNESCAPED_UNICODE);
+            $snap = json_encode(['company' => company(), 'kl' => self::kleinunternehmer(), 'design' => PdfDesign::current(), 'tpl' => Templates::pick(Templates::PDF_INVOICE)], JSON_UNESCAPED_UNICODE);
             $pdo->prepare("UPDATE invoices SET number = ?, status = 'issued', snapshot = ?, public_token = ? WHERE id = ?")
                 ->execute([$number, $snap, bin2hex(random_bytes(16)), $id]);
             if ($credit) {
@@ -371,6 +373,8 @@ final class Invoices
         $cus = (int)$pdo->query('SELECT COUNT(*) FROM customers')->fetchColumn();
         $pdo->beginTransaction();
         try {
+            $pdo->exec('DELETE FROM offer_items');
+            $pdo->exec('DELETE FROM offers');
             $pdo->exec('DELETE FROM invoice_items');
             $pdo->exec('DELETE FROM invoices');
             if (!$keepCustomers) {
@@ -381,7 +385,7 @@ final class Invoices
             $pdo->rollBack();
             throw $e;
         }
-        foreach (['invoice_items', 'invoices', 'customers'] as $t) {
+        foreach (['offer_items', 'offers', 'invoice_items', 'invoices', 'customers'] as $t) {
             if ($t === 'customers' && $keepCustomers) {
                 continue;
             }

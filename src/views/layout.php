@@ -1,6 +1,6 @@
 <?php
 $cur = (string)($_GET['p'] ?? 'invoices');
-$cur = ['invoice' => 'invoices', 'invoice_edit' => 'invoices', 'customer_edit' => 'customers', 'customer_import' => 'customers', 'article_edit' => 'articles', 'recurring_edit' => 'recurring', 'design' => 'settings', 'pdf_design' => 'settings', 'audit' => 'settings', 'exports' => 'settings'][$cur] ?? $cur;
+$cur = ['invoice' => 'invoices', 'invoice_edit' => 'invoices', 'offer' => 'offers', 'offer_edit' => 'offers', 'templates' => 'settings', 'customer_edit' => 'customers', 'customer_import' => 'customers', 'article_edit' => 'articles', 'recurring_edit' => 'recurring', 'design' => 'settings', 'pdf_design' => 'settings', 'audit' => 'settings', 'exports' => 'settings'][$cur] ?? $cur;
 $nav = fn(string $p, string $label, string $icon) =>
     '<a href="' . h(BASE) . '?p=' . $p . '"' . ($cur === $p ? ' class="active" aria-current="page"' : '') . '><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-' . $icon . '"/></svg>' . h($label) . '</a>';
 $brand = '<svg class="logo" viewBox="0 0 512 512" aria-hidden="true"><use href="#logo"/></svg><span class="nm"><i>meta</i><b>Rechnung</b></span>';
@@ -37,6 +37,7 @@ if (preg_match('~<h1[^>]*>(.*?)</h1>~s', (string)($content ?? ''), $hm)) {
     <path d="M168 330v-84m0 28c0-22 14-34 32-34s30 12 30 34v56m0-56c0-22 14-34 32-34s30 12 30 34v56" fill="none" stroke="#6f3d7e" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/>
   </symbol>
   <symbol id="i-invoices" viewBox="0 0 24 24"><path d="M7 3h7l5 5v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></symbol>
+  <symbol id="i-offers" viewBox="0 0 24 24"><path d="M7 3h7l5 5v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M14 3v5h5M9 12.5l2 2 4-4M9 18h6"/></symbol>
   <symbol id="i-customers" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.8a3.5 3.5 0 0 1 0 6.4M18 14.2a6.5 6.5 0 0 1 3.5 5.8"/></symbol>
   <symbol id="i-articles" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></symbol>
   <symbol id="i-recurring" viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 13.7-5.6L20 8.5M20 4v4.5h-4.5M20 12a8 8 0 0 1-13.7 5.6L4 15.5M4 20v-4.5h4.5"/></symbol>
@@ -51,6 +52,7 @@ if (preg_match('~<h1[^>]*>(.*?)</h1>~s', (string)($content ?? ''), $hm)) {
   <a class="brand" href="<?= BASE ?>" aria-label="metaRechnung – Startseite"><?= $brand ?></a>
   <nav aria-label="Hauptmenü">
     <?= $nav('invoices', 'Rechnungen', 'invoices') ?>
+    <?= $nav('offers', 'Angebote', 'offers') ?>
     <?= $nav('customers', 'Kunden', 'customers') ?>
     <?= $nav('articles', 'Artikel', 'articles') ?>
     <?= $nav('recurring', 'Wiederkehrend', 'recurring') ?>

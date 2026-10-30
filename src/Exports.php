@@ -320,9 +320,11 @@ final class Exports
         db()->prepare('UPDATE exports SET sent_to = ?, sent_at = NOW() WHERE id = ?')->execute([mb_substr($to, 0, 190), $id]);
     }
 
-    public static function defaultMessage(): string
+    public static function defaultMessage(string $label = ''): string
     {
         $co = company();
-        return "Guten Tag,\n\nanbei der Zugang zu den Ausgangsrechnungen von " . $co['name'] . ".\nEnthalten sind alle Rechnungen als PDF (ZUGFeRD), eine CSV-Übersicht (Rechnungsausgangsbuch) und – falls ausgewählt – XRechnung-XML.\n\nMit freundlichen Grüßen\n" . ($co['owner'] ?: $co['name']);
+        return Templates::render('mail_export_body', [
+            'FIRMA' => $co['name'], 'ABSENDER' => $co['owner'] ?: $co['name'], 'ZEITRAUM' => $label,
+        ]);
     }
 }

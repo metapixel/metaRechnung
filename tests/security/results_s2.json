@@ -1,0 +1,534 @@
+[
+ {
+  "id": "A1",
+  "sev": "H",
+  "title": "Anonym: Angebote, Angebots-PDF und Textvorlagen nur nach Login",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "A2",
+  "sev": "M",
+  "title": "Angebotsliste leer: Hinweis, Neu-Button, Menüpunkt „Angebote“",
+  "ok": true,
+  "detail": "200"
+ },
+ {
+  "id": "A3",
+  "sev": "M",
+  "title": "Einstellungen verlinken die Textvorlagen und kennen Angebotspräfix/-gültigkeit",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "O1",
+  "sev": "H",
+  "title": "Angebotsentwurf angelegt: Status draft, keine Nummer, Gültigkeit 30 Tage",
+  "ok": true,
+  "detail": "draft\t1\t30"
+ },
+ {
+  "id": "O2",
+  "sev": "M",
+  "title": "Detailseite: Positionen, Summen (netto 250,00 / USt 38,00+3,50 / brutto 291,50), Aktionen für Entwürfe",
+  "ok": true,
+  "detail": "200"
+ },
+ {
+  "id": "O3",
+  "sev": "M",
+  "title": "Angebotsentwurf erscheint in der Liste (Status „Entwurf“)",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "O4",
+  "sev": "M",
+  "title": "„Gültig bis“ vor dem Angebotsdatum wird abgelehnt",
+  "ok": true,
+  "detail": "302"
+ },
+ {
+  "id": "O5",
+  "sev": "M",
+  "title": "Unbekannter Kunde wird abgelehnt",
+  "ok": true,
+  "detail": "302"
+ },
+ {
+  "id": "O6",
+  "sev": "H",
+  "title": "Ohne gültiges CSRF-Token wird kein Angebot angelegt",
+  "ok": true,
+  "detail": "400"
+ },
+ {
+  "id": "O7",
+  "sev": "H",
+  "title": "Anonym kann kein Angebot ausgestellt werden",
+  "ok": true,
+  "detail": "200"
+ },
+ {
+  "id": "O8",
+  "sev": "M",
+  "title": "PDF-Vorschau des Entwurfs: PDF, nichts gespeichert, keine Nummer",
+  "ok": true,
+  "detail": "200"
+ },
+ {
+  "id": "O9",
+  "sev": "H",
+  "title": "Ausgestellt: Nummer AN-2026-0001, Status open, Snapshot, PDF gespeichert",
+  "ok": true,
+  "detail": "AN-2026-0001"
+ },
+ {
+  "id": "O10",
+  "sev": "H",
+  "title": "Angebots-PDF: „Angebot“, Nummer, Gültigkeit, Einleitung und Schlusstext aus den Vorlagen, Positionen, Brutto – kein „Rechnung“",
+  "ok": true,
+  "detail": "                                                                                                             Test IT-Service\n                                                                                                                 Musterstr. 1\n                                                 "
+ },
+ {
+  "id": "O11",
+  "sev": "M",
+  "title": "Angebots-PDF ist kein ZUGFeRD (keine eingebettete factur-x.xml)",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "O12",
+  "sev": "M",
+  "title": "Erneutes Ausstellen wirkungslos (Nummer bleibt)",
+  "ok": true,
+  "detail": "302"
+ },
+ {
+  "id": "O13",
+  "sev": "H",
+  "title": "Ausgestelltes Angebot ist nicht mehr bearbeitbar (Seite und POST)",
+  "ok": true,
+  "detail": "302"
+ },
+ {
+  "id": "O14",
+  "sev": "H",
+  "title": "POST auf ausgestelltes Angebot ändert nichts",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "O15",
+  "sev": "M",
+  "title": "offer_pdf liefert das gespeicherte PDF (inline, application/pdf)",
+  "ok": true,
+  "detail": "200"
+ },
+ {
+  "id": "O16",
+  "sev": "M",
+  "title": "Zweites Angebot bekommt fortlaufende Nummer 0002",
+  "ok": true,
+  "detail": "AN-2026-0002"
+ },
+ {
+  "id": "O17",
+  "sev": "L",
+  "title": "Unbekanntes Angebot: 404",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "M1",
+  "sev": "H",
+  "title": "Mailformular vorbelegt aus Vorlage: Betreff, Anrede mit Ansprechpartner, Nummer, Betrag, Gültigkeit",
+  "ok": true,
+  "detail": "('Angebot AN-2026-0001 von Test IT-Service', 'Guten Tag Erika Muster,\\n\\nvielen Dank für Ihre Anfrage. Anbei erhalten Sie unser Angebot AN-2026-0001 über 291,50 €.\\nDas ')"
+ },
+ {
+  "id": "M2",
+  "sev": "H",
+  "title": "Angebot per Mail: Betreff, Empfänger, Text, PDF-Anhang mit Nummer als Dateiname",
+  "ok": true,
+  "detail": "('Angebot AN-2026-0001 von Test IT-Service', ['AN-2026-0001.pdf'])"
+ },
+ {
+  "id": "M3",
+  "sev": "M",
+  "title": "sent_at gesetzt, Meldung in der Oberfläche",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "M4",
+  "sev": "M",
+  "title": "Ungültige Empfängeradresse: nichts versendet",
+  "ok": true,
+  "detail": "302"
+ },
+ {
+  "id": "M5",
+  "sev": "H",
+  "title": "Eigener Betreff wird übernommen, Zeilenumbruch im Betreff (Header-Injection) neutralisiert",
+  "ok": true,
+  "detail": "Mein eigener BetreffBcc: evil@example.com"
+ },
+ {
+  "id": "S1",
+  "sev": "M",
+  "title": "Als abgelehnt markiert (Datum gesetzt), Umwandeln nicht angeboten",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "S2",
+  "sev": "H",
+  "title": "Abgelehntes Angebot lässt sich nicht umwandeln (auch nicht per direktem POST)",
+  "ok": true,
+  "detail": "302"
+ },
+ {
+  "id": "S3",
+  "sev": "M",
+  "title": "Wieder auf offen setzbar",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "S4",
+  "sev": "M",
+  "title": "Als angenommen markiert",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "S5",
+  "sev": "L",
+  "title": "Status auf unbekanntem Angebot wirkungslos",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "S6",
+  "sev": "H",
+  "title": "Entwurf lässt sich nicht annehmen oder umwandeln",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "C1",
+  "sev": "H",
+  "title": "In Rechnung gewandelt: Entwurf mit Kunde, 2 Positionen (Menge/Preis/MwSt identisch), Bezug auf Angebot",
+  "ok": true,
+  "detail": "/?p=invoice&id=1"
+ },
+ {
+  "id": "C2",
+  "sev": "M",
+  "title": "Rechnungsentwurf: Hinweis „Gemäß Angebot …“, Fälligkeit nach Zahlungsziel",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "C3",
+  "sev": "M",
+  "title": "Angebot: angenommen und mit Rechnung verknüpft; Detailseite verlinkt die Rechnung, Rechnung das Angebot",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "C4",
+  "sev": "H",
+  "title": "Zweite Umwandlung desselben Angebots wird verhindert",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "C5",
+  "sev": "M",
+  "title": "Aus dem Angebot entstandene Rechnung lässt sich normal ausstellen",
+  "ok": true,
+  "detail": "RE-2026-0001"
+ },
+ {
+  "id": "C6",
+  "sev": "H",
+  "title": "Rechnungsentwurf gelöscht: Verknüpfung am Angebot entfällt, erneut umwandelbar",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "C7",
+  "sev": "M",
+  "title": "Abgelaufenes Angebot: Anzeigestatus „abgelaufen“ (Liste, Detail, Hinweis), Umwandeln weiter möglich",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "C8",
+  "sev": "M",
+  "title": "Duplizieren: neuer Entwurf mit Positionen, ohne Nummer/Verknüpfung",
+  "ok": true,
+  "detail": "/?p=offer_edit&id=5"
+ },
+ {
+  "id": "C9",
+  "sev": "M",
+  "title": "Entwurf löschen entfernt Angebot und Positionen; ausgestellte lassen sich nicht löschen",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "X1",
+  "sev": "H",
+  "title": "Angebotsseite escaped Kundenname, Position und Notiz",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "X2",
+  "sev": "M",
+  "title": "PDF enthält die Sonderzeichen als Text (nicht interpretiert)",
+  "ok": true,
+  "detail": "                                                                                                        Test IT-Service\n                                                                                "
+ },
+ {
+  "id": "T1",
+  "sev": "M",
+  "title": "Vorlagenseite: Platzhalterliste (nummer, faellig, betrag, gueltig_bis …) und alle Felder mit Standardtexten",
+  "ok": true,
+  "detail": "200"
+ },
+ {
+  "id": "T2",
+  "sev": "H",
+  "title": "Unbekannter Platzhalter wird abgelehnt, config.php unverändert",
+  "ok": true,
+  "detail": "200"
+ },
+ {
+  "id": "T3",
+  "sev": "H",
+  "title": "Gültige Vorlagen werden gespeichert (config.php), Meldung",
+  "ok": true,
+  "detail": "302"
+ },
+ {
+  "id": "T4",
+  "sev": "M",
+  "title": "Betreff: Zeilenumbruch zu Leerzeichen zusammengefasst (einzeilig)",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "T5",
+  "sev": "H",
+  "title": "Rechnungsmail nutzt die eigene Vorlage mit allen Platzhaltern (leere Werte bleiben leer, Groß-/Kleinschreibung egal)",
+  "ok": true,
+  "detail": "Hallo Vorlagen-Kunde (), Rechnung RE-2026-0002 über 119,00 €, netto 100,00 €, fällig 13.11.2026, Datum 30.10.2026, von Test IT-Service/Kai Test. http://127.0.0.1:8097/status.php?t=55313764c826d7190974d705e2c6ad06 |"
+ },
+ {
+  "id": "T6",
+  "sev": "M",
+  "title": "Betrefffeld der Rechnungsmail aus Vorlage",
+  "ok": true,
+  "detail": "Neu: RE-2026-0002 Bcc: x@evil.example"
+ },
+ {
+  "id": "T7",
+  "sev": "H",
+  "title": "Versendete Rechnungsmail: Betreff aus Vorlage, ohne zusätzlichen Header, PDF angehängt",
+  "ok": true,
+  "detail": "Neu: RE-2026-0002 Bcc: x@evil.example"
+ },
+ {
+  "id": "T8",
+  "sev": "H",
+  "title": "Rechnungs-PDF zeigt Einleitung und Zahlungshinweis aus den Vorlagen",
+  "ok": true,
+  "detail": " % auf 100,00 €                               19,00 €\n                                                                     Gesamtbetrag                                      119,00 €\n\n\n\nZahlbar bis 13.11.2026.\nOder scannen Sie den GiroCode mit Ihrer Banking-App: Empfänger, IBAN, Betrag und\nVerwendung"
+ },
+ {
+  "id": "T9",
+  "sev": "H",
+  "title": "Snapshot der Rechnung friert die PDF-Texte ein",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "T10",
+  "sev": "H",
+  "title": "Neu gerenderte alte Rechnung nutzt weiter die beim Ausstellen eingefrorenen Texte",
+  "ok": true,
+  "detail": "szweck werden automatisch übernommen.\n\n                                                                                                                         GiroCode\n\n\n\nTest IT-Service · Inhaber: Kai Test\nSteuernr.: 12/345/67890\nCommerzbank · IBAN: DE89 3704 0044 0532 0130 00 · BIC: COBADEFFXXX\n\f"
+ },
+ {
+  "id": "T11",
+  "sev": "H",
+  "title": "Neue Rechnung nutzt die geänderten Texte",
+  "ok": true,
+  "detail": "szweck werden automatisch übernommen.\n\n                                                                                                                         GiroCode\n\n\n\nTest IT-Service · Inhaber: Kai Test\nSteuernr.: 12/345/67890\nCommerzbank · IBAN: DE89 3704 0044 0532 0130 00 · BIC: COBADEFFXXX\n\f"
+ },
+ {
+  "id": "T12",
+  "sev": "M",
+  "title": "Entwurfs-Vorschau erzeugt weiterhin ein PDF mit Vorlagentexten",
+  "ok": true,
+  "detail": "200"
+ },
+ {
+  "id": "T13",
+  "sev": "M",
+  "title": "Leere Mail-Texte fallen auf den Standard zurück, leere Einleitung bleibt leer",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "T14",
+  "sev": "H",
+  "title": "Sonderzeichen in Vorlagen werden im Formular escaped",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "T15",
+  "sev": "M",
+  "title": "Zu lange Vorlage wird abgelehnt",
+  "ok": true,
+  "detail": "200"
+ },
+ {
+  "id": "T16",
+  "sev": "M",
+  "title": "Zurücksetzen stellt alle Standardtexte wieder her",
+  "ok": true,
+  "detail": "302"
+ },
+ {
+  "id": "T17",
+  "sev": "M",
+  "title": "Export-Mailtext kommt aus der Vorlage (Firma/Absender eingesetzt)",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "R1",
+  "sev": "H",
+  "title": "Überfällige Rechnung: Erinnerungsformular, Betreff und Text aus der Vorlage",
+  "ok": true,
+  "detail": "200"
+ },
+ {
+  "id": "R2",
+  "sev": "H",
+  "title": "Nicht überfällige Rechnung: kein Erinnerungsformular",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "R3",
+  "sev": "H",
+  "title": "Direkter POST für nicht überfällige Rechnung wird abgelehnt",
+  "ok": true,
+  "detail": "302"
+ },
+ {
+  "id": "R4",
+  "sev": "H",
+  "title": "Erinnerung versendet: Betreff, Text (Fälligkeit, Betrag) und Rechnungs-PDF im Anhang",
+  "ok": true,
+  "detail": "Zahlungserinnerung zu Rechnung RE-2026-0004"
+ },
+ {
+  "id": "R5",
+  "sev": "M",
+  "title": "reminded_at und Zähler gesetzt; Seite zeigt „Bisher 1 Erinnerung“",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "R6",
+  "sev": "M",
+  "title": "Zweite Erinnerung möglich, Zähler 2",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "R7",
+  "sev": "M",
+  "title": "Ungültige Adresse: nichts versendet, Zähler unverändert",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "R8",
+  "sev": "H",
+  "title": "Bezahlte Rechnung: keine Erinnerung möglich",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "R9",
+  "sev": "H",
+  "title": "Stornierte Rechnung / Stornorechnung: keine Erinnerung",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "P1",
+  "sev": "M",
+  "title": "Ungültiges Angebotspräfix wird abgelehnt",
+  "ok": true,
+  "detail": "200"
+ },
+ {
+  "id": "P2",
+  "sev": "M",
+  "title": "Gültigkeit 0 Tage wird abgelehnt",
+  "ok": true,
+  "detail": "200"
+ },
+ {
+  "id": "P3",
+  "sev": "H",
+  "title": "Eigenes Präfix und Gültigkeit: Nummer ANG-…, gültig 10 Tage",
+  "ok": true,
+  "detail": "ANG-2026-0001\t10"
+ },
+ {
+  "id": "P4",
+  "sev": "M",
+  "title": "Protokoll enthält Angebots-Ereignisse (ausgestellt, versendet, umgewandelt) und Zahlungserinnerung",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "P5",
+  "sev": "H",
+  "title": "Protokoll-Prüfkette bleibt gültig",
+  "ok": true,
+  "detail": " \n \n \n \n \n Protokoll – metaRechnung \n \n \n \n \n \n \n \n \n \n Zum Inhalt springen \n \n        \n   \n     \n     \n     \n     \n   \n      \n      \n      \n      \n     \n     \n       \n     \n     \n \n TESTBETRIEB – Dat"
+ },
+ {
+  "id": "P6",
+  "sev": "M",
+  "title": "Angebote zählen nicht zum Umsatz (Auswertung unverändert erreichbar, kein Fehler)",
+  "ok": true,
+  "detail": "200"
+ },
+ {
+  "id": "P7",
+  "sev": "M",
+  "title": "Schema-Version 9, Tabellen offers/offer_items und Spalten vorhanden",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "id": "P8",
+  "sev": "H",
+  "title": "storage/offers ist von außen nicht abrufbar",
+  "ok": true,
+  "detail": "(403, 403)"
+ }
+]

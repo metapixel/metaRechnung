@@ -197,7 +197,7 @@ if (($_POST['action'] ?? '') === 'install' && !$blocked) {
             }
             ensure_protected($root . '/' . $d);
         }
-        file_put_contents($root . '/storage/schema_version', '8');
+        file_put_contents($root . '/storage/schema_version', '9');
         ensure_protected($root . '/src');
         ensure_protected($root . '/vendor');
         $log[] = '✔ Ordner storage/ angelegt und gegen Webzugriff geschützt';

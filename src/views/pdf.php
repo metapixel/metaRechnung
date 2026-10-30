@@ -1,4 +1,4 @@
-<?php /** @var array $inv @var array $co @var bool $kl */ $t = $inv['totals']; $dz = \App\PdfDesign::sanitize($inv['design'] ?? \App\PdfDesign::current()); $credit = !empty($inv['cancels_id']); ?>
+<?php /** @var array $inv @var array $co @var bool $kl */ $t = $inv['totals']; $dz = \App\PdfDesign::sanitize($inv['design'] ?? \App\PdfDesign::current()); $credit = !empty($inv['cancels_id']); $tv = \App\Templates::vars($inv, 'invoice'); $tpl = $inv['tpl'] ?? \App\Templates::legacyPdf(); ?>
 <style>
 <?= \App\PdfDesign::css($dz) ?></style>
 
@@ -39,6 +39,8 @@
 <h1><?= $credit ? 'Stornorechnung' : 'Rechnung' ?> <?= h($inv['number']) ?></h1>
 <?php if ($credit && !empty($inv['cancels'])): ?><p>Diese Stornorechnung hebt die Rechnung <b><?= h($inv['cancels']['number']) ?></b> vom <?= h(fdate($inv['cancels']['issue_date'])) ?> auf.</p><?php endif; ?>
 
+<?php $intro = $credit ? '' : trim(\App\Templates::fill((string)($tpl['pdf_invoice_intro'] ?? ''), $tv)); if ($intro !== ''): ?><p><?= nl2br(h($intro)) ?></p><?php endif; ?>
+
 <table class="items">
   <tr><th>Pos.</th><th>Beschreibung</th><th class="r">Menge</th><th class="r">Einzelpreis</th><?php if (!$kl): ?><th class="r">MwSt</th><?php endif; ?><th class="r">Summe (netto)</th></tr>
   <?php foreach ($inv['items'] as $ix => $it): ?>
@@ -71,13 +73,11 @@
 <p style="margin-top:16px">Bereits geleistete Zahlungen zur stornierten Rechnung werden Ihnen erstattet bzw. mit offenen Forderungen verrechnet. Es ist keine Zahlung erforderlich.</p>
 <?php elseif ($gc): ?>
 <table class="plain" style="margin-top:16px"><tr>
-  <td style="width:75%; vertical-align:middle">Bitte überweisen Sie den Rechnungsbetrag bis zum <b><?= h(fdate($inv['due_date'])) ?></b> unter Angabe der Rechnungsnummer
-  auf das unten genannte Konto.<br><span class="small">Oder scannen Sie den GiroCode mit Ihrer Banking-App: Empfänger, IBAN, Betrag und Verwendungszweck werden automatisch übernommen.</span></td>
+  <td style="width:75%; vertical-align:middle"><?= nl2br(h(\App\Templates::fill((string)($tpl['pdf_invoice_payment'] ?? ''), $tv))) ?><br><span class="small">Oder scannen Sie den GiroCode mit Ihrer Banking-App: Empfänger, IBAN, Betrag und Verwendungszweck werden automatisch übernommen.</span></td>
   <td style="text-align:right; vertical-align:middle"><barcode code="<?= h(\App\GiroCode::forMpdf($gc)) ?>" type="QR" error="M" size="0.85" disableborder="1" /><br><span class="small">GiroCode</span></td>
 </tr></table>
 <?php else: ?>
-<p style="margin-top:16px">Bitte überweisen Sie den Rechnungsbetrag bis zum <b><?= h(fdate($inv['due_date'])) ?></b> unter Angabe der Rechnungsnummer
-auf das unten genannte Konto.</p>
+<?php $pay = trim(\App\Templates::fill((string)($tpl['pdf_invoice_payment'] ?? ''), $tv)); if ($pay !== ''): ?><p style="margin-top:16px"><?= nl2br(h($pay)) ?></p><?php endif; ?>
 <?php endif; ?>
 
 <?php if (empty($hideFooter) && $dz['footer']): ?>

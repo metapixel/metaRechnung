@@ -30,12 +30,16 @@ final class Audit
         'settings.save' => 'Einstellungen geändert', 'settings.letterhead' => 'Briefpapier geändert', 'settings.logo' => 'Logo geändert',
         'settings.testmail' => 'Testmail gesendet', 'settings.reset' => 'Testdaten zurückgesetzt',
         'design.css' => 'Eigenes CSS geändert', 'design.pdf' => 'PDF-Design geändert',
+        'offer.create' => 'Angebotsentwurf angelegt', 'offer.update' => 'Angebotsentwurf geändert', 'offer.delete' => 'Angebotsentwurf gelöscht',
+        'offer.issue' => 'Angebot ausgestellt', 'offer.send' => 'Angebot per E-Mail versendet', 'offer.accepted' => 'Angebot als angenommen markiert',
+        'offer.declined' => 'Angebot als abgelehnt markiert', 'offer.reopen' => 'Angebot wieder auf offen gesetzt', 'offer.convert' => 'Angebot in Rechnung gewandelt',
+        'offer.duplicate' => 'Angebot dupliziert', 'invoice.remind' => 'Zahlungserinnerung versendet', 'settings.templates' => 'Textvorlagen geändert',
         'export.create' => 'Export erstellt', 'export.send' => 'Export-Link per E-Mail versendet', 'export.delete' => 'Export gelöscht', 'export.download' => 'Export heruntergeladen (Link)',
     ];
 
     /** Filtergruppen der Anzeige (Präfix vor dem Punkt) */
     public const GROUPS = [
-        'invoice' => 'Rechnungen', 'customer' => 'Kunden', 'article' => 'Artikel', 'recurring' => 'Wiederkehrend',
+        'invoice' => 'Rechnungen', 'offer' => 'Angebote', 'customer' => 'Kunden', 'article' => 'Artikel', 'recurring' => 'Wiederkehrend',
         'export' => 'Export', 'settings' => 'Einstellungen', 'design' => 'Design', 'auth' => 'Anmeldung',
     ];
 

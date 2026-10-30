@@ -48,7 +48,7 @@ nav a, .navbtn {
 nav a:hover, .navbtn:hover { background:var(--pri-soft); color:var(--pri); text-decoration:none; }
 nav a.active { background:var(--pri-soft); color:var(--pri); }
 nav form.inline { display:inline-flex; margin:0 0 0 4px; }
-@media (max-width:1180px) {
+@media (max-width:1300px) {
   header { flex-wrap:wrap; gap:6px 10px; }
   nav { width:100%; flex-wrap:wrap; gap:2px 4px; }
 }

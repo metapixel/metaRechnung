@@ -2,6 +2,17 @@
 
 Die aktuelle Versionsnummer steht in der Datei `VERSION` (und unten in der App sowie unter Einstellungen → System).
 
+## 1.14.0
+- **Angebote** (neuer Menüpunkt): eigener Belegtyp mit eigener Nummer (`AN-2026-0001`, Präfix einstellbar), **Gültig-bis-Datum** (Standard 30 Tage, einstellbar), Positionen wie bei Rechnungen (inkl. Artikelauswahl), PDF-Vorschau, Ausstellen (Nummer + unveränderliches PDF, Stand von Firma/Design/Texten wird eingefroren) und Versand per Mail mit PDF.
+  Status: Entwurf → offen → angenommen / abgelehnt; „abgelaufen“ ergibt sich automatisch aus dem Gültigkeitsdatum. Duplizieren und Löschen von Entwürfen wie bei Rechnungen.
+- **In Rechnung wandeln:** ein Klick legt aus dem Angebot einen **Rechnungsentwurf** an (Kunde und Positionen, Hinweis „Gemäß Angebot …“, Zahlungsziel nach Einstellung) und setzt das Angebot auf „angenommen“. Beide verlinken sich gegenseitig; pro Angebot ist eine Umwandlung möglich (wird der Rechnungsentwurf gelöscht, geht es wieder). Abgelehnte Angebote müssen erst wieder auf „offen“ gesetzt werden.
+- **Textvorlagen** (Einstellungen → Textvorlagen): E-Mail-Texte für Rechnung, Angebot, **Zahlungserinnerung** und Export-Link (jeweils Betreff und Text) sowie Texte auf dem PDF (Einleitung über den Positionen, Zahlungshinweis der Rechnung, Einleitung und Schlusstext des Angebots).
+  **Platzhalter:** `{nummer}` `{datum}` `{faellig}` `{betrag}` `{netto}` `{kunde}` `{ansprechpartner}` `{anrede}` `{firma}` `{absender}` `{gueltig_bis}` `{link}` (Schreibweise egal; nicht zutreffende Werte bleiben leer). Unbekannte Platzhalter werden beim Speichern abgelehnt, leere Mail-Texte fallen auf den Standard zurück, „Zurücksetzen“ stellt alle Standardtexte her.
+  Die Mailformulare sind mit diesen Vorlagen vorbelegt und weiterhin änderbar; auch der Betreff ist jetzt editierbar. Die PDF-Texte werden – wie Firmendaten und Design – beim Ausstellen **eingefroren**; ältere Rechnungen behalten den bisherigen Text.
+- **Zahlungserinnerung:** bei überfälligen Rechnungen erscheint ein Formular (Betreff und Text aus der Vorlage, Rechnungs-PDF im Anhang). Zahl und Datum der Erinnerungen stehen an der Rechnung. Für bezahlte, stornierte und Stornorechnungen gibt es keine Erinnerung.
+- **Protokoll:** neue Bereiche „Angebote“ (anlegen, ändern, ausstellen, senden, annehmen/ablehnen, umwandeln, duplizieren, löschen), „Zahlungserinnerung versendet“ und „Textvorlagen geändert“.
+- **Update:** neue Tabellen `offers` und `offer_items`, neue Spalten `invoices.offer_id`, `reminded_at`, `reminder_count` (Schema-Version 9), werden automatisch angelegt. Angebots-PDFs liegen in `storage/offers/` – bitte ins Backup aufnehmen. Die Navigation bricht wegen des zusätzlichen Menüpunkts schon bei schmaleren Fenstern um.
+
 ## 1.13.0
 - **Export für den Steuerberater** (Einstellungen → Export): Zeitraum wählen (letzter Monat/Quartal/Jahr, laufendes Jahr oder frei), daraus entsteht ein **ZIP** mit allen Rechnungen als PDF (ZUGFeRD), auf Wunsch zusätzlich XRechnung-XML, einer **CSV-Übersicht** (Rechnungsausgangsbuch: Nummer, Datum, Kunde, Netto je Steuersatz, USt, Brutto, Status, bezahlt am, Storno-Bezug; Semikolon, UTF-8, Dezimalkomma) und einer LIESMICH.
   Textzellen mit Formelzeichen am Anfang (=, +, -, @) werden in der CSV entschärft.
