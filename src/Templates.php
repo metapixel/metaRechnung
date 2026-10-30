@@ -104,7 +104,7 @@ final class Templates
         $bad = [];
         foreach ($m[1] as $name) {
             if (!array_key_exists(strtoupper($name), self::VARS)) {
-                $bad[$name] = '{' . $name . '}';
+                $bad[strtoupper($name)] ??= '{' . $name . '}';
             }
         }
         return array_values($bad);

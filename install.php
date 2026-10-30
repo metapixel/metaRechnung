@@ -191,7 +191,7 @@ if (($_POST['action'] ?? '') === 'install' && !$blocked) {
         $log[] = '✔ Tabellen angelegt (customers, invoices, invoice_items, articles, recurring)';
 
         // 3. Ordner + Schutz
-        foreach (['storage', 'storage/invoices', 'storage/tmp'] as $d) {
+        foreach (['storage', 'storage/invoices', 'storage/offers', 'storage/tmp'] as $d) {
             if (!is_dir($root . '/' . $d) && !mkdir($root . '/' . $d, 0755, true)) {
                 throw new RuntimeException('Ordner ' . $d . ' konnte nicht angelegt werden.');
             }
