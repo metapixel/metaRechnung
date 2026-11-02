@@ -50,7 +50,7 @@ save(good)
 # --- CSP / Editor-Seite
 ed = s.get('/index.php?p=design')
 csp = ed.h('content-security-policy')
-inline = re.findall(r'<script(?![^>]*\bsrc=)[^>]*>', ed.body)
+inline = re.findall(r'<script(?![^>]*\bsrc=)[^>]*>', ed.body, re.IGNORECASE)
 rec('D10', 'H', 'Editor-Seite: CSP unverändert streng (script-src \'self\'), keine Inline-Skripte, Editor-Skript lokal eingebunden', "script-src 'self'" in csp and 'unsafe-inline' not in csp.split('script-src')[1].split(';')[0] and not inline and 'assets/css-editor.js' in ed.body, (csp[:60], inline))
 js = s.get('/assets/css-editor.js'); js_anon = anon.get('/assets/css-editor.js')
 rec('D11', 'L', 'Editor-Skript wird ausgeliefert (JavaScript, nosniff, no-cache) und enthält nur den CSS-Modus', js.status == 200 and 'javascript' in js.h('content-type') and js.h('x-content-type-options') == 'nosniff' and 'no-cache' in js.h('cache-control') and len(js.raw) < 600000, (js.status, js.h('content-type'), len(js.raw)))
