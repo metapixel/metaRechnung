@@ -8,7 +8,10 @@ Schlanke, selbst gehostete Rechnungsverwaltung in PHP/MySQL für ganz normalen W
 - **Steuerberater-Export** (ZIP mit PDFs, XML und CSV, befristeter Zugangslink per Mail)
 - **Änderungsprotokoll** mit Hash-Kette (wer hat was wann getan)
 - **Auswertung:** Umsatz je Monat/Jahr, Zahlungsverhalten der Kunden
-- **CSV-Import** bestehender Kundendaten (Vorschau, Spaltenzuordnung, Dublettenerkennung)
+- **CSV- und vCard-Import** bestehender Kundendaten (Vorschau, Spaltenzuordnung, Dublettenerkennung)
+- **Kundenansicht** mit allen Belegen und der Zahlungsmoral je Kunde
+- **Zwei-Faktor-Anmeldung** (TOTP-App + Wiederherstellungscodes)
+- **Bezahlen per PayPal.me** (Link/QR mit vorausgefülltem Betrag) und **eigene Schriften** für PDF und Oberfläche
 - **Stornorechnungen** (eigener Nummernkreis, Bezug auf die Originalrechnung, XML-Typ 384, Teilstorno)
 - **PDF-Design**: Schrift, Akzentfarbe, Tabellenstil, Vorlagen und Vorschau; wird beim Ausstellen festgehalten
 - **GiroCode** (EPC-QR) auf Rechnung und Statusseite: Banking-Apps füllen die Überweisung automatisch aus

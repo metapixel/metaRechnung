@@ -143,7 +143,7 @@ final class Einvoice
         $inv['design'] = $design;
 
         try {
-            $mpdf = new Mpdf([
+            $mpdf = new Mpdf(Fonts::mpdfConfig($design['font']) + [
                 'mode' => 'utf-8', 'format' => 'A4',
                 'margin_left' => $lh['ml'] ?? 20, 'margin_right' => $lh['mr'] ?? 20,
                 'margin_top' => $lh['mt'] ?? 18, 'margin_bottom' => $lh['mb'] ?? 18,

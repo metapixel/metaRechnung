@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App { function env(string $k, string $d = ''): string { return $GLOBALS['ENV'][$k] ?? $d; } }
 namespace {
 require __DIR__ . '/../../src/PdfDesign.php';
+require __DIR__ . '/../../src/Fonts.php';
 use App\PdfDesign as P;
 $fail = 0; $n = 0;
 function eq(string $name, mixed $got, mixed $want): void { global $fail, $n; $n++; if ($got !== $want) { $fail++; echo "FAIL $name: erhalten " . var_export($got, true) . ", erwartet " . var_export($want, true) . "\n"; } }
@@ -45,6 +46,10 @@ foreach (P::TEMPLATES as $k => $t) { $x = P::template($k); [$_, $er] = P::fromFo
 // current(): defekte Konfiguration
 $GLOBALS['ENV']['PDF_DESIGN'] = '{kaputt'; eq('current bei kaputtem JSON', P::current(), P::defaults());
 $GLOBALS['ENV']['PDF_DESIGN'] = P::toJson($d); eq('Roundtrip', P::current(), $d);
+eq('Unbekannte eigene Schrift fällt auf Standard zurück', P::sanitize(['font' => 'cfdeadbeef'])['font'], 'dejavusanscondensed');
+eq('Schrift mit Schlüsselmuster aber ohne Datei ist nicht wählbar', isset(\App\Fonts::pdfChoices()['cfdeadbeef']), false);
+[$d2, $e2] = P::fromForm(['font' => 'cfdeadbeef'] + $ok);
+eq('fromForm lehnt unbekannte eigene Schrift ab', in_array('Schrift: ungültige Auswahl.', $e2, true), true);
 echo $fail ? "$fail von $n Prüfungen fehlgeschlagen\n" : "Alle $n Prüfungen bestanden\n";
 exit($fail ? 1 : 0);
 }

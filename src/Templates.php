@@ -28,6 +28,7 @@ final class Templates
         'ABSENDER' => 'Inhaber, sonst Firmenname (für die Grußformel)',
         'GUELTIG_BIS' => 'Gültigkeit des Angebots',
         'LINK' => 'Link zur Statusseite (nur Rechnung)',
+        'PAYPAL' => 'PayPal.me-Zahlungslink mit Betrag (nur Rechnung, falls eingerichtet)',
         'ZEITRAUM' => 'Zeitraum (nur Export)',
         'ABLAUF' => 'Ablaufdatum des Links (nur Export)',
     ];
@@ -125,10 +126,11 @@ final class Templates
             'ANREDE' => 'Guten Tag' . ($contact !== '' ? ' ' . $contact : ''),
             'FIRMA' => (string)$co['name'],
             'ABSENDER' => (string)($co['owner'] ?: $co['name']),
-            'FAELLIG' => '', 'GUELTIG_BIS' => '', 'LINK' => '', 'ZEITRAUM' => '', 'ABLAUF' => '',
+            'FAELLIG' => '', 'GUELTIG_BIS' => '', 'LINK' => '', 'PAYPAL' => '', 'ZEITRAUM' => '', 'ABLAUF' => '',
         ];
         if ($type === 'invoice') {
             $v['FAELLIG'] = fdate($doc['due_date'] ?? null);
+            $v['PAYPAL'] = (string)PayPal::url($doc);
             if (!empty($doc['public_token'])) {
                 $v['LINK'] = Invoices::statusUrl($doc);
             }

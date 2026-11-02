@@ -72,7 +72,7 @@ final class PdfDesign
     {
         $d = self::defaults();
         $out = $d;
-        if (isset($in['font']) && is_string($in['font']) && isset(self::FONTS[$in['font']])) {
+        if (isset($in['font']) && is_string($in['font']) && isset(Fonts::pdfChoices()[$in['font']])) {
             $out['font'] = $in['font'];
         }
         if (isset($in['size']) && is_string($in['size']) && isset(self::SIZES[$in['size']])) {
@@ -113,7 +113,7 @@ final class PdfDesign
             return $v;
         };
         $d = self::defaults();
-        $d['font'] = $enum('font', self::FONTS, 'Schrift') ?? $d['font'];
+        $d['font'] = $enum('font', Fonts::pdfChoices(), 'Schrift') ?? $d['font'];
         $d['size'] = $enum('size', self::SIZE_LABELS, 'Schriftgröße') ?? $d['size'];
         $d['table'] = $enum('table', self::TABLES, 'Tabellenstil') ?? $d['table'];
         $d['sender'] = $enum('sender', self::SENDERS, 'Absender') ?? $d['sender'];

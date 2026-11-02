@@ -77,7 +77,7 @@ $span = $pmax + $nmax; $sc = $span > 0 ? $ph / $span : 0; $base = $top + $pmax *
     <tr><th scope="col">Kunde</th><th scope="col" class="r">Bezahlt</th><th scope="col" class="r">Pünktlich</th><th scope="col" class="r">Ø Zahlungsdauer</th><th scope="col" class="r">Ø Verzug</th><th scope="col" class="r">Überfällig</th><th scope="col">Einstufung</th></tr>
     <?php foreach ($per as $cid => $c): ?>
     <tr>
-      <th scope="row"><a href="<?= BASE ?>?p=customer_edit&amp;id=<?= (int)$cid ?>"><?= h($c['name']) ?></a></th>
+      <th scope="row"><a href="<?= BASE ?>?p=customer&amp;id=<?= (int)$cid ?>"><?= h($c['name']) ?></a></th>
       <td class="r"><?= (int)$c['paid'] ?></td>
       <td class="r"><?= h($pct($c['share'])) ?></td>
       <td class="r"><?= h($dd($c['avg_days'])) ?></td>
@@ -87,6 +87,6 @@ $span = $pmax + $nmax; $sc = $span > 0 ? $ph / $span : 0; $base = $top + $pmax *
     </tr>
     <?php endforeach; ?>
   </table></div>
-  <p class="muted">Pünktlich heißt: Zahlungsdatum ≤ Fälligkeitsdatum. „Ø Verzug“ bezieht sich nur auf verspätete Zahlungen. Die Einstufung gibt es ab drei bezahlten Rechnungen (pünktlich ab 90 %, meist pünktlich ab 60 %). Das Zahlungsdatum ist das beim Markieren als „bezahlt“ erfasste Datum; stornierte Rechnungen und Stornorechnungen zählen nicht mit.</p>
+  <p class="muted">Die Einzelwerte je Kunde stehen auch in der jeweiligen Kundenansicht. Pünktlich heißt: Zahlungsdatum ≤ Fälligkeitsdatum. „Ø Verzug“ bezieht sich nur auf verspätete Zahlungen. Die Einstufung gibt es ab drei bezahlten Rechnungen (pünktlich ab 90 %, meist pünktlich ab 60 %). Das Zahlungsdatum ist das beim Markieren als „bezahlt“ erfasste Datum; stornierte Rechnungen und Stornorechnungen zählen nicht mit.</p>
 </section>
 <?php endif; ?>

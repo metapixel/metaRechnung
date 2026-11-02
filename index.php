@@ -24,6 +24,10 @@ use App\RateLimit;
 use App\Theme;
 use App\Recurring;
 use App\Offers;
+use App\Totp;
+use App\PayPal;
+use App\VcfImport;
+use App\Fonts;
 use App\Templates;
 
 $p = $_GET['p'] ?? 'invoices';
@@ -45,6 +49,23 @@ if (!empty($_SESSION['auth'])) {
 
 if (empty($_SESSION['auth'])) {
     $error = null;
+    $step = 'password';
+    $mfa = $_SESSION['mfa'] ?? null;
+    if (is_array($mfa) && (time() - (int)($mfa['time'] ?? 0) > 300 || !Totp::enabled())) {
+        unset($_SESSION['mfa']);   // zweiter Schritt nur 5 Minuten lang gültig
+        $mfa = null;
+    }
+    $finishLogin = static function (string $how): never {
+        session_regenerate_id(true);
+        $_SESSION['auth'] = true;
+        $_SESSION['fp'] = auth_fingerprint();
+        $_SESSION['t0'] = time();
+        $_SESSION['user'] = env('APP_USER', 'admin');
+        unset($_SESSION['mfa']);
+        Audit::log('auth.login', '', null, 'Anmeldung erfolgreich' . $how);
+        csrf();
+        redirect(BASE);
+    };
     if ($post) {
         $ipKey = 'login:' . RateLimit::ip();
         if (!hash_equals((string)($_SESSION['csrf'] ?? ''), (string)($_POST['csrf'] ?? '')) || ($_SESSION['csrf'] ?? '') === '') {
@@ -52,19 +73,60 @@ if (empty($_SESSION['auth'])) {
         } elseif (RateLimit::blocked($ipKey, LOGIN_MAX, LOGIN_WINDOW) || RateLimit::blocked('login:all', LOGIN_MAX_GLOBAL, LOGIN_WINDOW)) {
             http_response_code(429);
             $error = 'Zu viele Fehlversuche. Bitte in einigen Minuten erneut versuchen.';
+        } elseif (is_array($mfa) && isset($_POST['code'])) {
+            // Zweiter Schritt: Code aus der Authenticator-App oder Wiederherstellungscode
+            $step = 'code';
+            $code = is_string($_POST['code']) ? trim($_POST['code']) : '';
+            $ok = false;
+            $how = '';
+            $left = null;
+            if ($code !== '') {
+                $st = Totp::verify(env('TOTP_SECRET'), $code, (int)env('TOTP_LAST', '0'));
+                if ($st !== null && preg_match('/^\s*\d[\d\s]*$/D', $code)) {
+                    Config::save(['TOTP_LAST' => (string)$st]);
+                    $ok = true;
+                    $how = ' (Zwei-Faktor-Code)';
+                } elseif (($left = Totp::useRecovery($code)) !== null) {
+                    $ok = true;
+                    $how = ' (Wiederherstellungscode, noch ' . $left . ' übrig)';
+                }
+            }
+            if ($ok) {
+                RateLimit::clear($ipKey);
+                if ($left !== null) {
+                    flash($left === 0 ? 'Das war dein letzter Wiederherstellungscode. Erzeuge unter Einstellungen → Zugang neue Codes.' : 'Wiederherstellungscode verwendet. Es sind noch ' . $left . ' übrig.');
+                }
+                $finishLogin($how);
+            }
+            RateLimit::fail($ipKey, LOGIN_WINDOW);
+            RateLimit::fail('login:all', LOGIN_WINDOW);
+            $_SESSION['mfa']['tries'] = (int)($mfa['tries'] ?? 0) + 1;
+            Audit::log('auth.mfa_failed', '', null, 'Zwei-Faktor-Code falsch', (string)($mfa['user'] ?? '?'));
+            sleep(1);
+            if ($_SESSION['mfa']['tries'] >= 5) {
+                unset($_SESSION['mfa']);
+                $step = 'password';
+                $error = 'Zu viele falsche Codes. Bitte melde dich erneut mit Passwort an.';
+            } else {
+                $error = 'Der Code ist falsch oder abgelaufen.';
+            }
+        } elseif (is_array($mfa) && ($_POST['action'] ?? '') === 'cancel') {
+            unset($_SESSION['mfa']);
         } else {
             $userOk = hash_equals(env('APP_USER', 'admin'), (string)($_POST['user'] ?? ''));
             $passOk = password_verify((string)($_POST['pass'] ?? ''), env('APP_PASSWORD_HASH'));
             if ($userOk && $passOk) {
+                if (Totp::enabled()) {
+                    session_regenerate_id(true);
+                    $_SESSION['mfa'] = ['time' => time(), 'tries' => 0, 'user' => env('APP_USER', 'admin')];
+                    csrf();
+                    $step = 'code';
+                    $mfa = $_SESSION['mfa'];
+                    render('login', ['error' => null, 'bare' => true, 'step' => 'code']);
+                    exit;
+                }
                 RateLimit::clear($ipKey);
-                session_regenerate_id(true);
-                $_SESSION['auth'] = true;
-                $_SESSION['fp'] = auth_fingerprint();
-                $_SESSION['t0'] = time();
-                $_SESSION['user'] = env('APP_USER', 'admin');
-                Audit::log('auth.login', '', null, 'Anmeldung erfolgreich');
-                csrf();
-                redirect(BASE);
+                $finishLogin('');
             }
             RateLimit::fail($ipKey, LOGIN_WINDOW);
             RateLimit::fail('login:all', LOGIN_WINDOW);
@@ -73,7 +135,10 @@ if (empty($_SESSION['auth'])) {
             $error = 'Anmeldung fehlgeschlagen.';
         }
     }
-    render('login', ['error' => $error, 'bare' => true]);
+    if (is_array($_SESSION['mfa'] ?? null) && $step === 'password' && !$error) {
+        $step = 'code';
+    }
+    render('login', ['error' => $error, 'bare' => true, 'step' => is_array($_SESSION['mfa'] ?? null) ? 'code' : 'password']);
     exit;
 }
 
@@ -97,6 +162,24 @@ try {
     switch ($p) {
         case 'customers':
             render('customers', ['customers' => db()->query('SELECT * FROM customers ORDER BY name')->fetchAll()]);
+            break;
+
+        case 'customer':
+            $id = (int)($_GET['id'] ?? 0);
+            $st = db()->prepare('SELECT * FROM customers WHERE id = ?');
+            $st->execute([$id]);
+            $cust = $st->fetch();
+            if (!$cust) {
+                http_response_code(404);
+                flash('Kunde nicht gefunden.');
+                redirect(BASE . '?p=customers');
+            }
+            $myInv = array_values(array_filter(Invoices::listAll(), static fn($r) => (int)$r['customer_id'] === $id));
+            $myOff = array_values(array_filter(Offers::listAll(), static fn($r) => (int)$r['customer_id'] === $id));
+            $rec = db()->prepare('SELECT id, name, frequency, next_run, active FROM recurring WHERE customer_id = ? ORDER BY name');
+            $rec->execute([$id]);
+            $pun = Reports::punctuality(array_values(array_filter(Reports::invoices(), static fn($r) => (int)$r['customer_id'] === $id)), date('Y-m-d'));
+            render('customer_show', ['c' => $cust, 'invoices' => $myInv, 'offers' => $myOff, 'recurring' => $rec->fetchAll(), 'pay' => $pun[$id] ?? $pun[0]]);
             break;
 
         case 'customer_import':
@@ -146,12 +229,27 @@ try {
                 if ($err !== UPLOAD_ERR_OK || !is_uploaded_file((string)($up['tmp_name'] ?? ''))) {
                     throw new RuntimeException('Bitte eine CSV-Datei auswählen.');
                 }
-                if ((int)($up['size'] ?? 0) > CustomerImport::MAX_BYTES) {
-                    throw new RuntimeException('Die Datei ist zu groß (höchstens ' . (int)(CustomerImport::MAX_BYTES / 1048576) . ' MB).');
+                $isVcf = (bool)preg_match('/\.vcf$/i', (string)($up['name'] ?? ''));
+                $maxBytes = $isVcf ? VcfImport::MAX_BYTES : CustomerImport::MAX_BYTES;
+                if ((int)($up['size'] ?? 0) > $maxBytes) {
+                    throw new RuntimeException('Die Datei ist zu groß (höchstens ' . (int)($maxBytes / 1048576) . ' MB).');
                 }
-                $text = CustomerImport::decode((string)file_get_contents((string)$up['tmp_name'], false, null, 0, CustomerImport::MAX_BYTES + 1));
-                $dl = is_string($_POST['delimiter'] ?? '') ? (string)$_POST['delimiter'] : 'auto';
-                $delim = ['semicolon' => ';', 'comma' => ',', 'tab' => "\t", 'pipe' => '|'][$dl] ?? CustomerImport::detectDelimiter($text);
+                $rawUp = (string)file_get_contents((string)$up['tmp_name'], false, null, 0, VcfImport::MAX_BYTES + 1);
+                $vcfMode = $isVcf || VcfImport::looksLikeVcard(ltrim($rawUp, "\xEF\xBB\xBF"));
+                if ($vcfMode) {
+                    if (strlen($rawUp) > VcfImport::MAX_BYTES) {
+                        throw new RuntimeException('Die Datei ist zu groß (höchstens ' . (int)(VcfImport::MAX_BYTES / 1048576) . ' MB).');
+                    }
+                    $text = VcfImport::toCsv(VcfImport::toRows($rawUp));   // vCard → Tabelle, danach wie CSV
+                    $delim = ';';
+                } else {
+                    if (strlen($rawUp) > CustomerImport::MAX_BYTES) {
+                        throw new RuntimeException('Die Datei ist zu groß (höchstens ' . (int)(CustomerImport::MAX_BYTES / 1048576) . ' MB).');
+                    }
+                    $text = CustomerImport::decode($rawUp);
+                    $dl = is_string($_POST['delimiter'] ?? '') ? (string)$_POST['delimiter'] : 'auto';
+                    $delim = ['semicolon' => ';', 'comma' => ',', 'tab' => "\t", 'pipe' => '|'][$dl] ?? CustomerImport::detectDelimiter($text);
+                }
                 CustomerImport::parse($text, $delim);   // prüft Aufbau und Grenzen
                 if (!is_dir($tmpDir)) {
                     mkdir($tmpDir, 0775, true);
@@ -162,7 +260,7 @@ try {
                     throw new RuntimeException('Die Datei konnte nicht zwischengespeichert werden (Schreibrechte auf storage/?).');
                 }
                 @chmod($tmpDir . '/' . $name, 0600);
-                $_SESSION['import'] = ['file' => $name, 'delim' => $delim, 'orig' => mb_substr(clean(basename((string)($up['name'] ?? 'datei.csv'))), 0, 80), 'time' => time()];
+                $_SESSION['import'] = ['file' => $name, 'delim' => $delim, 'orig' => mb_substr(clean(basename((string)($up['name'] ?? 'datei.csv'))), 0, 80), 'time' => time(), 'vcf' => $vcfMode];
                 redirect(BASE . '?p=customer_import');
             }
             $view = ['step' => 'upload'];
@@ -199,7 +297,7 @@ try {
                     }
                 }
                 $view = ['step' => 'preview', 'orig' => (string)($imp['orig'] ?? ''), 'header' => $header, 'rows' => $rows, 'cols' => $cols, 'map' => $map, 'mode' => $mode,
-                         'hasHeader' => $hasHeader, 'plan' => $plan, 'errors' => $mapErrors];
+                         'hasHeader' => $hasHeader, 'plan' => $plan, 'errors' => $mapErrors, 'vcf' => !empty($imp['vcf'])];
             }
             render('customer_import', $view);
             break;
@@ -383,6 +481,25 @@ try {
             }
             render('article_form', ['a' => $a]);
             break;
+
+        case 'font':
+            $fk = is_string($_GET['k'] ?? '') ? (string)$_GET['k'] : '';
+            $fs = is_string($_GET['s'] ?? '') ? (string)$_GET['s'] : '';
+            $fp = preg_match('/^cf[0-9a-f]{8}$/D', $fk) && isset(Fonts::STYLES[$fs]) ? Fonts::path($fk, $fs) : null;
+            // Geprüft: Pfad stammt aus der eigenen Schriftliste (Dateiname [0-9a-f]{16}.ttf), Schlüssel/Stil sind auf feste Muster geprüft
+            // nosemgrep
+            if ($fp === null || !is_file($fp)) {
+                http_response_code(404);
+                exit;
+            }
+            header('Content-Type: font/ttf');
+            // nosemgrep
+            header('Content-Length: ' . filesize($fp));
+            header('Cache-Control: private, max-age=86400');
+            // Geprüft: Pfad stammt aus der eigenen Schriftliste (Dateiname [0-9a-f]{16}.ttf), Schlüssel/Stil sind auf feste Muster geprüft
+            // nosemgrep
+            readfile($fp);
+            exit;
 
         case 'design':
             if ($post) {
@@ -857,6 +974,9 @@ try {
                     if ($in('COMPANY_IBAN') !== '' && !Config::ibanValid($in('COMPANY_IBAN'))) {
                         $errors[] = 'Die IBAN ist ungültig (Prüfsumme stimmt nicht).';
                     }
+                    if (PayPal::normalize($in('PAYPAL_ME')) === null) {
+                        $errors[] = 'PayPal.me: bitte nur den Namen aus deinem Link angeben (3–20 Buchstaben/Ziffern, z. B. „kai“ für paypal.me/kai).';
+                    }
                     if ($in('APP_URL') !== '' && (!preg_match('#^https?://[A-Za-z0-9.\-]+(:\d{1,5})?(/[A-Za-z0-9._~%/\-]*)?$#', $in('APP_URL')))) {
                         $errors[] = 'Die App-Adresse muss mit http:// oder https:// beginnen.';
                     }
@@ -867,6 +987,7 @@ try {
                                   'SMTP_HOST', 'SMTP_USER', 'MAIL_FROM', 'MAIL_FROM_NAME', 'MAIL_BCC', 'APP_URL', 'TAX_ADVISOR_NAME', 'TAX_ADVISOR_EMAIL'] as $k) {
                             $c[$k] = $in($k);
                         }
+                        $c['PAYPAL_ME'] = (string)PayPal::normalize($in('PAYPAL_ME'));
                         $c['COMPANY_COUNTRY'] = strtoupper($in('COMPANY_COUNTRY') ?: 'DE');
                         $c['INVOICE_PREFIX'] = preg_replace('/[^A-Za-z0-9]/', '', $in('INVOICE_PREFIX')) ?: 'RE';
                         $c['CANCEL_PREFIX'] = preg_replace('/[^A-Za-z0-9]/', '', $in('CANCEL_PREFIX')) ?: 'ST';
@@ -923,6 +1044,89 @@ try {
                         flash($np !== '' ? 'Passwort geändert.' : 'Benutzername geändert.');
                         redirect(BASE . '?p=settings');
                     }
+                } elseif (in_array($a, ['mfa_start', 'mfa_enable', 'mfa_disable', 'mfa_regen'], true)) {
+                    $pwKey = 'pw:' . RateLimit::ip();
+                    if ($a === 'mfa_start') {
+                        if (Totp::enabled()) {
+                            throw new RuntimeException('Die Zwei-Faktor-Anmeldung ist bereits aktiv.');
+                        }
+                        $_SESSION['mfa_pending'] = ['secret' => Totp::newSecret(), 'time' => time()];
+                        redirect(BASE . '?p=settings#zwei-faktor');
+                    }
+                    if ($a === 'mfa_enable') {
+                        $pend = $_SESSION['mfa_pending'] ?? null;
+                        if (!is_array($pend) || time() - (int)$pend['time'] > 1800) {
+                            unset($_SESSION['mfa_pending']);
+                            throw new RuntimeException('Die Einrichtung ist abgelaufen. Bitte neu starten.');
+                        }
+                        if (RateLimit::blocked($pwKey, LOGIN_MAX, LOGIN_WINDOW)) {
+                            throw new RuntimeException('Zu viele Fehlversuche. Bitte später erneut versuchen.');
+                        }
+                        $st = Totp::verify((string)$pend['secret'], is_string($_POST['code'] ?? '') ? (string)$_POST['code'] : '');
+                        if ($st === null) {
+                            RateLimit::fail($pwKey, LOGIN_WINDOW);
+                            throw new RuntimeException('Der Code stimmt nicht. Prüfe die Uhrzeit deines Handys und versuche es mit dem aktuellen Code erneut.');
+                        }
+                        $codes = Totp::newRecoveryCodes();
+                        Config::save(['TOTP_SECRET' => (string)$pend['secret'], 'TOTP_LAST' => (string)$st]);
+                        Totp::saveRecovery($codes);
+                        unset($_SESSION['mfa_pending']);
+                        session_regenerate_id(true);
+                        $_SESSION['fp'] = auth_fingerprint();   // andere Sitzungen ohne zweiten Faktor enden
+                        $_SESSION['mfa_codes'] = $codes;
+                        Audit::log('auth.mfa_enabled', '', null, 'Zwei-Faktor-Anmeldung aktiviert');
+                        flash('Zwei-Faktor-Anmeldung ist jetzt aktiv. Bewahre die Wiederherstellungscodes sicher auf.');
+                        redirect(BASE . '?p=settings#zwei-faktor');
+                    }
+                    // Abschalten und neue Codes erzeugen: aktuelles Passwort nötig
+                    if (!Totp::enabled()) {
+                        throw new RuntimeException('Die Zwei-Faktor-Anmeldung ist nicht aktiv.');
+                    }
+                    if (RateLimit::blocked($pwKey, LOGIN_MAX, LOGIN_WINDOW)) {
+                        throw new RuntimeException('Zu viele Fehlversuche. Bitte später erneut versuchen.');
+                    }
+                    if (!password_verify((string)($_POST['current_pass'] ?? ''), env('APP_PASSWORD_HASH'))) {
+                        RateLimit::fail($pwKey, LOGIN_WINDOW);
+                        Audit::log('auth.password_failed', '', null, 'Aktuelles Passwort falsch (Zwei-Faktor)');
+                        throw new RuntimeException('Das aktuelle Passwort ist falsch.');
+                    }
+                    if ($a === 'mfa_disable') {
+                        Config::save(['TOTP_SECRET' => '', 'TOTP_LAST' => '0', 'TOTP_RECOVERY' => '[]']);
+                        session_regenerate_id(true);
+                        $_SESSION['fp'] = auth_fingerprint();
+                        Audit::log('auth.mfa_disabled', '', null, 'Zwei-Faktor-Anmeldung deaktiviert');
+                        flash('Zwei-Faktor-Anmeldung deaktiviert.');
+                    } else {
+                        $codes = Totp::newRecoveryCodes();
+                        Totp::saveRecovery($codes);
+                        $_SESSION['mfa_codes'] = $codes;
+                        Audit::log('auth.mfa_recovery', '', null, 'Neue Wiederherstellungscodes erzeugt');
+                        flash('Neue Wiederherstellungscodes erzeugt. Die alten sind ungültig.');
+                    }
+                    redirect(BASE . '?p=settings#zwei-faktor');
+                } elseif ($a === 'font_add') {
+                    $fk = Fonts::add(is_string($_POST['font_name'] ?? '') ? (string)$_POST['font_name'] : '', [
+                        'R' => $_FILES['font_r'] ?? null, 'B' => $_FILES['font_b'] ?? null, 'I' => $_FILES['font_i'] ?? null, 'BI' => $_FILES['font_bi'] ?? null,
+                    ]);
+                    Audit::log('settings.fonts', '', null, 'Schrift hinzugefügt: ' . Fonts::all()[$fk]['name']);
+                    flash('Schrift „' . Fonts::all()[$fk]['name'] . '“ hinzugefügt. Du kannst sie jetzt im PDF-Design und für die Oberfläche auswählen.');
+                    redirect(BASE . '?p=settings#schriften');
+                } elseif ($a === 'font_delete') {
+                    $fk = is_string($_POST['key'] ?? '') ? (string)$_POST['key'] : '';
+                    $fname = Fonts::all()[$fk]['name'] ?? '?';
+                    Fonts::remove($fk);
+                    Audit::log('settings.fonts', '', null, 'Schrift gelöscht: ' . $fname);
+                    flash('Schrift „' . $fname . '“ gelöscht.');
+                    redirect(BASE . '?p=settings#schriften');
+                } elseif ($a === 'font_ui') {
+                    $fk = is_string($_POST['ui_font'] ?? '') ? (string)$_POST['ui_font'] : '';
+                    if ($fk !== '' && !Fonts::exists($fk)) {
+                        throw new RuntimeException('Unbekannte Schrift.');
+                    }
+                    Config::save(['UI_FONT' => $fk]);
+                    Audit::log('settings.fonts', '', null, $fk === '' ? 'Oberflächenschrift: Standard' : 'Oberflächenschrift: ' . Fonts::all()[$fk]['name']);
+                    flash($fk === '' ? 'Die Oberfläche nutzt wieder die Standardschrift.' : 'Die Oberfläche nutzt jetzt die gewählte Schrift.');
+                    redirect(BASE . '?p=settings#schriften');
                 } elseif ($a === 'letterhead') {
                     $c = [
                         'LETTERHEAD_MT' => (string)Letterhead::margin($_POST['mt'] ?? '', 45),

@@ -29,7 +29,8 @@ $tl = fn(string $k): string => P::TEMPLATES[$k]['label'];
   </ul>
 
   <h2>Schrift</h2>
-  <fieldset><legend>Schriftart</legend><?php $radio('font', P::FONTS, $d['font']); ?></fieldset>
+  <fieldset><legend>Schriftart</legend><?php $radio('font', \App\Fonts::pdfChoices(), $d['font']); ?>
+    <p class="hint">Eigene Schriften (TrueType) lädst du unter <a href="<?= BASE ?>?p=settings#schriften">Einstellungen → Schriften</a> hoch. Sie werden ins PDF eingebettet und beim Ausstellen mit der Rechnung eingefroren.</p></fieldset>
   <fieldset><legend>Schriftgröße</legend><?php $radio('size', P::SIZE_LABELS, $d['size']); ?></fieldset>
 
   <h2>Farbe</h2>

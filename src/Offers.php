@@ -66,7 +66,7 @@ final class Offers
     public static function listAll(): array
     {
         $rows = db()->query(
-            'SELECT o.id, o.number, o.status, o.issue_date, o.valid_until, o.invoice_id, o.snapshot, c.name AS c_name
+            'SELECT o.id, o.number, o.status, o.customer_id, o.issue_date, o.valid_until, o.invoice_id, o.snapshot, c.name AS c_name
              FROM offers o JOIN customers c ON c.id = o.customer_id ORDER BY o.issue_date DESC, o.id DESC'
         )->fetchAll();
         $items = [];
@@ -316,7 +316,7 @@ final class Offers
         $design = PdfDesign::sanitize($inv['design'] ?? PdfDesign::current());
         $inv['design'] = $design;
 
-        $mpdf = new Mpdf([
+        $mpdf = new Mpdf(Fonts::mpdfConfig($design['font']) + [
             'mode' => 'utf-8', 'format' => 'A4',
             'margin_left' => $lh['ml'] ?? 20, 'margin_right' => $lh['mr'] ?? 20,
             'margin_top' => $lh['mt'] ?? 18, 'margin_bottom' => $lh['mb'] ?? 18,

@@ -94,3 +94,8 @@ Unter **Einstellungen → Briefpapier** kannst du ein A4-Briefpapier hochladen: 
 - **Einstellungen → Export:** erzeugt ein ZIP (Rechnungs-PDFs, optional XRechnung-XML, CSV-Übersicht) in `storage/exports/` und einen geheimen, befristeten Abruf-Link (`export.php`). Für den Link in der E-Mail muss unter „Adresse der App“ die **APP_URL** gesetzt sein. Die PHP-Erweiterung **zip** wird benötigt. Abgelaufene Exporte bleiben noch 30 Tage erhalten und lassen sich in der Liste verlängern (derselbe Link gilt dann wieder); danach löscht die App sie beim nächsten Aufruf der Exportseite selbst.
 - **Einstellungen → Protokoll:** Änderungsprotokoll mit Prüfsummen-Kette (Tabelle `audit_log`). Es wird nie automatisch gelöscht. „Integrität prüfen“ zeigt, ob Einträge nachträglich verändert wurden.
 - Beim Update werden die Tabellen `audit_log` und `exports` beim ersten Aufruf automatisch angelegt.
+
+## 2FA, PayPal.me und eigene Schriften (ab 1.16.0)
+- **Zwei-Faktor-Anmeldung:** Einstellungen → Zwei-Faktor-Anmeldung → „2FA einrichten“, QR-Code mit einer Authenticator-App scannen, Code bestätigen und die Wiederherstellungscodes sicher aufbewahren. Die Uhr des Servers sollte stimmen (Abweichungen über ±30 Sekunden führen zu abgelehnten Codes). Ausgesperrt ohne Handy und ohne Codes? In `config.php` `'TOTP_SECRET' => ''` setzen.
+- **PayPal.me:** Einstellungen → Rechnungen → „PayPal.me-Name“. Gilt für neu ausgestellte Rechnungen; der Zahlungseingang wird weiter von Hand verbucht.
+- **Schriften:** Einstellungen → Schriften. Die Dateien liegen in `storage/fonts/` (nicht öffentlich abrufbar) – bitte wie `storage/invoices/` mitsichern.

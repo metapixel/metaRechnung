@@ -87,6 +87,7 @@ function company(): array
         'country' => env('COMPANY_COUNTRY', 'DE'), 'email' => env('COMPANY_EMAIL'), 'phone' => env('COMPANY_PHONE'),
         'tax_number' => env('COMPANY_TAX_NUMBER'), 'vat_id' => env('COMPANY_VAT_ID'),
         'iban' => str_replace(' ', '', env('COMPANY_IBAN')), 'bic' => env('COMPANY_BIC'), 'bank' => env('COMPANY_BANK'),
+        'paypal' => env('PAYPAL_ME'),
     ];
 }
 
@@ -159,7 +160,9 @@ function clean(mixed $s, bool $multiline = false): string
 /** Stabiler Fingerabdruck der Zugangsdaten: ändert sich bei Passwort-/Benutzerwechsel → alte Sitzungen verfallen. */
 function auth_fingerprint(): string
 {
-    return substr(hash('sha256', env('APP_USER') . '|' . env('APP_PASSWORD_HASH')), 0, 32);
+    // Mit aktiver Zwei-Faktor-Anmeldung zählt auch deren Secret: Ein-/Ausschalten beendet alle anderen Sitzungen.
+    $tf = \App\Totp::enabled() ? '|' . env('TOTP_SECRET') : '';
+    return substr(hash('sha256', env('APP_USER') . '|' . env('APP_PASSWORD_HASH') . $tf), 0, 32);
 }
 
 function flash(?string $msg = null): ?string

@@ -80,6 +80,13 @@
 <?php $pay = trim(\App\Templates::fill((string)($tpl['pdf_invoice_payment'] ?? ''), $tv)); if ($pay !== ''): ?><p style="margin-top:16px"><?= nl2br(h($pay)) ?></p><?php endif; ?>
 <?php endif; ?>
 
+<?php $pp = !$credit ? \App\PayPal::url($inv) : null; if ($pp): ?>
+<table class="plain" style="margin-top:10px"><tr>
+  <td style="width:75%; vertical-align:middle">Alternativ können Sie bequem per PayPal zahlen (Betrag ist vorausgefüllt):<br><a href="<?= h($pp) ?>"><?= h($pp) ?></a></td>
+  <td style="text-align:right; vertical-align:middle"><barcode code="<?= h($pp) ?>" type="QR" error="M" size="0.7" disableborder="1" /><br><span class="small">PayPal</span></td>
+</tr></table>
+<?php endif; ?>
+
 <?php if (empty($hideFooter) && $dz['footer']): ?>
 <div class="small" style="margin-top:28px; border-top:0.5px solid #999; padding-top:6px">
   <?= h($co['name']) ?><?= $co['owner'] ? ' · Inhaber: ' . h($co['owner']) : '' ?><br>

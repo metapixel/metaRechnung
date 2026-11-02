@@ -19,11 +19,11 @@ final class Audit
     /** Anzeigenamen der Aktionen */
     public const LABELS = [
         'auth.login' => 'Angemeldet', 'auth.login_failed' => 'Anmeldung fehlgeschlagen', 'auth.logout' => 'Abgemeldet',
-        'auth.account' => 'Zugangsdaten geändert', 'auth.password_failed' => 'Passwortänderung abgelehnt (falsches Passwort)',
+        'auth.account' => 'Zugangsdaten geändert', 'auth.mfa_failed' => 'Zwei-Faktor-Code falsch', 'auth.mfa_enabled' => 'Zwei-Faktor-Anmeldung aktiviert', 'auth.mfa_disabled' => 'Zwei-Faktor-Anmeldung deaktiviert', 'auth.mfa_recovery' => 'Neue Wiederherstellungscodes', 'auth.password_failed' => 'Passwortänderung abgelehnt (falsches Passwort)',
         'invoice.create' => 'Rechnungsentwurf angelegt', 'invoice.update' => 'Rechnungsentwurf geändert', 'invoice.delete' => 'Entwurf gelöscht',
         'invoice.issue' => 'Rechnung ausgestellt', 'invoice.send' => 'Rechnung per E-Mail versendet', 'invoice.paid' => 'Als bezahlt markiert',
         'invoice.unpaid' => 'Wieder auf offen gesetzt', 'invoice.cancel' => 'Stornoentwurf angelegt', 'invoice.duplicate' => 'Rechnung dupliziert',
-        'customer.create' => 'Kunde angelegt', 'customer.update' => 'Kunde geändert', 'customer.import' => 'Kunden importiert (CSV)',
+        'customer.create' => 'Kunde angelegt', 'customer.update' => 'Kunde geändert', 'customer.import' => 'Kunden importiert (CSV/vCard)',
         'article.create' => 'Artikel angelegt', 'article.update' => 'Artikel geändert', 'article.delete' => 'Artikel gelöscht', 'article.duplicate' => 'Artikel dupliziert',
         'recurring.create' => 'Wiederkehrende Vorlage angelegt', 'recurring.update' => 'Wiederkehrende Vorlage geändert', 'recurring.delete' => 'Wiederkehrende Vorlage gelöscht',
         'recurring.run' => 'Wiederkehrende Rechnung erzeugt', 'recurring.error' => 'Wiederkehrende Rechnung fehlgeschlagen', 'recurring.token' => 'Cron-Zugang geändert',
@@ -33,7 +33,7 @@ final class Audit
         'offer.create' => 'Angebotsentwurf angelegt', 'offer.update' => 'Angebotsentwurf geändert', 'offer.delete' => 'Angebotsentwurf gelöscht',
         'offer.issue' => 'Angebot ausgestellt', 'offer.send' => 'Angebot per E-Mail versendet', 'offer.accepted' => 'Angebot als angenommen markiert',
         'offer.declined' => 'Angebot als abgelehnt markiert', 'offer.reopen' => 'Angebot wieder auf offen gesetzt', 'offer.convert' => 'Angebot in Rechnung gewandelt',
-        'offer.duplicate' => 'Angebot dupliziert', 'invoice.remind' => 'Zahlungserinnerung versendet', 'settings.templates' => 'Textvorlagen geändert',
+        'offer.duplicate' => 'Angebot dupliziert', 'invoice.remind' => 'Zahlungserinnerung versendet', 'settings.templates' => 'Textvorlagen geändert', 'settings.fonts' => 'Schriften geändert',
         'export.create' => 'Export erstellt', 'export.send' => 'Export-Link per E-Mail versendet', 'export.extend' => 'Export-Link verlängert', 'export.delete' => 'Export gelöscht', 'export.download' => 'Export heruntergeladen (Link)',
     ];
 

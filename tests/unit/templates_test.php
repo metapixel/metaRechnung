@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App { function env(string $k, string $d = ''): string { return $d; } function clean(mixed $s, bool $m = false): string { return trim((string)$s); } function company(): array { return ['name' => 'Fa', 'owner' => '']; } function money(float $v): string { return number_format($v, 2, ',', '.') . ' €'; } function fdate(?string $d): string { return $d ? date('d.m.Y', strtotime($d)) : ''; } }
 namespace {
 require __DIR__ . '/../../src/Templates.php';
+require __DIR__ . '/../../src/PayPal.php';
 use App\Templates as T;
 $fail = 0; $n = 0;
 function eq(string $name, mixed $got, mixed $want): void { global $fail, $n; $n++; if ($got !== $want) { $fail++; echo "FAIL $name: erhalten " . var_export($got, true) . ", erwartet " . var_export($want, true) . "\n"; } }

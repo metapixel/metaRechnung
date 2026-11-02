@@ -193,7 +193,7 @@ final class Invoices
     public static function listAll(): array
     {
         $rows = db()->query(
-            'SELECT i.id, i.number, i.status, i.cancels_id, i.issue_date, i.due_date, i.sent_at, i.snapshot, c.name AS c_name,
+            'SELECT i.id, i.number, i.status, i.cancels_id, i.customer_id, i.issue_date, i.due_date, i.sent_at, i.snapshot, c.name AS c_name,
                     (SELECT COUNT(*) FROM invoices s WHERE s.cancels_id = i.id AND s.status <> \'draft\') AS cancelled
              FROM invoices i JOIN customers c ON c.id = i.customer_id
              ORDER BY i.issue_date DESC, i.id DESC'

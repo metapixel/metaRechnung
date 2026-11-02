@@ -49,8 +49,8 @@ Nach den Änderungen: alle 94 Prüfungen bestanden bis auf die Info zu TRACE. Di
 ## Was nicht abgedeckt ist / bekannte Grenzen
 - **mPDF** ist in der FriendsOfPHP-Datenbank nicht erfasst. Dependabot/`composer audit` (GitHub Advisory Database) im CI deckt das ab, dort wird es wöchentlich geprüft.
 - **PDF/A-3** wurde nicht mit veraPDF geprüft, nur die eingebettete XML mit dem KoSIT-Validator.
-- **Einbenutzer-App:** keine Rollen, keine Zwei-Faktor-Anmeldung. Wer mehr braucht, sollte den Zugriff zusätzlich per Basic-Auth oder VPN schützen.
-- **`config.php`** enthält Datenbank- und SMTP-Zugangsdaten im Klartext (so üblich bei Webspace). Dateirechte möglichst `640`/`600`.
+- **Einbenutzer-App:** keine Rollen. Zwei-Faktor-Anmeldung (TOTP) ist ab 1.16.0 optional möglich; wer mehr braucht, sollte den Zugriff zusätzlich per Basic-Auth oder VPN schützen.
+- **`config.php`** enthält Datenbank- und SMTP-Zugangsdaten sowie das 2FA-Secret im Klartext (so üblich bei Webspace). Dateirechte möglichst `640`/`600`.
 - **Installer:** Bis zur Installation kann jeder `install.php` aufrufen. Also gleich nach dem Hochladen installieren und `install.php` löschen.
 - **SMTP-Server frei wählbar:** Wer eingeloggt ist, kann den Mailserver ändern (und damit Verbindungen vom Server aus auslösen). Für eine Einbenutzer-App gewollt.
 - **Statuslink** ist ein geheimer 128-Bit-Link: Wer ihn hat, sieht Rechnung, PDF und XRechnung. Er steht in der Rechnungsmail.
@@ -67,3 +67,9 @@ Siehe `tests/security/README.md`. Die Tests laufen nur gegen eine **eigene Testi
 - **cron.php** (`sec6`): per Kommandozeile ohne Token, per HTTP nur mit geheimem 160-Bit-Token (`hash_equals`, Fehlversuche je IP begrenzt → 429, Token erneuerbar/abschaltbar); Läufe sind durch Dateisperre und Datenbank-Zeilensperre gegen Doppelausführung geschützt.
 - **Eigenes CSS** (`sec7`): nur für angemeldete Nutzer mit CSRF-Token; abgelehnt werden `<` (kein Ausbruch aus `<style>`), `@import`, `expression()`, `javascript:`, unausgeglichene Klammern und > 50 KB. Die CSP bleibt unverändert (kein Inline-Skript, externe Ressourcen weiter gesperrt); Editor-Skript wird lokal ausgeliefert. Notausgang `?nocss=1`.
 - **Platzhalter** sind eine feste Allowlist (kein Code, keine Rekursion); unbekannte Platzhalter werden beim Speichern abgelehnt.
+
+## Neue Funktionen ab 1.16.0 (mit eigenen Tests, `sec18` und `tests/unit`)
+- **2FA (TOTP)**: eigene Implementierung nach RFC 6238 (gegen die Testvektoren des RFC geprüft), Vergleich mit `hash_equals`, ±1 Zeitschritt Toleranz, ein Code ist nur einmal verwendbar (letzter Zeitschritt wird gespeichert). Zweiter Login-Schritt: gültig 5 Minuten, Fehlversuche zählen in die bestehende IP-/Gesamtsperre, nach 5 Fehlversuchen muss das Passwort erneut eingegeben werden, CSRF-Schutz wie beim Passwort. Wiederherstellungscodes (10 × 50 Bit Zufall) liegen nur als SHA-256-Hash vor und sind einmalig. Aktivieren/Deaktivieren und Code-Erneuerung ändern den Sitzungs-Fingerabdruck bzw. verlangen das Passwort; andere Sitzungen enden. Grenze: Das Secret steht – wie die übrigen Zugangsdaten – im Klartext in `config.php`.
+- **Eigene Schriften** (`storage/fonts/`, per `.htaccess` gesperrt): Inhaltsprüfung der TrueType-Struktur (kein Vertrauen auf Dateiendung/MIME), Ablehnung bei Einbettungsverbot (OS/2 fsType), Probe-PDF beim Upload, zufällige Dateinamen, Auslieferung für die Oberfläche nur angemeldet mit festem Content-Type und geprüftem Schlüssel/Schnitt (kein Pfad aus Benutzereingaben), Schrift im PDF-Design nur aus der Liste.
+- **vCard-Import**: Datei wird nur geparst (nie ausgeführt), Werte gehen durch dieselbe Prüfung wie beim CSV-Import und werden in der Vorschau maskiert; Größen- und Anzahlgrenzen.
+- **PayPal.me**: Name auf `[A-Za-z0-9]{3,20}` begrenzt, daraus entsteht ausschließlich ein Link auf `paypal.me` mit festem Aufbau (keine freien URLs); wird beim Ausstellen eingefroren.

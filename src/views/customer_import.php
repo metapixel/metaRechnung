@@ -2,13 +2,13 @@
 $step = $step ?? 'upload';
 use App\CustomerImport as CI;
 ?>
-<h1>Kunden importieren (CSV)</h1>
+<h1>Kunden importieren (CSV / vCard)</h1>
 <?php if ($step === 'upload'): ?>
-<p class="muted">Lies bestehende Kundendaten aus einer CSV-Datei ein (Export aus Excel, einer anderen Rechnungssoftware oder einem Adressbuch). Im nächsten Schritt siehst du eine Vorschau und kannst die Spalten zuordnen – importiert wird erst nach deiner Bestätigung.</p>
+<p class="muted">Lies bestehende Kundendaten aus einer CSV-Datei (Excel, andere Rechnungssoftware) oder einer vCard-Datei (.vcf, Export aus Adressbuch, Smartphone, Outlook, Thunderbird …) ein. Im nächsten Schritt siehst du eine Vorschau und kannst die Spalten zuordnen – importiert wird erst nach deiner Bestätigung.</p>
 <form method="post" enctype="multipart/form-data" class="card">
   <input type="hidden" name="csrf" value="<?= h(csrf()) ?>"><input type="hidden" name="action" value="upload">
-  <label for="csv">CSV-Datei (bis <?= (int)(CI::MAX_BYTES / 1048576) ?> MB, höchstens <?= CI::MAX_ROWS ?> Kunden)
-    <input type="file" id="csv" name="csv" accept=".csv,.txt,text/csv,text/plain" required></label>
+  <label for="csv">CSV- oder vCard-Datei (CSV bis <?= (int)(CI::MAX_BYTES / 1048576) ?> MB, vCard bis <?= (int)(App\VcfImport::MAX_BYTES / 1048576) ?> MB; höchstens <?= CI::MAX_ROWS ?> Kunden)
+    <input type="file" id="csv" name="csv" accept=".csv,.txt,.vcf,text/csv,text/plain,text/vcard,text/x-vcard" required></label>
   <label for="delimiter">Trennzeichen
     <select id="delimiter" name="delimiter">
       <option value="auto">automatisch erkennen</option>
@@ -18,7 +18,8 @@ use App\CustomerImport as CI;
       <option value="pipe">senkrechter Strich ( | )</option>
     </select></label>
   <p class="hint">Zeichensatz (UTF-8 oder Windows/Excel) wird automatisch erkannt. Pflichtangaben je Kunde sind <b>Name, Straße, PLZ und Ort</b> (wie im Kundenformular).
-    Weitere Spalten: Ansprechpartner, E-Mail, Land (Standard DE), USt-IdNr., Leitweg-ID/Käuferreferenz.</p>
+    Weitere Spalten: Ansprechpartner, E-Mail, Land (Standard DE), USt-IdNr., Leitweg-ID/Käuferreferenz.<br>
+    <b>vCard:</b> Bei Kontakten mit Firma wird die Firma zum Kunden und die Person zum Ansprechpartner, sonst ist die Person der Kunde. Es wird die erste (bevorzugt geschäftliche) Adresse und E-Mail-Adresse übernommen; Kontakte ohne vollständige Adresse erscheinen in der Vorschau als fehlerhaft. Das Trennzeichen oben gilt nur für CSV.</p>
   <div class="actions">
     <button class="btn primary">Hochladen und Vorschau</button>
     <a class="btn" href="<?= BASE ?>?p=customer_import&amp;template=1">Vorlage herunterladen (CSV)</a>
@@ -37,7 +38,7 @@ use App\CustomerImport as CI;
   <h2>1. Spalten zuordnen</h2>
   <label style="color:inherit"><input type="checkbox" name="has_header" value="1" style="width:auto" <?= $hasHeader ? 'checked' : '' ?>> Die erste Zeile enthält Spaltenüberschriften</label>
   <div class="scroll"><table>
-    <caption class="sr">Zuordnung der CSV-Spalten zu Kundenfeldern</caption>
+    <caption class="sr">Zuordnung der Spalten zu Kundenfeldern</caption>
     <tr><th scope="col">Spalte in der Datei</th><th scope="col">Beispielwerte</th><th scope="col">Importieren als</th></tr>
     <?php for ($i = 0; $i < $cols; $i++): ?>
     <tr>

@@ -44,6 +44,9 @@ if ($co['vat_id'] === '' && $co['tax_number'] === '') { $miss[] = 'Steuernummer 
   <label style="color:inherit"><input type="checkbox" name="GIROCODE" value="1" style="width:auto" <?= ($posted ? isset($old['GIROCODE']) : \App\GiroCode::enabled()) ? 'checked' : '' ?>> GiroCode (QR-Code zum Überweisen) auf Rechnung und Statusseite</label>
   <p class="hint">Banking-Apps lesen daraus Empfänger, IBAN, Betrag und Verwendungszweck. Erscheint nur bei gültiger IBAN (Prüfsumme) und Rechnungsbetrag in Euro; gilt für neu ausgestellte Rechnungen.</p>
 
+  <label>PayPal.me-Name (optional) <input name="PAYPAL_ME" maxlength="60" value="<?= $g('PAYPAL_ME') ?>" placeholder="z. B. kai für paypal.me/kai"></label>
+  <p class="hint">Ist ein Name eingetragen, zeigen Statusseite und PDF zusätzlich „Per PayPal zahlen“ mit vorausgefülltem Betrag (Link und QR-Code). Es gibt keine Verbindung zu PayPal – den Zahlungseingang buchst du wie gewohnt selbst. Gilt für neu ausgestellte Rechnungen.</p>
+
   <h2>E-Mail-Versand</h2>
   <p class="hint">SMTP-Server leer lassen = Mailversand über den Webspace (PHP <code>mail()</code>).</p>
   <div class="grid3"><label>SMTP-Server <input name="SMTP_HOST" value="<?= $g('SMTP_HOST') ?>"></label>
@@ -139,6 +142,50 @@ if ($co['vat_id'] === '' && $co['tax_number'] === '') { $miss[] = 'Steuernummer 
   <?php endif; ?>
 </div>
 
+<?php $fonts = \App\Fonts::all(); $uiFont = \App\Fonts::uiKey(); ?>
+<section class="card" id="schriften" aria-labelledby="h-fonts">
+  <h2 id="h-fonts">Schriften</h2>
+  <p class="muted">Lade eigene Schriften (TrueType, <code>.ttf</code>) hoch, um sie im <a href="<?= BASE ?>?p=pdf_design">PDF-Design</a> und für die Oberfläche zu nutzen. Die Dateien bleiben auf deinem Server (keine externen Dienste). Bitte nur Schriften verwenden, deren Lizenz Einbetten in PDFs und Nutzung auf Webseiten erlaubt.</p>
+  <?php if ($fonts): ?>
+  <div class="scroll"><table>
+    <caption class="sr">Hochgeladene Schriften</caption>
+    <tr><th scope="col">Name</th><th scope="col">Schnitte</th><th scope="col">Verwendung</th><th scope="col"><span class="sr">Aktion</span></th></tr>
+    <?php foreach ($fonts as $k => $f): $use = \App\Fonts::usage($k); ?>
+    <tr>
+      <th scope="row"><?= h($f['name']) ?></th>
+      <td><?= h(implode(', ', array_map(static fn($s) => \App\Fonts::STYLES[$s], array_keys($f['files'])))) ?></td>
+      <td><?= $use ? h(implode(', ', $use)) : '–' ?></td>
+      <td><?php if (!$use): ?><form method="post" data-confirm="Schrift „<?= h($f['name']) ?>“ wirklich löschen?"><input type="hidden" name="csrf" value="<?= h(csrf()) ?>"><input type="hidden" name="action" value="font_delete"><input type="hidden" name="key" value="<?= h($k) ?>"><button class="btn danger">Löschen</button></form><?php else: ?><span class="muted">in Gebrauch</span><?php endif; ?></td>
+    </tr>
+    <?php endforeach; ?>
+  </table></div>
+  <form method="post" class="actions" style="margin-top:12px">
+    <input type="hidden" name="csrf" value="<?= h(csrf()) ?>"><input type="hidden" name="action" value="font_ui">
+    <label for="ui_font">Schrift der Oberfläche</label>
+    <select id="ui_font" name="ui_font" style="width:auto">
+      <option value="">Standard (Systemschrift)</option>
+      <?php foreach ($fonts as $k => $f): ?><option value="<?= h($k) ?>" <?= $uiFont === $k ? 'selected' : '' ?>><?= h($f['name']) ?></option><?php endforeach; ?>
+    </select>
+    <button class="btn">Übernehmen</button>
+  </form>
+  <?php endif; ?>
+  <?php if (count($fonts) < \App\Fonts::MAX_FAMILIES): ?>
+  <form method="post" enctype="multipart/form-data" autocomplete="off" style="margin-top:16px">
+    <input type="hidden" name="csrf" value="<?= h(csrf()) ?>"><input type="hidden" name="action" value="font_add">
+    <h3>Neue Schrift hinzufügen</h3>
+    <label>Name der Schrift * <input name="font_name" maxlength="40" required placeholder="z. B. Source Sans"></label>
+    <div class="grid2">
+      <label>Regular (.ttf) * <input type="file" name="font_r" accept=".ttf,font/ttf" required></label>
+      <label>Fett (optional) <input type="file" name="font_b" accept=".ttf,font/ttf"></label>
+      <label>Kursiv (optional) <input type="file" name="font_i" accept=".ttf,font/ttf"></label>
+      <label>Fett kursiv (optional) <input type="file" name="font_bi" accept=".ttf,font/ttf"></label>
+    </div>
+    <p class="hint">Je Datei bis <?= (int)(\App\Fonts::MAX_BYTES / 1048576) ?> MB. OpenType-Schriften mit PostScript-Umrissen (CFF) und Schriftsammlungen (.ttc) funktionieren im PDF nicht – dann bitte die TrueType-Datei nehmen. Fehlt ein Schnitt, ersetzt das PDF ihn durch den Regular-Schnitt.</p>
+    <button class="btn primary">Schrift hochladen</button>
+  </form>
+  <?php endif; ?>
+</section>
+
 <form method="post" class="card" autocomplete="off">
   <input type="hidden" name="csrf" value="<?= h(csrf()) ?>"><input type="hidden" name="action" value="account">
   <h2>Zugang</h2>
@@ -148,6 +195,46 @@ if ($co['vat_id'] === '' && $co['tax_number'] === '') { $miss[] = 'Steuernummer 
   <label>Neues Passwort wiederholen <input type="password" name="new_pass2" autocomplete="new-password"></label></div>
   <button class="btn primary">Zugang ändern</button>
 </form>
+
+<?php
+$mfaOn = \App\Totp::enabled();
+$mfaCodes = $_SESSION['mfa_codes'] ?? null; unset($_SESSION['mfa_codes']);
+$mfaPend = $_SESSION['mfa_pending'] ?? null;
+if (is_array($mfaPend) && (time() - (int)$mfaPend['time'] > 1800 || $mfaOn)) { $mfaPend = null; unset($_SESSION['mfa_pending']); }
+?>
+<section class="card" id="zwei-faktor" aria-labelledby="h-mfa">
+  <h2 id="h-mfa">Zwei-Faktor-Anmeldung (2FA)</h2>
+  <?php if (is_array($mfaCodes)): ?>
+    <div class="warnbox card">
+      <p><b>Deine Wiederherstellungscodes</b> – jeder Code funktioniert genau einmal, falls du dein Handy nicht zur Hand hast. Sie werden nur jetzt angezeigt: bitte ausdrucken oder im Passwortmanager speichern.</p>
+      <ul class="codes"><?php foreach ($mfaCodes as $c): ?><li><code><?= h($c) ?></code></li><?php endforeach; ?></ul>
+    </div>
+  <?php endif; ?>
+  <?php if ($mfaOn): ?>
+    <p><span class="badge paid">aktiv</span> Beim Anmelden wird zusätzlich ein Code aus der Authenticator-App abgefragt. Noch <b><?= count(\App\Totp::recoveryHashes()) ?></b> Wiederherstellungscode(s) übrig.</p>
+    <form method="post" autocomplete="off">
+      <input type="hidden" name="csrf" value="<?= h(csrf()) ?>">
+      <label>Aktuelles Passwort (zur Bestätigung) <input type="password" name="current_pass" autocomplete="current-password" required></label>
+      <div class="actions">
+        <button class="btn" name="action" value="mfa_regen">Neue Wiederherstellungscodes erzeugen</button>
+        <button class="btn danger" name="action" value="mfa_disable" data-confirm="Zwei-Faktor-Anmeldung wirklich deaktivieren?">2FA deaktivieren</button>
+      </div>
+    </form>
+  <?php elseif (is_array($mfaPend)): $uri = \App\Totp::uri((string)$mfaPend['secret'], (string)env('APP_USER', 'admin')); ?>
+    <p>1. Scanne den QR-Code mit einer Authenticator-App (z. B. Google Authenticator, Microsoft Authenticator, Aegis, 2FAS, 1Password).</p>
+    <figure class="girocode"><img src="<?= h(\App\GiroCode::svgDataUri($uri, 200)) ?>" width="200" height="200" alt="QR-Code zum Einrichten der Authenticator-App">
+      <figcaption>Ohne Kamera: Schlüssel von Hand eingeben (zeitbasiert): <code><?= h(trim(chunk_split((string)$mfaPend['secret'], 4, ' '))) ?></code></figcaption></figure>
+    <form method="post" autocomplete="off">
+      <input type="hidden" name="csrf" value="<?= h(csrf()) ?>"><input type="hidden" name="action" value="mfa_enable">
+      <p>2. Gib zur Kontrolle den aktuellen 6-stelligen Code ein:</p>
+      <label>Code <input name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="10" required></label>
+      <button class="btn primary">Bestätigen und aktivieren</button>
+    </form>
+  <?php else: ?>
+    <p class="muted">Schützt die Anmeldung zusätzlich zum Passwort mit einem Code aus einer Authenticator-App (TOTP). Für den Notfall gibt es einmalig verwendbare Wiederherstellungscodes.</p>
+    <form method="post"><input type="hidden" name="csrf" value="<?= h(csrf()) ?>"><input type="hidden" name="action" value="mfa_start"><button class="btn primary">2FA einrichten</button></form>
+  <?php endif; ?>
+</section>
 
 <form method="post" class="card">
   <input type="hidden" name="csrf" value="<?= h(csrf()) ?>"><input type="hidden" name="action" value="testmail">

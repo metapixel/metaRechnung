@@ -39,6 +39,13 @@
     <figcaption>GiroCode – mit der Banking-App scannen, die Überweisung wird automatisch ausgefüllt.</figcaption>
   </figure>
   <?php endif; ?>
+  <?php $pp = $open ? \App\PayPal::url($inv) : null; if ($pp): ?>
+  <p class="paypal"><a class="btn primary" href="<?= h($pp) ?>" rel="noopener noreferrer">Per PayPal zahlen (<?= h(money((float)$t['gross'])) ?>)</a></p>
+  <figure class="girocode">
+    <img src="<?= h(\App\PayPal::qrDataUri($pp)) ?>" width="150" height="150" alt="QR-Code zum Bezahlen per PayPal, Betrag <?= h(money((float)$t['gross'])) ?>">
+    <figcaption>Oder diesen QR-Code mit der PayPal-App scannen.</figcaption>
+  </figure>
+  <?php endif; ?>
 
   <h2>Downloads</h2>
   <p>

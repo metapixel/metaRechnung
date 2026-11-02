@@ -230,3 +230,7 @@ tr.rowlink { cursor:pointer; } tr.rowlink:focus-within td { background:color-mix
 .chart g.mon:hover rect.hit, .chart g.mon:focus rect.hit { fill:color-mix(in srgb, var(--pri-soft) 60%, transparent); }
 section.card { margin-bottom:18px; } section.card h2 { margin-top:0; }
 .scroll td input.copy { min-width:260px; }
+
+/* Wiederherstellungscodes (2FA) */
+ul.codes { list-style:none; padding:0; margin:8px 0 0; display:grid; grid-template-columns:repeat(auto-fill,minmax(9.5rem,1fr)); gap:6px; }
+ul.codes code { font-size:1.05rem; letter-spacing:.04em; }
