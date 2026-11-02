@@ -341,10 +341,7 @@ final class Invoices
                     throw new \RuntimeException('Eine Stornorechnung muss einen negativen Gesamtbetrag haben (Mengen negativ eingeben).');
                 }
             }
-            $prefix = ($credit ? env('CANCEL_PREFIX', 'ST') : env('INVOICE_PREFIX', 'RE')) . '-' . date('Y', strtotime($row['issue_date'])) . '-';
-            $st = $pdo->prepare('SELECT MAX(CAST(SUBSTRING(number, ' . (strlen($prefix) + 1) . ') AS UNSIGNED)) FROM invoices WHERE number LIKE ? FOR UPDATE');
-            $st->execute([$prefix . '%']);
-            $number = $prefix . str_pad((string)((int)$st->fetchColumn() + 1), 4, '0', STR_PAD_LEFT);
+            [$number, $nrPart] = Numbering::next($credit ? 'cancel' : 'invoice', (string)$row['issue_date'], $pdo);
 
             $snap = json_encode(['company' => company(), 'kl' => self::kleinunternehmer(), 'design' => PdfDesign::current(), 'tpl' => Templates::pick(Templates::PDF_INVOICE)], JSON_UNESCAPED_UNICODE);
             $pdo->prepare("UPDATE invoices SET number = ?, status = 'issued', snapshot = ?, public_token = ? WHERE id = ?")
@@ -358,6 +355,7 @@ final class Invoices
                 throw new \RuntimeException('PDF konnte nicht gespeichert werden (Schreibrechte auf storage/?).');
             }
             $pdo->commit();
+            Numbering::consumed($credit ? 'cancel' : 'invoice', $nrPart);
             Audit::log('invoice.issue', 'invoice', $id, ($credit ? 'Stornorechnung ' : 'Rechnung ') . $number);
         } catch (\Throwable $e) {
             $pdo->rollBack();

@@ -41,7 +41,7 @@ else:
     rec('A1', 'H', 'Anonym: Angebote, Angebots-PDF und Textvorlagen nur nach Login', True)
 r = s.get('/index.php?p=offers')
 rec('A2', 'M', 'Angebotsliste leer: Hinweis, Neu-Button, Menüpunkt „Angebote“', r.status == 200 and 'Noch keine Angebote' in r.body and 'p=offer_edit' in r.body and '>Angebote<' in r.body.replace('</svg>', ''), r.status)
-rec('A3', 'M', 'Einstellungen verlinken die Textvorlagen und kennen Angebotspräfix/-gültigkeit', 'p=templates' in s.get('/index.php?p=settings').body and 'name="OFFER_PREFIX"' in s.get('/index.php?p=settings').body)
+rec('A3', 'M', 'Einstellungen verlinken die Textvorlagen und kennen Angebotsformat/-gültigkeit', 'p=templates' in s.get('/index.php?p=settings').body and 'name="OFFER_FORMAT"' in s.get('/index.php?p=settings').body)
 
 # --- Entwurf
 c1 = cust('Angebots-Kunde GmbH'); 
@@ -258,10 +258,10 @@ def save_settings(**kw):
     for m in re.finditer(r'<input[^>]*name="([A-Z_]+)"[^>]*value="([^"]*)"', pg.body):
         d[m.group(1)] = _h.unescape(m.group(2))
     d.update(kw); return s.post(cfgp, d)
-r = save_settings(OFFER_PREFIX='A/N')
-rec('P1', 'M', 'Ungültiges Angebotspräfix wird abgelehnt', 'Angebotspräfix' in r.body, r.status)
+r = save_settings(OFFER_FORMAT='A/N-{NR}')
+rec('P1', 'M', 'Ungültiges Angebotsformat wird abgelehnt', 'Angebote: Außerhalb' in r.body, r.status)
 r = save_settings(OFFER_VALID_DAYS='0'); rec('P2', 'M', 'Gültigkeit 0 Tage wird abgelehnt', 'Gültigkeit von Angeboten' in r.body, r.status)
-r = save_settings(OFFER_PREFIX='ANG', OFFER_VALID_DAYS='10')
+r = save_settings(OFFER_FORMAT='ANG-{JAHR}-{NR}', OFFER_VALID_DAYS='10')
 oq, _ = offer(c1, valid_until=''); act(oq, 'issue')
 rec('P3', 'H', 'Eigenes Präfix und Gültigkeit: Nummer ANG-…, gültig 10 Tage', sql(f'select number, datediff(valid_until, issue_date) from offers where id={oq}') == f'ANG-{y}-0001\t10', sql(f'select number, datediff(valid_until, issue_date) from offers where id={oq}'))
 al = s.get('/index.php?p=audit&group=offer').body

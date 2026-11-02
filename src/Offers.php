@@ -180,10 +180,7 @@ final class Offers
             if ((int)$cnt->fetchColumn() === 0) {
                 throw new \RuntimeException('Das Angebot hat keine Positionen.');
             }
-            $prefix = env('OFFER_PREFIX', 'AN') . '-' . date('Y', strtotime($row['issue_date'])) . '-';
-            $st = $pdo->prepare('SELECT MAX(CAST(SUBSTRING(number, ' . (strlen($prefix) + 1) . ') AS UNSIGNED)) FROM offers WHERE number LIKE ? FOR UPDATE');
-            $st->execute([$prefix . '%']);
-            $number = $prefix . str_pad((string)((int)$st->fetchColumn() + 1), 4, '0', STR_PAD_LEFT);
+            [$number, $nrPart] = Numbering::next('offer', (string)$row['issue_date'], $pdo);
 
             $snap = json_encode([
                 'company' => company(), 'kl' => Invoices::kleinunternehmer(), 'design' => PdfDesign::current(),
@@ -202,6 +199,7 @@ final class Offers
                 throw new \RuntimeException('PDF konnte nicht gespeichert werden (Schreibrechte auf storage/?).');
             }
             $pdo->commit();
+            Numbering::consumed('offer', $nrPart);
             Audit::log('offer.issue', 'offer', $id, 'Angebot ' . $number);
         } catch (\Throwable $e) {
             $pdo->rollBack();

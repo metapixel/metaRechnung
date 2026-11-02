@@ -133,12 +133,12 @@ i3 = mk(); act(i3, 'cancel'); sid3 = storno_of(i3); act(sid3, 'delete'); act(i3,
 rec('C32', 'M', 'Gelöschter Stornoentwurf: Storno lässt sich neu anlegen', sql(f'select count(*) from invoices where cancels_id={i3}') == '1')
 # --- Präfix aus Einstellung
 orig = open(CFG).read()
-open(CFG, 'w').write(orig.replace("'KLEINUNTERNEHMER' => '0',", "'KLEINUNTERNEHMER' => '0',\n  'CANCEL_PREFIX' => 'GS',")); time.sleep(2.5)
+open(CFG, 'w').write(orig.replace("'KLEINUNTERNEHMER' => '0',", "'KLEINUNTERNEHMER' => '0',\n  'CANCEL_FORMAT' => 'GS-{JAHR}-{NR}',")); time.sleep(2.5)
 sid3 = storno_of(i3); act(sid3, 'issue')
 rec('C33', 'M', 'Konfiguriertes Storno-Präfix (GS) wird für den Nummernkreis verwendet', re.fullmatch(r'GS-\d{4}-0001', num(sid3)) is not None, num(sid3))
 open(CFG, 'w').write(orig); time.sleep(3.5)
 st = s.get('/index.php?p=settings').body
-rec('C34', 'L', 'Einstellungen: Feld „Präfix Stornorechnungen“ mit Standard ST', 'name="CANCEL_PREFIX"' in st and 'value="ST"' in st)
+rec('C34', 'L', 'Einstellungen: Format Stornorechnungen mit Standard ST-{JAHR}-{NR}', 'name="CANCEL_FORMAT"' in st and 'value="ST-{JAHR}-{NR}"' in st)
 # --- Mail
 for f in glob.glob(MAILS + '/*.eml'): os.remove(f)
 act(sid, 'send', to='e@example.com', message='Hallo')

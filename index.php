@@ -25,6 +25,7 @@ use App\Theme;
 use App\Recurring;
 use App\Offers;
 use App\Totp;
+use App\Numbering;
 use App\PayPal;
 use App\VcfImport;
 use App\Fonts;
@@ -939,24 +940,36 @@ try {
                     if ($days !== '' && (!ctype_digit($days) || (int)$days > 365)) {
                         $errors[] = 'Zahlungsziel: ganze Zahl von 0 bis 365 Tagen.';
                     }
-                    if ($in('CANCEL_PREFIX') !== '' && !preg_match('/^[A-Za-z0-9]{1,10}$/', $in('CANCEL_PREFIX'))) {
-                        $errors[] = 'Das Präfix für Stornorechnungen darf nur Buchstaben und Ziffern enthalten (höchstens 10 Zeichen).';
-                    }
                     if (mb_strlen($in('TAX_ADVISOR_NAME')) > 120) {
                         $errors[] = 'Steuerberater: Der Name ist zu lang (höchstens 120 Zeichen).';
                     }
                     if ($in('TAX_ADVISOR_EMAIL') !== '' && (!filter_var($in('TAX_ADVISOR_EMAIL'), FILTER_VALIDATE_EMAIL) || mb_strlen($in('TAX_ADVISOR_EMAIL')) > 190)) {
                         $errors[] = 'Steuerberater: ungültige E-Mail-Adresse.';
                     }
-                    if ($in('OFFER_PREFIX') !== '' && !preg_match('/^[A-Za-z0-9]{1,10}$/', $in('OFFER_PREFIX'))) {
-                        $errors[] = 'Angebotspräfix: 1–10 Buchstaben/Ziffern.';
-                    }
                     $ov = $in('OFFER_VALID_DAYS');
                     if ($ov !== '' && (!ctype_digit($ov) || (int)$ov < 1 || (int)$ov > 365)) {
                         $errors[] = 'Gültigkeit von Angeboten: ganze Zahl von 1 bis 365 Tagen.';
                     }
-                    if ($in('INVOICE_PREFIX') !== '' && !preg_match('/^[A-Za-z0-9]{1,10}$/', $in('INVOICE_PREFIX'))) {
-                        $errors[] = 'Rechnungspräfix: 1–10 Buchstaben/Ziffern.';
+                    $numSave = [];
+                    foreach (Numbering::TYPES as $nt => [$np, $nl]) {
+                        $nf = $in($np . '_FORMAT') ?: Numbering::format($nt);
+                        $npad = $in($np . '_PAD') === '' ? '4' : $in($np . '_PAD');
+                        $nnext = $in($np . '_NEXT');
+                        if (!ctype_digit($npad) || (int)$npad < 1 || (int)$npad > 10) {
+                            $errors[] = $nl . ': Stellenzahl von 1 bis 10 angeben.';
+                            continue;
+                        }
+                        if ($nnext !== '' && (!ctype_digit($nnext) || (int)$nnext < 1 || (int)$nnext > Numbering::MAX_NR)) {
+                            $errors[] = $nl . ': „Nächste Nummer“ muss eine ganze Zahl von 1 bis ' . Numbering::MAX_NR . ' sein.';
+                            continue;
+                        }
+                        if (($e = Numbering::validate($nf, (int)$npad, $nl)) !== null) {
+                            $errors[] = $e;
+                            continue;
+                        }
+                        $numSave[$np . '_FORMAT'] = $nf;
+                        $numSave[$np . '_PAD'] = (string)(int)$npad;
+                        $numSave[$np . '_NEXT'] = $nnext === '' ? '' : (string)(int)$nnext;
                     }
                     if (!preg_match('/^[A-Za-z]{2}$/', $in('COMPANY_COUNTRY') ?: 'DE')) {
                         $errors[] = 'Land: zweistelliger Ländercode.';
@@ -989,9 +1002,7 @@ try {
                         }
                         $c['PAYPAL_ME'] = (string)PayPal::normalize($in('PAYPAL_ME'));
                         $c['COMPANY_COUNTRY'] = strtoupper($in('COMPANY_COUNTRY') ?: 'DE');
-                        $c['INVOICE_PREFIX'] = preg_replace('/[^A-Za-z0-9]/', '', $in('INVOICE_PREFIX')) ?: 'RE';
-                        $c['CANCEL_PREFIX'] = preg_replace('/[^A-Za-z0-9]/', '', $in('CANCEL_PREFIX')) ?: 'ST';
-                        $c['OFFER_PREFIX'] = preg_replace('/[^A-Za-z0-9]/', '', $in('OFFER_PREFIX')) ?: 'AN';
+                        $c += $numSave;
                         $c['OFFER_VALID_DAYS'] = (string)max(1, (int)($in('OFFER_VALID_DAYS') ?: 30));
                         $c['PAYMENT_DAYS'] = (string)max(0, (int)($in('PAYMENT_DAYS') ?: 14));
                         $c['KLEINUNTERNEHMER'] = isset($_POST['KLEINUNTERNEHMER']) ? '1' : '0';

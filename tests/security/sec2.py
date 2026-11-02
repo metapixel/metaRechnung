@@ -39,7 +39,7 @@ checks = [
     ('J3', 'Ungültige IBAN abgelehnt', {'COMPANY_IBAN': 'DE00 0000'}, 'COMPANY_IBAN'),
     ('J4', 'SMTP_PORT außerhalb 1-65535 abgelehnt', {'SMTP_PORT': '999999'}, 'SMTP_PORT'),
     ('J5', 'PAYMENT_DAYS negativ/Text abgelehnt', {'PAYMENT_DAYS': '-5'}, 'PAYMENT_DAYS'),
-    ('J6', 'INVOICE_PREFIX mit Sonderzeichen/Leerzeichen abgelehnt', {'INVOICE_PREFIX': 'R E<>"/'}, 'INVOICE_PREFIX'),
+    ('J6', 'Nummernformat mit Sonderzeichen/Leerzeichen abgelehnt', {'INVOICE_FORMAT': 'R E<>"/{NR}'}, 'INVOICE_FORMAT'),
     ('J7', 'MAIL_BCC mit mehreren/ungültigen Adressen abgelehnt', {'MAIL_BCC': 'a@b.de\r\nBcc: x@y.de'}, 'MAIL_BCC'),
 ]
 for tid, title, over, key in checks:

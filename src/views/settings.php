@@ -35,10 +35,7 @@ if ($co['vat_id'] === '' && $co['tax_number'] === '') { $miss[] = 'Steuernummer 
   <label>Bank <input name="COMPANY_BANK" value="<?= $g('COMPANY_BANK') ?>"></label></div>
 
   <h2>Rechnungen</h2>
-  <div class="grid3"><label>Nummernpräfix <input name="INVOICE_PREFIX" maxlength="8" value="<?= $g('INVOICE_PREFIX', 'RE') ?>"></label>
-  <label>Präfix Stornorechnungen <input name="CANCEL_PREFIX" maxlength="8" value="<?= $g('CANCEL_PREFIX', 'ST') ?>"></label>
-  <label>Zahlungsziel (Tage) <input type="number" min="0" name="PAYMENT_DAYS" value="<?= $g('PAYMENT_DAYS', '14') ?>"></label></div>
-  <div class="grid2"><label>Präfix Angebote <input name="OFFER_PREFIX" maxlength="8" value="<?= $g('OFFER_PREFIX', 'AN') ?>"></label>
+  <div class="grid2"><label>Zahlungsziel (Tage) <input type="number" min="0" name="PAYMENT_DAYS" value="<?= $g('PAYMENT_DAYS', '14') ?>"></label>
   <label>Angebote gültig (Tage) <input type="number" min="1" max="365" name="OFFER_VALID_DAYS" value="<?= $g('OFFER_VALID_DAYS', '30') ?>"></label></div>
   <label style="color:inherit"><input type="checkbox" name="KLEINUNTERNEHMER" value="1" style="width:auto" <?= $ku ? 'checked' : '' ?>> Kleinunternehmer (§ 19 UStG, keine Umsatzsteuer)</label>
   <label style="color:inherit"><input type="checkbox" name="GIROCODE" value="1" style="width:auto" <?= ($posted ? isset($old['GIROCODE']) : \App\GiroCode::enabled()) ? 'checked' : '' ?>> GiroCode (QR-Code zum Überweisen) auf Rechnung und Statusseite</label>
@@ -46,6 +43,25 @@ if ($co['vat_id'] === '' && $co['tax_number'] === '') { $miss[] = 'Steuernummer 
 
   <label>PayPal.me-Name (optional) <input name="PAYPAL_ME" maxlength="60" value="<?= $g('PAYPAL_ME') ?>" placeholder="z. B. kai für paypal.me/kai"></label>
   <p class="hint">Ist ein Name eingetragen, zeigen Statusseite und PDF zusätzlich „Per PayPal zahlen“ mit vorausgefülltem Betrag (Link und QR-Code). Es gibt keine Verbindung zu PayPal – den Zahlungseingang buchst du wie gewohnt selbst. Gilt für neu ausgestellte Rechnungen.</p>
+
+  <h2 id="nummernkreise">Nummernkreise</h2>
+  <p class="hint">Das Format legt fest, wie Belegnummern aussehen. Variablen: <?php foreach (\App\Numbering::VARS as $v => $d): ?><code>{<?= h($v) ?>}</code> <?= h($d) ?>; <?php endforeach; ?>
+    Sonst sind Buchstaben, Ziffern, Punkt, Unterstrich und Bindestrich erlaubt. Mit <code>{JAHR}</code> (oder <code>{JJ}</code>) im Format beginnt die Zählung jedes Jahr neu, ohne Datumsvariable läuft sie durch.
+    Beispiele: <code>RE-{JAHR}-{NR}</code> → RE-2026-0341, <code>RE{JJ}{MONAT}-{NR}</code> → RE2611-0341, <code>{NR}</code> → 0341.</p>
+  <div class="scroll"><table>
+    <caption class="sr">Nummernkreise</caption>
+    <tr><th scope="col">Belegart</th><th scope="col">Format</th><th scope="col">Stellen</th><th scope="col">Nächste Nummer festlegen (optional)</th><th scope="col">Nächste Nummer wäre</th></tr>
+    <?php foreach (\App\Numbering::TYPES as $t => [$np, $nl]): $fmt = $posted ? ($old[$np . '_FORMAT'] ?? '') : \App\Numbering::format($t); ?>
+    <tr>
+      <th scope="row"><?= h($nl) ?></th>
+      <td><input name="<?= $np ?>_FORMAT" maxlength="60" value="<?= h($fmt) ?>" aria-label="Format <?= h($nl) ?>" style="min-width:12rem"></td>
+      <td><input type="number" min="1" max="10" name="<?= $np ?>_PAD" value="<?= h($posted ? ($old[$np . '_PAD'] ?? '4') : (string)\App\Numbering::pad($t)) ?>" aria-label="Stellen <?= h($nl) ?>" style="width:5rem"></td>
+      <td><input type="number" min="1" max="<?= \App\Numbering::MAX_NR ?>" name="<?= $np ?>_NEXT" value="<?= h($posted ? ($old[$np . '_NEXT'] ?? '') : env($np . '_NEXT')) ?>" aria-label="Nächste Nummer <?= h($nl) ?>" placeholder="automatisch" style="width:9rem"></td>
+      <td><b><?= h(\App\Numbering::preview($t)) ?></b></td>
+    </tr>
+    <?php endforeach; ?>
+  </table></div>
+  <p class="hint"><b>Umstieg aus einem laufenden Betrieb:</b> Hast du dieses Jahr schon Rechnungen in einem anderen System geschrieben, trage bei „Nächste Nummer festlegen“ die nächste freie Nummer ein (nach Rechnung Nr. 340 also <b>341</b>) und stelle das Format so ein, dass es zu deinen bisherigen Nummern passt. Die Vorschau rechts zeigt das Ergebnis nach dem Speichern. Die Angabe wird nach der nächsten ausgestellten Nummer verbraucht und kann den Zähler nur anheben, nie unter bereits vergebene Nummern setzen. Bereits ausgestellte Belege behalten ihre Nummer.</p>
 
   <h2>E-Mail-Versand</h2>
   <p class="hint">SMTP-Server leer lassen = Mailversand über den Webspace (PHP <code>mail()</code>).</p>
