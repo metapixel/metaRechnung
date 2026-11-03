@@ -90,18 +90,18 @@ if ($co['vat_id'] === '' && $co['tax_number'] === '') { $miss[] = 'Steuernummer 
     Beispiele: <code>RE-{JAHR}-{NR}</code> → RE-2026-0341, <code>RE{JJ}{MONAT}-{NR}</code> → RE2611-0341, <code>{NR}</code> → 0341.</p>
   <div class="scroll"><table>
     <caption class="sr">Nummernkreise</caption>
-    <tr><th scope="col">Belegart</th><th scope="col">Format</th><th scope="col">Stellen</th><th scope="col">Nächste Nummer festlegen (optional)</th><th scope="col">Nächste Nummer wäre</th></tr>
+    <tr><th scope="col">Belegart</th><th scope="col">Format</th><th scope="col">Stellen</th><th scope="col">Nächste Nr. setzen</th><th scope="col">Vorschau</th></tr>
     <?php foreach (\App\Numbering::TYPES as $t => [$np, $nl]): $fmt = $posted ? ($old[$np . '_FORMAT'] ?? '') : \App\Numbering::format($t); ?>
     <tr>
       <th scope="row"><?= h($nl) ?></th>
-      <td><input name="<?= $np ?>_FORMAT" maxlength="60" value="<?= h($fmt) ?>" aria-label="Format <?= h($nl) ?>" style="min-width:12rem"></td>
+      <td><input name="<?= $np ?>_FORMAT" maxlength="60" value="<?= h($fmt) ?>" aria-label="Format <?= h($nl) ?>" style="min-width:9.5rem"></td>
       <td><input type="number" min="1" max="10" name="<?= $np ?>_PAD" value="<?= h($posted ? ($old[$np . '_PAD'] ?? '4') : (string)\App\Numbering::pad($t)) ?>" aria-label="Stellen <?= h($nl) ?>" style="width:5rem"></td>
-      <td><input type="number" min="1" max="<?= \App\Numbering::MAX_NR ?>" name="<?= $np ?>_NEXT" value="<?= h($posted ? ($old[$np . '_NEXT'] ?? '') : env($np . '_NEXT')) ?>" aria-label="Nächste Nummer <?= h($nl) ?>" placeholder="automatisch" style="width:9rem"></td>
-      <td><b><?= h(\App\Numbering::preview($t)) ?></b></td>
+      <td><input type="number" min="1" max="<?= \App\Numbering::MAX_NR ?>" name="<?= $np ?>_NEXT" value="<?= h($posted ? ($old[$np . '_NEXT'] ?? '') : env($np . '_NEXT')) ?>" aria-label="Nächste Nummer <?= h($nl) ?>" placeholder="automatisch" style="width:9.5rem"></td>
+      <td style="white-space:nowrap"><b><?= h(\App\Numbering::preview($t)) ?></b></td>
     </tr>
     <?php endforeach; ?>
   </table></div>
-  <p class="hint"><b>Umstieg aus einem laufenden Betrieb:</b> Hast du dieses Jahr schon Rechnungen in einem anderen System geschrieben, trage bei „Nächste Nummer festlegen“ die nächste freie Nummer ein (nach Rechnung Nr. 340 also <b>341</b>) und stelle das Format so ein, dass es zu deinen bisherigen Nummern passt. Die Vorschau rechts zeigt das Ergebnis nach dem Speichern. Die Angabe wird nach der nächsten ausgestellten Nummer verbraucht und kann den Zähler nur anheben, nie unter bereits vergebene Nummern setzen. Bereits ausgestellte Belege behalten ihre Nummer.</p>
+  <p class="hint"><b>Umstieg aus einem laufenden Betrieb:</b> Hast du dieses Jahr schon Rechnungen in einem anderen System geschrieben, trage bei „Nächste Nr. setzen“ die nächste freie Nummer ein (nach Rechnung Nr. 340 also <b>341</b>) und stelle das Format so ein, dass es zu deinen bisherigen Nummern passt. Die Vorschau rechts zeigt das Ergebnis nach dem Speichern. Die Angabe wird nach der nächsten ausgestellten Nummer verbraucht und kann den Zähler nur anheben, nie unter bereits vergebene Nummern setzen. Bereits ausgestellte Belege behalten ihre Nummer.</p>
   </div>
 
   <div data-pane="daten">

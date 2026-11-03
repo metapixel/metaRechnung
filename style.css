@@ -74,8 +74,12 @@ input, select, textarea {
   background:var(--field); border:1px solid var(--line); border-radius:var(--r-s); transition:border-color .15s, box-shadow .15s, background .15s;
 }
 textarea { resize:vertical; }
+/* Auswahlfelder: gleiche Höhe wie Textfelder (Safari/macOS zeichnet sie sonst flacher), eigener Pfeil */
+select { -webkit-appearance:none; appearance:none; padding-right:36px; cursor:pointer;
+  background-image:linear-gradient(45deg, transparent 50%, var(--mut) 50%), linear-gradient(135deg, var(--mut) 50%, transparent 50%);
+  background-position:calc(100% - 19px) 50%, calc(100% - 14px) 50%; background-size:5px 5px; background-repeat:no-repeat; }
 input:hover, select:hover, textarea:hover { border-color:color-mix(in srgb, var(--pri) 35%, var(--line)); }
-input:focus, select:focus, textarea:focus { outline:0; border-color:var(--pri); box-shadow:var(--ring); background:var(--card); }
+input:focus, select:focus, textarea:focus { outline:0; border-color:var(--pri); box-shadow:var(--ring); background-color:var(--card); }
 input[type=checkbox], input[type=radio] { display:inline-block; width:auto; margin:0 8px 0 0; accent-color:var(--pri); vertical-align:-2px; }
 input[type=file] { padding:8px; }
 /* iOS/Safari: Datumsfelder haben eine feste Eigenbreite und ragen sonst aus der Karte */

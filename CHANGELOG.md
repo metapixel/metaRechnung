@@ -2,6 +2,10 @@
 
 Die aktuelle Versionsnummer steht in der Datei `VERSION` (und unten in der App sowie unter Einstellungen → System).
 
+## 1.19.1
+- **Auswahlfelder** (Pulldowns) haben jetzt dieselbe Höhe wie die Textfelder; vor allem in Safari/macOS waren sie flacher. Sie bekommen dafür einen eigenen Pfeil.
+- **Nummernkreise:** Die Tabelle passt ohne seitliches Scrollen in die Seite (kürzere Spaltenüberschriften „Nächste Nr. setzen“ und „Vorschau“, Vorschau bricht nicht um).
+
 ## 1.19.0
 - **Einstellungen übersichtlicher:** Die Seite ist in vier Reiter gegliedert: **Allgemein** (Unternehmen, Adresse der App, Rechnungen, Nummernkreise, Zugang, Zwei-Faktor-Anmeldung), **Design** (Zahlungs-QR-Codes, Darstellung, Logo, Briefpapier, Schriften, Textvorlagen, PDF-Design), **Datenaustausch** (E-Mail-Versand, Testmail, Steuerberater, Export) und **System** (Protokoll, Systeminfo). „Einstellungen speichern“ speichert immer alle Felder der Hauptformulare, egal in welchem Reiter du gerade bist. Der zuletzt benutzte Reiter wird gemerkt, Sprungmarken wie `#nummernkreise` oder `#schriften` öffnen den passenden Reiter, und ein ungültiges Feld in einem verborgenen Reiter öffnet diesen automatisch. Ohne JavaScript stehen weiterhin alle Bereiche untereinander. Keine Datenbankänderung.
 
