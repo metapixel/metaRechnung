@@ -20,7 +20,7 @@ $pv = $r ? \App\Recurring::preview($r) : null;
     <input name="name" maxlength="120" value="<?= $v('name') ?>" required autofocus placeholder="z. B. Hosting Muster GmbH">
   </label>
   <label>Kunde *
-    <select name="customer_id" required>
+    <select name="customer_id" required data-combo>
       <option value="">– bitte wählen –</option>
       <?php foreach ($customers as $c): ?>
         <option value="<?= (int)$c['id'] ?>" <?= $sel === (int)$c['id'] ? 'selected' : '' ?>><?= h($c['name']) ?><?= $c['email'] ? '' : ' (ohne E-Mail)' ?></option>

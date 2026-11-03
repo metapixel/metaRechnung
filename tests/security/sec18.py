@@ -124,7 +124,7 @@ for bad in ['ab', 'x' * 21, 'a b c', 'evil/../x', '"><script>', 'javascript:aler
     ok = "'PAYPAL_ME' => 'MetaTest1'" in open(APP + '/config.php').read()
     rec('P3', 'H', f'Ungültiger PayPal.me-Name wird abgelehnt: {bad[:30]}', ok, '')
 ip1 = inv(cp, '100,00'); tok = sql(f'select public_token from invoices where id={ip1}')
-st = anon.get('/status.php?t=' + tok).body
+st = anon.get('/status.php?t=' + tok + '&pay=paypal').body
 rec('P4', 'H', 'Statusseite: „Per PayPal zahlen“ mit vorausgefülltem Betrag (Betrag brutto) und QR-Code', 'https://www.paypal.me/MetaTest1/' + amt(100, ip1) + 'EUR' in st and 'Per PayPal zahlen' in st and 'QR-Code zum Bezahlen per PayPal' in st, '')
 rec('P5', 'M', 'Link öffnet extern mit rel=noopener noreferrer', 'rel="noopener noreferrer"' in st, '')
 iact(ip1, 'paid', paid_at=iso)
@@ -134,9 +134,9 @@ rec('P7', 'H', 'Rechnungs-PDF enthält den PayPal-Link (als Link-Annotation) und
 # Einfrieren: Name ändern -> alte Rechnung behält
 ip2 = inv(cp, '10,00'); tok2 = sql(f'select public_token from invoices where id={ip2}')
 save_settings(PAYPAL_ME='AndererName9')
-st2 = anon.get('/status.php?t=' + tok2).body
+st2 = anon.get('/status.php?t=' + tok2 + '&pay=paypal').body
 rec('P8', 'H', 'Beim Ausstellen eingefroren: spätere Namensänderung ändert alte Rechnungen nicht', 'paypal.me/MetaTest1/' + amt(10, ip2) + 'EUR' in st2 and 'AndererName9' not in st2, '')
-ip3 = inv(cp, '10,00'); st3 = anon.get('/status.php?t=' + sql(f'select public_token from invoices where id={ip3}')).body
+ip3 = inv(cp, '10,00'); st3 = anon.get('/status.php?t=' + sql(f'select public_token from invoices where id={ip3}') + '&pay=paypal').body
 rec('P9', 'M', 'Neue Rechnung nutzt den neuen Namen', 'paypal.me/AndererName9/' + amt(10, ip3) + 'EUR' in st3, '')
 # Storno: kein PayPal
 save_settings(PAYPAL_ME='')

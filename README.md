@@ -14,7 +14,7 @@ Schlanke, selbst gehostete Rechnungsverwaltung in PHP/MySQL für ganz normalen W
 - **Bezahlen per PayPal.me** (Link/QR mit vorausgefülltem Betrag) und **eigene Schriften** für PDF und Oberfläche
 - **Stornorechnungen** (eigener Nummernkreis, Bezug auf die Originalrechnung, XML-Typ 384, Teilstorno)
 - **PDF-Design**: Schrift, Akzentfarbe, Tabellenstil, Vorlagen und Vorschau; wird beim Ausstellen festgehalten
-- **GiroCode** (EPC-QR) auf Rechnung und Statusseite: Banking-Apps füllen die Überweisung automatisch aus
+- **GiroCode** (EPC-QR) auf Rechnung und Statusseite: Banking-Apps füllen die Überweisung automatisch aus; welche Codes (GiroCode/PayPal) auf PDF und Statusseite erscheinen, ist einstellbar
 - Rechnungsversand per Mail (SMTP oder `mail()`), Link zu einer öffentlichen **Statusseite** mit Zahlungsstatus und Downloads
 - Briefpapier-Upload (PDF/PNG/JPG), Einstellungsseite, Testmail, Testbetrieb mit Reset
 - **PWA** (installierbar), responsives Layout

@@ -33,13 +33,24 @@
     <tr><td>Verwendungszweck</td><td class="r"><?= h($inv['number']) ?></td></tr>
     <?php endif; ?>
   </table>
-  <?php $gc = ($open && \App\GiroCode::enabled()) ? \App\GiroCode::payload($inv) : null; if ($gc): ?>
+  <?php
+  $gc = ($open && \App\GiroCode::enabled()) ? \App\GiroCode::payload($inv) : null;
+  $pp = $open ? \App\PayPal::url($inv) : null;
+  $pq = \App\PayQr::status($gc !== null, $pp !== null, is_string($_GET['pay'] ?? '') ? (string)$_GET['pay'] : '');
+  ?>
+  <?php if ($pq['tabs']): ?>
+  <nav class="paytabs" aria-label="Zahlungsart wählen">
+    <a href="?t=<?= h($token) ?>&amp;pay=giro" <?= $pq['active'] === 'giro' ? 'aria-current="true" class="on"' : '' ?>>Überweisung (GiroCode)</a>
+    <a href="?t=<?= h($token) ?>&amp;pay=paypal" <?= $pq['active'] === 'paypal' ? 'aria-current="true" class="on"' : '' ?>>PayPal</a>
+  </nav>
+  <?php endif; ?>
+  <?php if ($gc && $pq['giro']): ?>
   <figure class="girocode">
     <img src="<?= h(\App\GiroCode::svgDataUri($gc)) ?>" width="180" height="180" alt="GiroCode zum Scannen mit der Banking-App: Überweisung an <?= h($co['name']) ?>, Betrag <?= h(money((float)$t['gross'])) ?>, Verwendungszweck Rechnung <?= h($inv['number']) ?>">
     <figcaption>GiroCode – mit der Banking-App scannen, die Überweisung wird automatisch ausgefüllt.</figcaption>
   </figure>
   <?php endif; ?>
-  <?php $pp = $open ? \App\PayPal::url($inv) : null; if ($pp): ?>
+  <?php if ($pp && $pq['paypal']): ?>
   <p class="paypal"><a class="btn primary" href="<?= h($pp) ?>" rel="noopener noreferrer">Per PayPal zahlen (<?= h(money((float)$t['gross'])) ?>)</a></p>
   <figure class="girocode">
     <img src="<?= h(\App\PayPal::qrDataUri($pp)) ?>" width="150" height="150" alt="QR-Code zum Bezahlen per PayPal, Betrag <?= h(money((float)$t['gross'])) ?>">

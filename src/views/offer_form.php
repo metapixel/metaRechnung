@@ -13,7 +13,7 @@ $valid = $off['valid_until'] ?? date('Y-m-d', strtotime('+' . (int)env('OFFER_VA
 <form method="post" class="card">
   <input type="hidden" name="csrf" value="<?= h(csrf()) ?>">
   <label>Kunde *
-    <select name="customer_id" required>
+    <select name="customer_id" required data-combo="focus">
       <option value="">– bitte wählen –</option>
       <?php foreach ($customers as $c): ?>
         <option value="<?= (int)$c['id'] ?>" <?= $sel === (int)$c['id'] ? 'selected' : '' ?>><?= h($c['name']) ?></option>

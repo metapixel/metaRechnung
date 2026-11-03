@@ -16,7 +16,7 @@ $due = $inv['due_date'] ?? date('Y-m-d', strtotime('+' . (int)env('PAYMENT_DAYS'
   <p class="hint">Mengen negativ lassen (z. B. −2). Für ein <b>Teilstorno</b> Mengen verkleinern oder Positionen entfernen; der Einzelpreis bleibt positiv.</p>
   <?php else: ?>
   <label>Kunde *
-    <select name="customer_id" required>
+    <select name="customer_id" required data-combo="focus">
       <option value="">– bitte wählen –</option>
       <?php foreach ($customers as $c): ?>
         <option value="<?= (int)$c['id'] ?>" <?= $sel === (int)$c['id'] ? 'selected' : '' ?>><?= h($c['name']) ?></option>

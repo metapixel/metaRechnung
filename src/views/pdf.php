@@ -68,7 +68,12 @@
 <?php if (!empty($inv['notes'])): ?><p style="margin-top:12px"><?= nl2br(h($inv['notes'])) ?></p><?php endif; ?>
 <?php if ($dz['closing'] !== ''): ?><p style="margin-top:12px"><?= nl2br(h($dz['closing'])) ?></p><?php endif; ?>
 
-<?php $gc = !$credit && \App\GiroCode::enabled() ? \App\GiroCode::payload($inv) : null; ?>
+<?php
+$gcAll = !$credit && \App\GiroCode::enabled() ? \App\GiroCode::payload($inv) : null;
+$pp = !$credit ? \App\PayPal::url($inv) : null;
+$pq = \App\PayQr::pdf($gcAll !== null, $pp !== null);
+$gc = $pq['giro'] ? $gcAll : null;
+?>
 <?php if ($credit): ?>
 <p style="margin-top:16px">Bereits geleistete Zahlungen zur stornierten Rechnung werden Ihnen erstattet bzw. mit offenen Forderungen verrechnet. Es ist keine Zahlung erforderlich.</p>
 <?php elseif ($gc): ?>
@@ -80,11 +85,13 @@
 <?php $pay = trim(\App\Templates::fill((string)($tpl['pdf_invoice_payment'] ?? ''), $tv)); if ($pay !== ''): ?><p style="margin-top:16px"><?= nl2br(h($pay)) ?></p><?php endif; ?>
 <?php endif; ?>
 
-<?php $pp = !$credit ? \App\PayPal::url($inv) : null; if ($pp): ?>
+<?php if ($pp && $pq['pp'] === 'qr'): ?>
 <table class="plain" style="margin-top:10px"><tr>
-  <td style="width:75%; vertical-align:middle">Alternativ können Sie bequem per PayPal zahlen (Betrag ist vorausgefüllt):<br><a href="<?= h($pp) ?>"><?= h($pp) ?></a></td>
+  <td style="width:75%; vertical-align:middle"><?= $gc ? 'Alternativ können Sie' : 'Sie können' ?> bequem per PayPal zahlen (Betrag ist vorausgefüllt):<br><a href="<?= h($pp) ?>"><?= h($pp) ?></a></td>
   <td style="text-align:right; vertical-align:middle"><barcode code="<?= h($pp) ?>" type="QR" error="M" size="0.7" disableborder="1" /><br><span class="small">PayPal</span></td>
 </tr></table>
+<?php elseif ($pp && $pq['pp'] === 'link'): ?>
+<p style="margin-top:10px"><?= $gc ? 'Alternativ können Sie' : 'Sie können' ?> bequem per PayPal zahlen (Betrag ist vorausgefüllt): <a href="<?= h($pp) ?>"><?= h($pp) ?></a></p>
 <?php endif; ?>
 
 <?php if (empty($hideFooter) && $dz['footer']): ?>

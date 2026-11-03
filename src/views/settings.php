@@ -44,6 +44,25 @@ if ($co['vat_id'] === '' && $co['tax_number'] === '') { $miss[] = 'Steuernummer 
   <label>PayPal.me-Name (optional) <input name="PAYPAL_ME" maxlength="60" value="<?= $g('PAYPAL_ME') ?>" placeholder="z. B. kai für paypal.me/kai"></label>
   <p class="hint">Ist ein Name eingetragen, zeigen Statusseite und PDF zusätzlich „Per PayPal zahlen“ mit vorausgefülltem Betrag (Link und QR-Code). Es gibt keine Verbindung zu PayPal – den Zahlungseingang buchst du wie gewohnt selbst. Gilt für neu ausgestellte Rechnungen.</p>
 
+  <h3 id="zahlungs-qr">Zahlungs-QR-Codes</h3>
+  <div class="grid2">
+    <label>Auf dem PDF
+      <select name="PAY_QR_PDF">
+        <?php $cur = $posted ? (string)($old['PAY_QR_PDF'] ?? '') : \App\PayQr::pdfMode(); foreach (\App\PayQr::PDF as $k => $l): ?>
+        <option value="<?= h($k) ?>" <?= $cur === $k ? 'selected' : '' ?>><?= h($l) ?></option>
+        <?php endforeach; ?>
+      </select>
+    </label>
+    <label>Auf der Statusseite
+      <select name="PAY_QR_STATUS">
+        <?php $cur = $posted ? (string)($old['PAY_QR_STATUS'] ?? '') : \App\PayQr::statusMode(); foreach (\App\PayQr::STATUS as $k => $l): ?>
+        <option value="<?= h($k) ?>" <?= $cur === $k ? 'selected' : '' ?>><?= h($l) ?></option>
+        <?php endforeach; ?>
+      </select>
+    </label>
+  </div>
+  <p class="hint">Mehr als ein QR-Code auf einem Blatt lässt sich schlecht scannen. Daher zeigt das PDF standardmäßig nur den GiroCode und nennt PayPal als anklickbaren Link. Das PDF wird beim Ausstellen archiviert: Die Auswahl für das PDF gilt daher für neu ausgestellte Rechnungen, die Auswahl für die Statusseite sofort für alle. Ein nicht eingerichteter Code wird nie angezeigt.
+
   <h2 id="nummernkreise">Nummernkreise</h2>
   <p class="hint">Das Format legt fest, wie Belegnummern aussehen. Variablen: <?php foreach (\App\Numbering::VARS as $v => $d): ?><code>{<?= h($v) ?>}</code> <?= h($d) ?>; <?php endforeach; ?>
     Sonst sind Buchstaben, Ziffern, Punkt, Unterstrich und Bindestrich erlaubt. Mit <code>{JAHR}</code> (oder <code>{JJ}</code>) im Format beginnt die Zählung jedes Jahr neu, ohne Datumsvariable läuft sie durch.

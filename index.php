@@ -1007,6 +1007,8 @@ try {
                         $c['PAYMENT_DAYS'] = (string)max(0, (int)($in('PAYMENT_DAYS') ?: 14));
                         $c['KLEINUNTERNEHMER'] = isset($_POST['KLEINUNTERNEHMER']) ? '1' : '0';
                         $c['GIROCODE'] = isset($_POST['GIROCODE']) ? '1' : '0';
+                        $c['PAY_QR_PDF'] = isset(\App\PayQr::PDF[$in('PAY_QR_PDF')]) ? $in('PAY_QR_PDF') : 'giro_link';
+                        $c['PAY_QR_STATUS'] = isset(\App\PayQr::STATUS[$in('PAY_QR_STATUS')]) ? $in('PAY_QR_STATUS') : 'choice';
                         $c['SMTP_PORT'] = (string)((int)$in('SMTP_PORT') ?: 587);
                         $c['SMTP_SECURE'] = in_array($in('SMTP_SECURE'), ['tls', 'ssl', 'none'], true) ? $in('SMTP_SECURE') : 'tls';
                         if ((string)($_POST['SMTP_PASS'] ?? '') !== '') {
