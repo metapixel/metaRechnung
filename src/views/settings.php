@@ -15,9 +15,17 @@ if ($co['vat_id'] === '' && $co['tax_number'] === '') { $miss[] = 'Steuernummer 
 <?php if (!\App\Config::writable()): ?><div class="card warnbox"><p class="err" role="alert">config.php ist nicht beschreibbar – Änderungen können nicht gespeichert werden. Bitte Schreibrechte prüfen.</p></div><?php endif; ?>
 <?php if ($miss): ?><div class="card warnbox"><p>Für gültige <b>XRechnungen</b> fehlen noch: <?= h(implode(', ', $miss)) ?>.</p></div><?php endif; ?>
 
-<form method="post" class="card" autocomplete="off">
+<nav class="tabs" id="settings-tabs" aria-label="Bereiche der Einstellungen" hidden>
+  <a href="#t-allgemein" data-go="allgemein">Allgemein</a>
+  <a href="#t-design" data-go="design">Design</a>
+  <a href="#t-daten" data-go="daten">Datenaustausch</a>
+  <a href="#t-system" data-go="system">System</a>
+</nav>
+
+<form method="post" class="card" autocomplete="off" data-host>
   <input type="hidden" name="csrf" value="<?= h(csrf()) ?>"><input type="hidden" name="action" value="save">
 
+  <div data-pane="allgemein">
   <h2>Dein Unternehmen</h2>
   <p class="hint">Gilt für neu ausgestellte Rechnungen. Bereits ausgestellte Rechnungen behalten die Daten vom Zeitpunkt der Ausstellung.</p>
   <div class="grid2"><label>Firma / Name * <input name="COMPANY_NAME" value="<?= $g('COMPANY_NAME') ?>" required></label>
@@ -33,7 +41,16 @@ if ($co['vat_id'] === '' && $co['tax_number'] === '') { $miss[] = 'Steuernummer 
   <div class="grid3"><label>IBAN <input name="COMPANY_IBAN" value="<?= $g('COMPANY_IBAN') ?>"></label>
   <label>BIC <input name="COMPANY_BIC" value="<?= $g('COMPANY_BIC') ?>"></label>
   <label>Bank <input name="COMPANY_BANK" value="<?= $g('COMPANY_BANK') ?>"></label></div>
+  </div>
 
+  <div data-pane="allgemein">
+  <h2>Adresse der App</h2>
+  <label>Öffentliche Adresse (optional)
+    <input name="APP_URL" value="<?= $g('APP_URL') ?>" placeholder="https://deine-domain.de/rechnung/">
+    <span class="hint">Wird für den Statuslink in den Mails verwendet. Leer = automatisch aus der aktuellen Adresse.</span></label>
+  </div>
+
+  <div data-pane="allgemein">
   <h2>Rechnungen</h2>
   <div class="grid2"><label>Zahlungsziel (Tage) <input type="number" min="0" name="PAYMENT_DAYS" value="<?= $g('PAYMENT_DAYS', '14') ?>"></label>
   <label>Angebote gültig (Tage) <input type="number" min="1" max="365" name="OFFER_VALID_DAYS" value="<?= $g('OFFER_VALID_DAYS', '30') ?>"></label></div>
@@ -43,8 +60,10 @@ if ($co['vat_id'] === '' && $co['tax_number'] === '') { $miss[] = 'Steuernummer 
 
   <label>PayPal.me-Name (optional) <input name="PAYPAL_ME" maxlength="60" value="<?= $g('PAYPAL_ME') ?>" placeholder="z. B. kai für paypal.me/kai"></label>
   <p class="hint">Ist ein Name eingetragen, zeigen Statusseite und PDF zusätzlich „Per PayPal zahlen“ mit vorausgefülltem Betrag (Link und QR-Code). Es gibt keine Verbindung zu PayPal – den Zahlungseingang buchst du wie gewohnt selbst. Gilt für neu ausgestellte Rechnungen.</p>
+  </div>
 
-  <h3 id="zahlungs-qr">Zahlungs-QR-Codes</h3>
+  <div data-pane="design">
+  <h2 id="zahlungs-qr">Zahlungs-QR-Codes</h2>
   <div class="grid2">
     <label>Auf dem PDF
       <select name="PAY_QR_PDF">
@@ -62,7 +81,9 @@ if ($co['vat_id'] === '' && $co['tax_number'] === '') { $miss[] = 'Steuernummer 
     </label>
   </div>
   <p class="hint">Mehr als ein QR-Code auf einem Blatt lässt sich schlecht scannen. Daher zeigt das PDF standardmäßig nur den GiroCode und nennt PayPal als anklickbaren Link. Das PDF wird beim Ausstellen archiviert: Die Auswahl für das PDF gilt daher für neu ausgestellte Rechnungen, die Auswahl für die Statusseite sofort für alle. Ein nicht eingerichteter Code wird nie angezeigt.
+  </div>
 
+  <div data-pane="allgemein">
   <h2 id="nummernkreise">Nummernkreise</h2>
   <p class="hint">Das Format legt fest, wie Belegnummern aussehen. Variablen: <?php foreach (\App\Numbering::VARS as $v => $d): ?><code>{<?= h($v) ?>}</code> <?= h($d) ?>; <?php endforeach; ?>
     Sonst sind Buchstaben, Ziffern, Punkt, Unterstrich und Bindestrich erlaubt. Mit <code>{JAHR}</code> (oder <code>{JJ}</code>) im Format beginnt die Zählung jedes Jahr neu, ohne Datumsvariable läuft sie durch.
@@ -81,7 +102,9 @@ if ($co['vat_id'] === '' && $co['tax_number'] === '') { $miss[] = 'Steuernummer 
     <?php endforeach; ?>
   </table></div>
   <p class="hint"><b>Umstieg aus einem laufenden Betrieb:</b> Hast du dieses Jahr schon Rechnungen in einem anderen System geschrieben, trage bei „Nächste Nummer festlegen“ die nächste freie Nummer ein (nach Rechnung Nr. 340 also <b>341</b>) und stelle das Format so ein, dass es zu deinen bisherigen Nummern passt. Die Vorschau rechts zeigt das Ergebnis nach dem Speichern. Die Angabe wird nach der nächsten ausgestellten Nummer verbraucht und kann den Zähler nur anheben, nie unter bereits vergebene Nummern setzen. Bereits ausgestellte Belege behalten ihre Nummer.</p>
+  </div>
 
+  <div data-pane="daten">
   <h2>E-Mail-Versand</h2>
   <p class="hint">SMTP-Server leer lassen = Mailversand über den Webspace (PHP <code>mail()</code>).</p>
   <div class="grid3"><label>SMTP-Server <input name="SMTP_HOST" value="<?= $g('SMTP_HOST') ?>"></label>
@@ -95,28 +118,26 @@ if ($co['vat_id'] === '' && $co['tax_number'] === '') { $miss[] = 'Steuernummer 
   <div class="grid3"><label>Absenderadresse <input type="email" name="MAIL_FROM" value="<?= $g('MAIL_FROM') ?>"></label>
   <label>Absendername <input name="MAIL_FROM_NAME" value="<?= $g('MAIL_FROM_NAME') ?>"></label>
   <label>BCC an dich (optional) <input type="email" name="MAIL_BCC" value="<?= $g('MAIL_BCC') ?>"></label></div>
+  </div>
 
+  <div data-pane="daten">
   <h2 id="steuerberater">Steuerberater</h2>
   <p class="hint">Standard-Ansprechpartner für den <a href="<?= BASE ?>?p=exports">Export</a>: Die Adresse ist dort vorausgefüllt, der Name erscheint in der Anrede der Mail.</p>
   <div class="grid2"><label>Ansprechpartner:in <input name="TAX_ADVISOR_NAME" maxlength="120" value="<?= $g('TAX_ADVISOR_NAME') ?>" placeholder="Vorname Nachname"></label>
   <label>E-Mail <input type="email" name="TAX_ADVISOR_EMAIL" maxlength="190" value="<?= $g('TAX_ADVISOR_EMAIL') ?>" placeholder="steuerberater@example.com"></label></div>
-
-  <h2>Adresse der App</h2>
-  <label>Öffentliche Adresse (optional)
-    <input name="APP_URL" value="<?= $g('APP_URL') ?>" placeholder="https://deine-domain.de/rechnung/">
-    <span class="hint">Wird für den Statuslink in den Mails verwendet. Leer = automatisch aus der aktuellen Adresse.</span></label>
+  </div>
 
   <button class="btn primary">Einstellungen speichern</button>
 </form>
 
-<div class="card"><h2>Textvorlagen</h2><p class="muted">E-Mail-Texte (Rechnung, Angebot, Zahlungserinnerung, Export) und Texte auf dem PDF – mit Platzhaltern wie {nummer}, {faellig} oder {betrag}.</p><a class="btn" href="<?= BASE ?>?p=templates">Textvorlagen bearbeiten</a></div>
-<div class="card"><h2>PDF-Design</h2><p class="muted">Schrift, Größe, Akzentfarbe und Tabellenstil der Rechnungs-PDFs; Vorlagen und Vorschau.</p><a class="btn" href="<?= BASE ?>?p=pdf_design">PDF-Design anpassen</a></div>
-<div class="card"><h2>Export für den Steuerberater</h2><p class="muted">ZIP mit Rechnungen (PDF, XML) und CSV-Übersicht für einen Zeitraum, abrufbar über einen befristeten Link – auf Wunsch per E-Mail.</p><a class="btn" href="<?= BASE ?>?p=exports">Export erstellen</a></div>
-<div class="card"><h2>Protokoll</h2><p class="muted">Wer hat wann was geändert: Rechnungen, Kunden, Einstellungen, Anmeldungen. Die Einträge sind durch eine Prüfsummen-Kette gegen nachträgliche Änderungen geschützt.</p><a class="btn" href="<?= BASE ?>?p=audit">Protokoll öffnen</a></div>
-<div class="card"><h2>Darstellung</h2><p class="muted">Eigenes CSS für die Oberfläche (Farben, Rundungen, Schriftgröße) mit Editor und Live-Vorschau.</p><a class="btn" href="<?= BASE ?>?p=design">CSS-Editor öffnen</a></div>
+<div class="card" data-pane="design"><h2>Textvorlagen</h2><p class="muted">E-Mail-Texte (Rechnung, Angebot, Zahlungserinnerung, Export) und Texte auf dem PDF – mit Platzhaltern wie {nummer}, {faellig} oder {betrag}.</p><a class="btn" href="<?= BASE ?>?p=templates">Textvorlagen bearbeiten</a></div>
+<div class="card" data-pane="design"><h2>PDF-Design</h2><p class="muted">Schrift, Größe, Akzentfarbe und Tabellenstil der Rechnungs-PDFs; Vorlagen und Vorschau.</p><a class="btn" href="<?= BASE ?>?p=pdf_design">PDF-Design anpassen</a></div>
+<div class="card" data-pane="daten"><h2>Export für den Steuerberater</h2><p class="muted">ZIP mit Rechnungen (PDF, XML) und CSV-Übersicht für einen Zeitraum, abrufbar über einen befristeten Link – auf Wunsch per E-Mail.</p><a class="btn" href="<?= BASE ?>?p=exports">Export erstellen</a></div>
+<div class="card" data-pane="system"><h2>Protokoll</h2><p class="muted">Wer hat wann was geändert: Rechnungen, Kunden, Einstellungen, Anmeldungen. Die Einträge sind durch eine Prüfsummen-Kette gegen nachträgliche Änderungen geschützt.</p><a class="btn" href="<?= BASE ?>?p=audit">Protokoll öffnen</a></div>
+<div class="card" data-pane="design"><h2>Darstellung</h2><p class="muted">Eigenes CSS für die Oberfläche (Farben, Rundungen, Schriftgröße) mit Editor und Live-Vorschau.</p><a class="btn" href="<?= BASE ?>?p=design">CSS-Editor öffnen</a></div>
 
 <?php $lh = \App\Letterhead::info(); $lv = fn(string $k, float $d) => h($lh[$k] ?? $d); ?>
-<div class="card">
+<div class="card" data-pane="design">
   <h2>Briefpapier</h2>
   <p class="hint">Hintergrund für neu ausgestellte Rechnungen (A4 hoch): <b>PDF</b> (als „PDF 1.4/kompatibel“ exportiert) oder <b>PNG/JPG</b> (empfohlen 2480 × 3508 px, höchstens 5 MB; Server-Limit <?= h(ini_get('upload_max_filesize')) ?>).
   Bereits ausgestellte Rechnungen bleiben unverändert. Pflichtangaben (Steuernummer/USt-IdNr., Bankverbindung) müssen auf dem Briefpapier oder in der Fußzeile der Rechnung stehen.</p>
@@ -150,7 +171,7 @@ if ($co['vat_id'] === '' && $co['tax_number'] === '') { $miss[] = 'Steuernummer 
 </div>
 
 <?php $lg = \App\Logo::info(); ?>
-<div class="card">
+<div class="card" data-pane="design">
   <h2>Logo</h2>
   <p class="hint">Alternative zum Briefpapier: Ihr Logo erscheint oben auf neu ausgestellten Rechnungen, darunter der Absenderblock. <b>PNG oder JPG</b>, höchstens 2 MB und 3000 × 3000 px
   (transparente Flächen werden weiß). SVG wird aus Sicherheitsgründen nicht angenommen. Ist ein Briefpapier hinterlegt, wird das Logo nicht verwendet.</p>
@@ -178,7 +199,7 @@ if ($co['vat_id'] === '' && $co['tax_number'] === '') { $miss[] = 'Steuernummer 
 </div>
 
 <?php $fonts = \App\Fonts::all(); $uiFont = \App\Fonts::uiKey(); ?>
-<section class="card" id="schriften" aria-labelledby="h-fonts">
+<section class="card" data-pane="design" id="schriften" aria-labelledby="h-fonts">
   <h2 id="h-fonts">Schriften</h2>
   <p class="muted">Lade eigene Schriften (TrueType, <code>.ttf</code>) hoch, um sie im <a href="<?= BASE ?>?p=pdf_design">PDF-Design</a> und für die Oberfläche zu nutzen. Die Dateien bleiben auf deinem Server (keine externen Dienste). Bitte nur Schriften verwenden, deren Lizenz Einbetten in PDFs und Nutzung auf Webseiten erlaubt.</p>
   <?php if ($fonts): ?>
@@ -221,7 +242,7 @@ if ($co['vat_id'] === '' && $co['tax_number'] === '') { $miss[] = 'Steuernummer 
   <?php endif; ?>
 </section>
 
-<form method="post" class="card" autocomplete="off">
+<form method="post" class="card" autocomplete="off" data-pane="allgemein">
   <input type="hidden" name="csrf" value="<?= h(csrf()) ?>"><input type="hidden" name="action" value="account">
   <h2>Zugang</h2>
   <label>Aktuelles Passwort * <input type="password" name="current_pass" autocomplete="current-password" required></label>
@@ -237,7 +258,7 @@ $mfaCodes = $_SESSION['mfa_codes'] ?? null; unset($_SESSION['mfa_codes']);
 $mfaPend = $_SESSION['mfa_pending'] ?? null;
 if (is_array($mfaPend) && (time() - (int)$mfaPend['time'] > 1800 || $mfaOn)) { $mfaPend = null; unset($_SESSION['mfa_pending']); }
 ?>
-<section class="card" id="zwei-faktor" aria-labelledby="h-mfa">
+<section class="card" data-pane="allgemein" id="zwei-faktor" aria-labelledby="h-mfa">
   <h2 id="h-mfa">Zwei-Faktor-Anmeldung (2FA)</h2>
   <?php if (is_array($mfaCodes)): ?>
     <div class="warnbox card">
@@ -271,7 +292,7 @@ if (is_array($mfaPend) && (time() - (int)$mfaPend['time'] > 1800 || $mfaOn)) { $
   <?php endif; ?>
 </section>
 
-<form method="post" class="card">
+<form method="post" class="card" data-pane="daten">
   <input type="hidden" name="csrf" value="<?= h(csrf()) ?>"><input type="hidden" name="action" value="testmail">
   <h2>E-Mail-Versand testen</h2>
   <label>Empfänger <input type="email" name="to" value="<?= h(env('COMPANY_EMAIL')) ?>" required></label>
@@ -280,7 +301,7 @@ if (is_array($mfaPend) && (time() - (int)$mfaPend['time'] > 1800 || $mfaOn)) { $
 </form>
 
 <?php if (env('TEST_MODE') === '1'): ?>
-<form method="post" class="card warnbox" autocomplete="off" data-confirm="Wirklich alle Testdaten löschen?">
+<form method="post" class="card warnbox" autocomplete="off" data-pane="system" data-confirm="Wirklich alle Testdaten löschen?">
   <input type="hidden" name="csrf" value="<?= h(csrf()) ?>"><input type="hidden" name="action" value="reset">
   <h2>Testbetrieb: Daten zurücksetzen</h2>
   <p>Löscht <b>alle Rechnungen</b> samt PDFs (optional auch alle Kunden) unwiderruflich. Einstellungen und Login bleiben erhalten. Die Rechnungsnummern beginnen danach wieder bei 1.</p>
@@ -292,7 +313,7 @@ if (is_array($mfaPend) && (time() - (int)$mfaPend['time'] > 1800 || $mfaOn)) { $
 </form>
 <?php endif; ?>
 
-<div class="card">
+<div class="card" data-pane="system">
   <h2>System</h2>
   <p class="muted">Version <b><?= h(APP_VERSION) ?></b> · Testbetrieb: <?= env('TEST_MODE') === '1' ? '<b class="err">AN</b>' : 'aus' ?> ·
   Datenbank: <?= h(env('DB_NAME')) ?> auf <?= h(strtok(env('DB_HOST'), ';')) ?> (nur über <code>config.php</code> änderbar) ·

@@ -2,6 +2,9 @@
 
 Die aktuelle Versionsnummer steht in der Datei `VERSION` (und unten in der App sowie unter Einstellungen → System).
 
+## 1.19.0
+- **Einstellungen übersichtlicher:** Die Seite ist in vier Reiter gegliedert: **Allgemein** (Unternehmen, Adresse der App, Rechnungen, Nummernkreise, Zugang, Zwei-Faktor-Anmeldung), **Design** (Zahlungs-QR-Codes, Darstellung, Logo, Briefpapier, Schriften, Textvorlagen, PDF-Design), **Datenaustausch** (E-Mail-Versand, Testmail, Steuerberater, Export) und **System** (Protokoll, Systeminfo). „Einstellungen speichern“ speichert immer alle Felder der Hauptformulare, egal in welchem Reiter du gerade bist. Der zuletzt benutzte Reiter wird gemerkt, Sprungmarken wie `#nummernkreise` oder `#schriften` öffnen den passenden Reiter, und ein ungültiges Feld in einem verborgenen Reiter öffnet diesen automatisch. Ohne JavaScript stehen weiterhin alle Bereiche untereinander. Keine Datenbankänderung.
+
 ## 1.18.0
 - **Zahlungs-QR-Codes steuerbar** (Einstellungen → Zahlungs-QR-Codes): Zwei QR-Codes auf einer Rechnung (GiroCode und PayPal) sind unhandlich und schwer zu scannen. Für das **PDF** wählst du jetzt: *GiroCode-QR, PayPal nur als Link* (neuer Standard), nur GiroCode, nur PayPal-QR, beide oder gar kein QR-Code (PayPal bleibt dann ein anklickbarer Link). Die Auswahl gilt für neu ausgestellte Rechnungen, weil das PDF beim Ausstellen archiviert wird.
 - **Statusseite:** Standardmäßig zeigt sie immer nur **einen** Code; der Kunde schaltet über „Überweisung (GiroCode)“ / „PayPal“ um (einfache Links, funktioniert ohne JavaScript). Alternativ fest nur GiroCode, nur PayPal oder beide untereinander. Die Einstellung wirkt sofort für alle Rechnungen. Ein nicht eingerichteter oder nicht anwendbarer Code (kein PayPal-Name, Storno, bezahlt) erscheint nie.

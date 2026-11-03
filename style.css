@@ -251,3 +251,9 @@ ul.codes code { font-size:1.05rem; letter-spacing:.04em; }
 .combo-list li.none:hover { background:none; color:var(--mut); }
 
 [hidden] { display:none !important; }
+
+/* Einstellungen: Reiter */
+.tabs { display:flex; gap:6px; margin:0 0 16px; overflow-x:auto; padding-bottom:2px; border-bottom:1px solid var(--line); }
+.tabs a { flex:none; padding:9px 16px; border:1px solid transparent; border-bottom:0; border-radius:var(--r-s) var(--r-s) 0 0; color:var(--mut); }
+.tabs a:hover { background:var(--pri-soft); color:var(--pri); text-decoration:none; }
+.tabs a[aria-current] { background:var(--card); color:var(--pri); border-color:var(--line); font-weight:600; margin-bottom:-1px; padding-bottom:10px; }

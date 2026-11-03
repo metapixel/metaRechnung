@@ -190,3 +190,43 @@ if ('serviceWorker' in navigator && document.body.dataset.sw) {
     if (sel.getAttribute('data-combo') === 'focus' && sel.value === '') inp.focus();
   });
 })();
+
+// Einstellungen: Bereiche als Reiter (ohne JavaScript bleibt alles untereinander sichtbar)
+(function () {
+  var nav = document.getElementById('settings-tabs');
+  if (!nav) return;
+  var links = nav.querySelectorAll('[data-go]'), panes = document.querySelectorAll('[data-pane]'), hosts = document.querySelectorAll('[data-host]');
+  var names = Array.prototype.map.call(links, function (a) { return a.getAttribute('data-go'); });
+  function store(v) { try { if (v === undefined) return sessionStorage.getItem('settingsTab'); sessionStorage.setItem('settingsTab', v); } catch (e) { return null; } }
+  function show(name) {
+    if (names.indexOf(name) < 0) name = names[0];
+    panes.forEach(function (p) { p.hidden = p.getAttribute('data-pane') !== name; });
+    hosts.forEach(function (f) { f.hidden = !f.querySelector('[data-pane]:not([hidden])'); });
+    links.forEach(function (a) { if (a.getAttribute('data-go') === name) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current'); });
+    store(name);
+    return name;
+  }
+  function fromHash() {
+    var h = decodeURIComponent(location.hash.replace(/^#/, ''));
+    if (!h) return false;
+    if (h.indexOf('t-') === 0) { show(h.slice(2)); return true; }
+    var el = document.getElementById(h), pane = el && el.closest('[data-pane]');
+    if (!pane) return false;
+    show(pane.getAttribute('data-pane')); el.scrollIntoView(); return true;
+  }
+  nav.hidden = false;
+  links.forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var n = show(a.getAttribute('data-go'));
+      if (history.replaceState) history.replaceState(null, '', '#t-' + n);
+    });
+  });
+  window.addEventListener('hashchange', fromHash);
+  if (!fromHash()) show(store() || names[0]);
+  // Ungültiges Feld in einem verborgenen Reiter: Reiter öffnen, damit die Browser-Meldung sichtbar wird
+  document.addEventListener('invalid', function (e) {
+    var pane = e.target.closest && e.target.closest('[data-pane]');
+    if (pane && pane.hidden) { show(pane.getAttribute('data-pane')); e.target.focus(); }
+  }, true);
+})();
