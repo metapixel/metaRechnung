@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>metaRechnung – Rechnungen auf deinem eigenen Webspace</title>
+<meta name="description" content="Freie Rechnungsverwaltung in PHP und MySQL für Selbstständige: ZUGFeRD, XRechnung, Angebote, Steuerberater-Export. Läuft auf normalem Webspace, ohne Abo und ohne Cloud.">
+<meta name="theme-color" content="#f4e9db">
+<meta property="og:title" content="metaRechnung">
+<meta property="og:description" content="Rechnungen schreiben auf deinem eigenen Webspace. Frei, ohne Abo, mit ZUGFeRD und XRechnung.">
+<meta property="og:type" content="website">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<style>
+:root {
+  --bg:#f4e9db; --paper:#fffdf9; --ink:#1f1520; --mut:#5f5464; --line:#e0d1bd; --line-soft:#eadfcd;
+  --pri:#7a4589; --pri-deep:#5c2f6b; --pri-soft:#efe3f3; --on-pri:#fff; --ring:rgba(122,69,137,.35);
+  --shadow:0 1px 2px rgba(31,21,32,.06), 0 24px 48px -24px rgba(60,30,70,.35);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:#170d15; --paper:#241725; --ink:#f1e8f0; --mut:#b2a4b0; --line:#3a2a3c; --line-soft:#2d1f2e;
+    --pri:#c99bd9; --pri-deep:#dcb6e8; --pri-soft:#33213a; --on-pri:#170d15; --ring:rgba(201,155,217,.4);
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 24px 48px -24px rgba(0,0,0,.7);
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior:auto; } }
+body { margin:0; background:var(--bg); color:var(--ink); font:400 1.0625rem/1.6 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif; -webkit-font-smoothing:antialiased; }
+a { color:var(--pri-deep); text-underline-offset:3px; }
+a:hover { color:var(--pri); }
+:focus-visible { outline:3px solid var(--pri); outline-offset:3px; border-radius:4px; }
+.wrap { width:min(1120px, 100% - 32px); margin-inline:auto; }
+.skip { position:absolute; left:-999px; top:8px; background:var(--pri); color:var(--on-pri); padding:8px 14px; border-radius:8px; z-index:10; }
+.skip:focus { left:8px; }
+
+/* Kopf */
+header.top { padding:22px 0; }
+header.top .wrap { display:flex; align-items:center; justify-content:space-between; gap:16px; }
+.brand { display:inline-flex; align-items:center; gap:11px; font-size:1.2rem; letter-spacing:-.02em; color:var(--ink); text-decoration:none; }
+.brand img { width:34px; height:34px; border-radius:9px; }
+.brand b { font-weight:800; }
+.brand span { font-weight:400; }
+.gh { display:inline-flex; align-items:center; gap:8px; color:var(--ink); text-decoration:none; font-weight:600; font-size:.95rem; padding:8px 12px; border-radius:10px; }
+.gh:hover { background:var(--pri-soft); color:var(--pri-deep); }
+.gh svg { width:20px; height:20px; fill:currentColor; }
+
+/* Hero */
+.hero { padding:clamp(28px,6vw,72px) 0 clamp(40px,7vw,88px); }
+.hero .wrap { display:grid; grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr); gap:clamp(28px,5vw,72px); align-items:center; }
+h1 { margin:0; font-size:clamp(2.3rem, 5.4vw, 4rem); line-height:1.04; letter-spacing:-.035em; font-weight:800; text-wrap:balance; }
+.lead { margin:22px 0 0; font-size:clamp(1.05rem,1.6vw,1.2rem); color:var(--mut); max-width:34em; }
+.cta { display:flex; flex-wrap:wrap; gap:12px; margin-top:30px; }
+.btn { display:inline-flex; align-items:center; gap:9px; padding:13px 20px; border-radius:12px; font:inherit; font-weight:650; text-decoration:none; border:1px solid var(--line); background:var(--paper); color:var(--ink); }
+.btn:hover { border-color:var(--pri); color:var(--pri-deep); }
+.btn.primary { background:var(--pri); border-color:var(--pri); color:var(--on-pri); }
+.btn.primary:hover { background:var(--pri-deep); border-color:var(--pri-deep); color:var(--on-pri); }
+.btn svg { width:18px; height:18px; fill:currentColor; }
+.fine { margin:18px 0 0; font-size:.92rem; color:var(--mut); }
+
+/* Die Rechnung im Hero */
+.sheet { background:var(--paper); border:1px solid var(--line); border-radius:6px; box-shadow:var(--shadow); padding:clamp(20px,3vw,32px); transform:rotate(1.2deg); }
+@media (max-width: 860px) { .sheet { transform:none; } }
+.sheet-head { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; }
+.sheet-head h2 { margin:0; font-size:1.05rem; font-weight:750; letter-spacing:-.01em; }
+.sheet-head p { margin:2px 0 0; font-size:.85rem; color:var(--mut); }
+.nr { font:700 clamp(1.6rem,3.4vw,2.35rem)/1.1 ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace; letter-spacing:-.04em; color:var(--pri-deep); margin:22px 0 4px; overflow-wrap:anywhere; min-height:1.2em; }
+.nr.bad { color:var(--mut); font-size:1.05rem; letter-spacing:0; font-family:inherit; font-weight:500; }
+.sheet table { width:100%; border-collapse:collapse; margin-top:18px; font-size:.92rem; font-variant-numeric:tabular-nums; }
+.sheet td { padding:8px 0; border-bottom:1px solid var(--line-soft); }
+.sheet td:last-child { text-align:right; white-space:nowrap; }
+.sheet tr.sum td { border-bottom:0; padding-top:12px; font-weight:750; font-size:1.02rem; }
+.sheet tr.tax td { color:var(--mut); }
+.chip { display:inline-block; margin-top:16px; padding:4px 10px; font-size:.8rem; font-weight:600; border-radius:999px; background:var(--pri-soft); color:var(--pri-deep); }
+.tweak { margin-top:22px; padding-top:18px; border-top:1px dashed var(--line); display:grid; grid-template-columns:minmax(0,1fr) 96px; gap:12px; }
+.tweak label { display:block; font-size:.82rem; font-weight:600; color:var(--mut); }
+.tweak input { display:block; width:100%; margin-top:5px; padding:9px 11px; font:500 .95rem ui-monospace, "SF Mono", Menlo, Consolas, monospace; color:var(--ink); background:var(--bg); border:1px solid var(--line); border-radius:9px; }
+.tweak input:focus { outline:0; border-color:var(--pri); box-shadow:0 0 0 3px var(--ring); }
+.tweak p { grid-column:1 / -1; margin:0; font-size:.82rem; color:var(--mut); }
+.tweak code { font-family:ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size:.95em; }
+
+/* Abschnitte */
+section.block { padding:clamp(40px,6vw,76px) 0; border-top:1px solid var(--line); }
+section.block > .wrap { display:grid; grid-template-columns:minmax(0,.8fr) minmax(0,2fr); gap:clamp(20px,5vw,72px); }
+@media (max-width: 860px) { .hero .wrap, section.block > .wrap { grid-template-columns:minmax(0,1fr); } }
+h2.sec { margin:0; font-size:clamp(1.5rem,2.6vw,2rem); line-height:1.15; letter-spacing:-.025em; font-weight:800; text-wrap:balance; }
+.sec-note { margin:12px 0 0; color:var(--mut); font-size:.98rem; max-width:26em; }
+.rows { margin:0; padding:0; list-style:none; }
+.rows > li { display:grid; grid-template-columns:minmax(0,13rem) minmax(0,1fr); gap:6px 28px; padding:18px 0; border-bottom:1px solid var(--line); }
+.rows > li:first-child { padding-top:0; }
+.rows > li:last-child { border-bottom:0; }
+.rows h3 { margin:0; font-size:1.02rem; font-weight:700; letter-spacing:-.01em; }
+.rows p { margin:0; color:var(--mut); max-width:38em; }
+@media (max-width: 600px) { .rows > li { grid-template-columns:minmax(0,1fr); } }
+
+ol.steps { margin:0; padding:0; list-style:none; counter-reset:s; }
+ol.steps li { counter-increment:s; display:grid; grid-template-columns:44px minmax(0,1fr); gap:0 14px; padding:0 0 22px; position:relative; }
+ol.steps li::before { content:counter(s); width:44px; height:44px; display:grid; place-items:center; border-radius:50%; background:var(--pri); color:var(--on-pri); font-weight:800; }
+ol.steps li:not(:last-child)::after { content:""; position:absolute; left:21px; top:48px; bottom:4px; width:2px; background:var(--line); }
+ol.steps h3 { margin:6px 0 2px; font-size:1.05rem; }
+ol.steps p { margin:0; color:var(--mut); }
+code { font-family:ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size:.92em; background:var(--pri-soft); color:var(--pri-deep); padding:1px 6px; border-radius:6px; }
+.need { margin-top:8px; padding:16px 18px; border:1px solid var(--line); border-radius:12px; background:var(--paper); color:var(--mut); font-size:.97rem; }
+
+.support p { margin:0 0 18px; color:var(--mut); max-width:34em; }
+
+footer { padding:34px 0 64px; border-top:1px solid var(--line); color:var(--mut); font-size:.93rem; }
+footer .wrap { display:flex; flex-wrap:wrap; gap:10px 26px; justify-content:space-between; }
+footer nav { display:flex; flex-wrap:wrap; gap:6px 22px; }
+footer a { color:var(--mut); }
+footer a:hover { color:var(--pri-deep); }
+</style>
+</head>
+<body>
+<a class="skip" href="#inhalt">Zum Inhalt springen</a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="./" aria-label="metaRechnung, Startseite"><img src="icon.svg" alt="" width="34" height="34"><span>meta<b>Rechnung</b></span></a>
+    <a class="gh" href="https://github.com/metapixel/metaRechnung" rel="noopener">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+      GitHub
+    </a>
+  </div>
+</header>
+
+<main id="inhalt">
+<section class="hero">
+  <div class="wrap">
+    <div>
+      <h1>Rechnungen schreiben auf deinem eigenen Webspace.</h1>
+      <p class="lead">metaRechnung ist eine schlanke Rechnungsverwaltung für Selbstständige und kleine Unternehmen. Kein Abo, keine Cloud, kein Docker: Paket hochladen, <code>install.php</code> aufrufen, loslegen.</p>
+      <div class="cta">
+        <a class="btn primary" href="https://github.com/metapixel/metaRechnung/releases/latest" rel="noopener">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7.25 1.5v7.19L4.78 6.22 3.72 7.28 8 11.56l4.28-4.28-1.06-1.06-2.47 2.47V1.5zM2 12.5V14h12v-1.5z"/></svg>
+          Neueste Version laden
+        </a>
+        <a class="btn" href="https://github.com/metapixel/metaRechnung" rel="noopener">Quellcode auf GitHub</a>
+      </div>
+      <p class="fine">Freie Software unter GPL-2.0-or-later. Läuft ab PHP 8.1 mit MySQL oder MariaDB.</p>
+    </div>
+
+    <div class="sheet" role="group" aria-labelledby="sheet-title">
+      <div class="sheet-head">
+        <div><h2 id="sheet-title">Rechnung</h2><p>Muster GmbH, Hauptstraße 5, 12345 Musterstadt</p></div>
+      </div>
+      <div class="nr" id="nr" aria-live="polite">RE-2026-0341</div>
+      <table>
+        <caption class="sr" style="position:absolute;left:-999px">Beispielpositionen</caption>
+        <tr><td>Webentwicklung, 10 Std.</td><td>850,00 €</td></tr>
+        <tr><td>Hosting, 12 Monate</td><td>120,00 €</td></tr>
+        <tr class="tax"><td>Umsatzsteuer 19 %</td><td>184,30 €</td></tr>
+        <tr class="sum"><td>Gesamtbetrag</td><td>1.154,30 €</td></tr>
+      </table>
+      <span class="chip">ZUGFeRD: maschinenlesbare XML ist eingebettet</span>
+      <div class="tweak">
+        <div><label for="fmt">Nummernformat</label><input id="fmt" value="RE-{JAHR}-{NR}" spellcheck="false" autocomplete="off" maxlength="60"></div>
+        <div><label for="nxt">Nächste Nr.</label><input id="nxt" type="number" value="341" min="1" max="99999999" inputmode="numeric"></div>
+        <p>Probier es aus: <code>{NR}</code> laufende Nummer, <code>{JAHR}</code>, <code>{JJ}</code>, <code>{MONAT}</code>, <code>{TAG}</code>. Wer mitten im Jahr umsteigt, setzt einfach die nächste freie Nummer.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="funktionen" aria-labelledby="h-fkt">
+  <div class="wrap">
+    <div><h2 class="sec" id="h-fkt">Was metaRechnung kann</h2><p class="sec-note">Alles, was eine Ein-Personen-Buchhaltung für Rechnungen braucht, ohne dass ein Server oder Dienst von Dritten dazwischensteht.</p></div>
+    <ul class="rows">
+      <li><h3>Schreiben</h3><p>Rechnungen, Angebote und Stornorechnungen mit eigenen Nummernkreisen. Angebote lassen sich in Rechnungen wandeln, wiederkehrende Rechnungen entstehen automatisch, Textvorlagen füllen Mails und PDF. Kleinunternehmer-Modus und Zahlungserinnerungen sind dabei.</p></li>
+      <li><h3>E-Rechnung</h3><p>ZUGFeRD/Factur-X (PDF/A-3 mit eingebetteter XML) und XRechnung 3.0, mit dem KoSIT-Validator geprüft. Die XML kommt direkt aus den Rechnungsdaten, nicht aus einem zweiten Formular.</p></li>
+      <li><h3>Bezahlt werden</h3><p>GiroCode für die Banking-App und ein PayPal.me-Link mit vorausgefülltem Betrag. Eine öffentliche Statusseite zeigt dem Kunden, ob die Rechnung bezahlt ist, und bietet PDF und XML zum Download. Du legst fest, welcher QR-Code wo erscheint.</p></li>
+      <li><h3>Kunden</h3><p>Eine Seite pro Kunde mit allen Belegen und der Zahlungsmoral. Bestehende Adressen kommen per CSV oder vCard herein, mit Vorschau und Dublettenerkennung.</p></li>
+      <li><h3>Aussehen</h3><p>PDF-Design mit Schrift, Akzentfarbe und Tabellenstil, Briefpapier oder Logo und eigene Schriften. Was beim Ausstellen galt, bleibt für die Rechnung festgehalten.</p></li>
+      <li><h3>Steuerberater</h3><p>Ein ZIP mit allen PDFs, XML-Dateien und einer CSV-Übersicht für einen Zeitraum, abrufbar über einen befristeten Link. Dazu eine Auswertung nach Monat und Jahr.</p></li>
+      <li><h3>Nachvollziehbar und sicher</h3><p>Das Änderungsprotokoll ist durch eine Prüfsummen-Kette gegen nachträgliche Änderungen gesichert. Anmeldung mit Zwei-Faktor-Code, Schutz gegen Fehlversuche, CSRF-Schutz und strenge Content-Security-Policy. Als App installierbar (PWA).</p></li>
+    </ul>
+  </div>
+</section>
+
+<section class="block" id="installation" aria-labelledby="h-inst">
+  <div class="wrap">
+    <div><h2 class="sec" id="h-inst">Installation in drei Schritten</h2><p class="sec-note">Du brauchst nur normalen Webspace mit FTP. SSH ist nicht nötig.</p></div>
+    <div>
+      <ol class="steps">
+        <li><div><h3>Paket laden</h3><p>Das Paket <code>rechnung-webspace-&lt;Version&gt;.zip</code> steht bei den <a href="https://github.com/metapixel/metaRechnung/releases/latest" rel="noopener">Releases</a>. Es enthält schon alle Bibliotheken.</p></div></li>
+        <li><div><h3>Hochladen</h3><p>Entpacken und per FTP in einen Ordner deines Webspace kopieren, zum Beispiel <code>rechnung/</code>.</p></div></li>
+        <li><div><h3><code>install.php</code> aufrufen</h3><p>Datenbank, Login und Firmendaten eintragen. Der Installer legt die Tabellen an und schreibt die Konfiguration. Danach löschst du ihn mit einem Klick.</p></div></li>
+      </ol>
+      <p class="need"><b>Voraussetzungen:</b> PHP 8.1 oder neuer (pdo_mysql, mbstring, gd, dom, xml, simplexml, zip), eine leere MySQL- oder MariaDB-Datenbank und HTTPS. Ausführlich steht alles in der <a href="https://github.com/metapixel/metaRechnung/blob/main/INSTALLATION.md" rel="noopener">Installationsanleitung</a>.</p>
+    </div>
+  </div>
+</section>
+
+<section class="block support" id="unterstuetzen" aria-labelledby="h-sup">
+  <div class="wrap">
+    <div><h2 class="sec" id="h-sup">Kostenlos, aber nicht umsonst</h2></div>
+    <div>
+      <p>metaRechnung ist freie Software und bleibt es. Wenn es dir Arbeit spart, freue ich mich über einen Kaffee. Fehler und Wünsche kannst du als Issue auf GitHub melden.</p>
+      <div class="cta" style="margin-top:0">
+        <a class="btn primary" href="https://buymeacoffee.com/kaikranz" rel="noopener">Einen Kaffee spendieren</a>
+        <a class="btn" href="https://github.com/metapixel/metaRechnung/issues" rel="noopener">Issue auf GitHub öffnen</a>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>metaRechnung von Kai Kranz</span>
+    <nav aria-label="Weiterführende Links">
+      <a href="https://github.com/metapixel/metaRechnung" rel="noopener">Quellcode</a>
+      <a href="https://github.com/metapixel/metaRechnung/releases" rel="noopener">Releases</a>
+      <a href="https://github.com/metapixel/metaRechnung/blob/main/CHANGELOG.md" rel="noopener">Änderungsprotokoll</a>
+      <a href="https://github.com/metapixel/metaRechnung/blob/main/SECURITY.md" rel="noopener">Sicherheit</a>
+      <a href="https://github.com/metapixel/metaRechnung/blob/main/LICENSE" rel="noopener">Lizenz GPL-2.0-or-later</a>
+    </nav>
+  </div>
+</footer>
+
+<script>
+// Nummernformat zum Ausprobieren (gleiche Variablen wie in der App)
+(function () {
+  var fmt = document.getElementById('fmt'), nxt = document.getElementById('nxt'), out = document.getElementById('nr');
+  function p(n, w) { n = String(n); while (n.length < w) n = '0' + n; return n; }
+  function render() {
+    var f = fmt.value, d = new Date(), n = Math.max(1, parseInt(nxt.value, 10) || 1);
+    var count = (f.match(/\{NR\}/gi) || []).length;
+    out.classList.remove('bad');
+    if (count !== 1) { out.classList.add('bad'); out.textContent = count ? '{NR} darf nur einmal vorkommen.' : '{NR} fehlt im Format.'; return; }
+    var unknown = (f.replace(/\{(NR|JAHR|JJ|MONAT|TAG)\}/gi, '').match(/[{}]/) || [])[0];
+    if (unknown) { out.classList.add('bad'); out.textContent = 'Unbekannte Variable im Format.'; return; }
+    var map = { NR: p(n, 4), JAHR: d.getFullYear(), JJ: p(d.getFullYear() % 100, 2), MONAT: p(d.getMonth() + 1, 2), TAG: p(d.getDate(), 2) };
+    out.textContent = f.replace(/\{(NR|JAHR|JJ|MONAT|TAG)\}/gi, function (_, k) { return map[k.toUpperCase()]; });
+  }
+  fmt.addEventListener('input', render); nxt.addEventListener('input', render); render();
+})();
+</script>
+
+<script data-name="BMC-Widget" data-cfasync="false" src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js" data-id="kaikranz" data-description="Support me on Buy me a coffee!" data-message="" data-color="#BD5FFF" data-position="Right" data-x_margin="18" data-y_margin="18"></script>
+</body>
+</html>
