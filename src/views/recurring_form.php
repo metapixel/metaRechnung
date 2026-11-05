@@ -19,6 +19,9 @@ $pv = $r ? \App\Recurring::preview($r) : null;
   <label>Bezeichnung * <span class="hint">Nur zur Übersicht, erscheint nicht auf der Rechnung.</span>
     <input name="name" maxlength="120" value="<?= $v('name') ?>" required autofocus placeholder="z. B. Hosting Muster GmbH">
   </label>
+  <?php if (!$customers): ?>
+  <p class="statusbox open">Noch keine Kunden. Lege zuerst einen <a href="<?= BASE ?>?p=customer_edit">Kunden</a> an.</p>
+  <?php else: ?>
   <label>Kunde *
     <select name="customer_id" required data-combo>
       <option value="">– bitte wählen –</option>
@@ -27,6 +30,7 @@ $pv = $r ? \App\Recurring::preview($r) : null;
       <?php endforeach; ?>
     </select>
   </label>
+  <?php endif; ?>
 
   <div class="grid3">
     <label>Intervall *

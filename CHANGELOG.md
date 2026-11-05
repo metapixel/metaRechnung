@@ -2,6 +2,9 @@
 
 Die aktuelle Versionsnummer steht in der Datei `VERSION` (und unten in der App sowie unter Einstellungen → System).
 
+## 1.19.2
+- Die leere Rechnungsübersicht zeigt nur noch „Noch keine Rechnungen.“. Der Hinweis „Lege zuerst einen Kunden an“ erscheint stattdessen dort, wo er hingehört: in den Formularen für neue Rechnung, Angebot und wiederkehrende Vorlage, und nur, wenn es wirklich noch keinen Kunden gibt (statt des leeren Auswahlfelds).
+
 ## 1.19.1
 - **Auswahlfelder** (Pulldowns) haben jetzt dieselbe Höhe wie die Textfelder; vor allem in Safari/macOS waren sie flacher. Sie bekommen dafür einen eigenen Pfeil.
 - **Nummernkreise:** Die Tabelle passt ohne seitliches Scrollen in die Seite (kürzere Spaltenüberschriften „Nächste Nr. setzen“ und „Vorschau“, Vorschau bricht nicht um).

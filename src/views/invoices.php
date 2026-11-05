@@ -3,7 +3,7 @@
   <a class="btn primary" href="<?= BASE ?>?p=invoice_edit">+ Neue Rechnung</a>
 </div>
 <?php if (!$rows): ?>
-  <p class="muted">Noch keine Rechnungen. Lege zuerst einen <a href="<?= BASE ?>?p=customer_edit">Kunden</a> an.</p>
+  <p class="muted">Noch keine Rechnungen.</p>
 <?php else: ?>
 <div class="scroll"><table>
   <tr><th scope="col">Nr.</th><th scope="col">Kunde</th><th scope="col">Datum</th><th scope="col">Fällig</th><th scope="col" class="r">Brutto</th><th scope="col">Status</th></tr>

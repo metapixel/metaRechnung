@@ -12,6 +12,9 @@ $valid = $off['valid_until'] ?? date('Y-m-d', strtotime('+' . (int)env('OFFER_VA
 <?php if ($isIssued): ?><p class="statusbox open">Dieses Angebot ist bereits ausgestellt. Änderungen sind möglich: Die Nummer bleibt, das PDF wird neu erzeugt. Wurde das Angebot schon versendet, bitte dem Kunden die neue Fassung schicken.</p><?php endif; ?>
 <form method="post" class="card">
   <input type="hidden" name="csrf" value="<?= h(csrf()) ?>">
+  <?php if (!$customers): ?>
+  <p class="statusbox open">Noch keine Kunden. Lege zuerst einen <a href="<?= BASE ?>?p=customer_edit&amp;next=offer_edit">Kunden</a> an.</p>
+  <?php else: ?>
   <label>Kunde *
     <select name="customer_id" required data-combo="focus">
       <option value="">– bitte wählen –</option>
@@ -21,6 +24,7 @@ $valid = $off['valid_until'] ?? date('Y-m-d', strtotime('+' . (int)env('OFFER_VA
     </select>
   </label>
   <p class="muted"><a href="<?= BASE ?>?p=customer_edit&next=offer_edit">+ Neuen Kunden anlegen</a></p>
+  <?php endif; ?>
   <div class="grid2">
     <label>Angebotsdatum <input type="date" name="issue_date" value="<?= h($issue) ?>" required></label>
     <label>Gültig bis <input type="date" name="valid_until" value="<?= h($valid) ?>" required></label>

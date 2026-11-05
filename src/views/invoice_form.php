@@ -15,6 +15,9 @@ $due = $inv['due_date'] ?? date('Y-m-d', strtotime('+' . (int)env('PAYMENT_DAYS'
   <input type="hidden" name="customer_id" value="<?= (int)$inv['customer_id'] ?>">
   <p class="hint">Mengen negativ lassen (z. B. −2). Für ein <b>Teilstorno</b> Mengen verkleinern oder Positionen entfernen; der Einzelpreis bleibt positiv.</p>
   <?php else: ?>
+  <?php if (!$customers): ?>
+  <p class="statusbox open">Noch keine Kunden. Lege zuerst einen <a href="<?= BASE ?>?p=customer_edit&amp;next=invoice_edit">Kunden</a> an.</p>
+  <?php else: ?>
   <label>Kunde *
     <select name="customer_id" required data-combo="focus">
       <option value="">– bitte wählen –</option>
@@ -24,6 +27,7 @@ $due = $inv['due_date'] ?? date('Y-m-d', strtotime('+' . (int)env('PAYMENT_DAYS'
     </select>
   </label>
   <p class="muted"><a href="<?= BASE ?>?p=customer_edit&next=invoice_edit">+ Neuen Kunden anlegen</a></p>
+  <?php endif; ?>
   <?php endif; ?>
   <div class="grid3">
     <label>Rechnungsdatum <input type="date" name="issue_date" value="<?= h($issue) ?>" required></label>
