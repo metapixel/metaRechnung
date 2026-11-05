@@ -23,7 +23,7 @@ def inv(date=iso, price='100,00'):
 def num(i): return sql(f'select ifnull(number,"") from invoices where id={i}')
 def preview(label_):
     b = s.get('/index.php?p=settings').body
-    m = re.search(r'<th scope="row">' + label_ + r'</th>.*?<td><b>([^<]*)</b></td>', b, re.S); return m.group(1) if m else None
+    m = re.search(r'<th scope="row">' + label_ + r'</th>.*?<td[^>]*><b>([^<]*)</b></td>', b, re.S); return m.group(1) if m else None
 def val(name):
     m = re.search(r'name="%s"[^>]*value="([^"]*)"' % name, s.get('/index.php?p=settings').body); return _h.unescape(m.group(1)) if m else None
 
