@@ -2,6 +2,9 @@
 
 Die aktuelle Versionsnummer steht in der Datei `VERSION` (und unten in der App sowie unter Einstellungen → System).
 
+## 1.19.3
+- Neue Einheiten **Monat(e)** und **Jahr(e)** für Positionen und Artikel (E-Rechnung: UN/ECE-Codes `MON` und `ANN`). Die Einheitenliste ist damit: Stk., Std., Tag(e), Monat(e), Jahr(e), pauschal, m, kg. Die Einheit-Auswahl in den Positionen ist breiter, damit „pauschal“ und „Monat(e)“ nicht abgeschnitten werden. Keine Datenbankänderung.
+
 ## 1.19.2
 - Die leere Rechnungsübersicht zeigt nur noch „Noch keine Rechnungen.“. Der Hinweis „Lege zuerst einen Kunden an“ erscheint stattdessen dort, wo er hingehört: in den Formularen für neue Rechnung, Angebot und wiederkehrende Vorlage, und nur, wenn es wirklich noch keinen Kunden gibt (statt des leeren Auswahlfelds).
 

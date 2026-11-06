@@ -57,7 +57,7 @@ if (!defined('NO_SESSION')) {
     csrf();   // jede Sitzung bekommt sofort ein Token (kein leeres Token möglich)
 }
 
-const UNITS = ['C62' => 'Stk.', 'HUR' => 'Std.', 'DAY' => 'Tag(e)', 'LS' => 'pauschal', 'MTR' => 'm', 'KGM' => 'kg'];
+const UNITS = ['C62' => 'Stk.', 'HUR' => 'Std.', 'DAY' => 'Tag(e)', 'MON' => 'Monat(e)', 'ANN' => 'Jahr(e)', 'LS' => 'pauschal', 'MTR' => 'm', 'KGM' => 'kg'];
 
 function env(string $key, string $default = ''): string
 {
