@@ -35,7 +35,10 @@ echo "✔ Anmeldeseite wird ausgeliefert"
 for p in /style.css /app.js /manifest.webmanifest; do
   [ "$(code $p)" = 200 ] || fail "$p sollte 200 liefern"
 done
-echo "✔ statische Dateien erreichbar"
+for p in /style.css /; do
+  curl -sIL "http://127.0.0.1:18080$p" | grep -qi '^x-frame-options: SAMEORIGIN' || fail "Sicherheits-Header fehlen bei $p"
+done
+echo "✔ statische Dateien erreichbar, Sicherheits-Header gesetzt"
 
 for p in /config.php /src/Config.php /src/ /storage/ /vendor/autoload.php /install.php /docker/entrypoint.sh /VERSION /CHANGELOG.md /.env /Dockerfile /composer.json /cron.php.bak /data/config.php; do
   c=$(code $p); [ "$c" = 404 ] || fail "$p sollte 404 liefern, lieferte $c"

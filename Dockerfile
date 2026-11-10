@@ -41,6 +41,7 @@ COPY --from=vendor --chown=root:root /src/vendor ./vendor
 COPY docker/php.ini /usr/local/etc/php/conf.d/zz-metarechnung.ini
 COPY docker/php-fpm.conf /usr/local/etc/php-fpm.d/zz-metarechnung.conf
 COPY docker/nginx.conf /etc/nginx/nginx.conf
+COPY docker/security-headers.conf /etc/nginx/security-headers.conf
 
 # Schreibbare Daten (Konfiguration, PDFs, Logo, Schriften …) liegen im Volume /data; die App erwartet storage/ im App-Ordner
 RUN ln -s /data/storage /app/storage \
