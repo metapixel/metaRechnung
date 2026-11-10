@@ -2,6 +2,11 @@
 
 Die aktuelle Versionsnummer steht in der Datei `VERSION` (und unten in der App sowie unter Einstellungen → System).
 
+## 1.20.0
+- **Docker-Image:** metaRechnung gibt es jetzt als schlankes Image (`ghcr.io/metapixel/metarechnung`, linux/amd64 und arm64; PHP 8.3, nginx und PHP-FPM, läuft ohne Root-Rechte). Dazu gehören eine `docker-compose.yml` (App, MariaDB und ein Cron-Container für wiederkehrende Rechnungen) und eine `.env.example`. Die Erst-Einrichtung geschieht beim ersten Start aus den Werten der `.env`; die Konfiguration (`config.php`) und alle Dateien (PDFs, Logo, Briefpapier, Schriften) liegen im Volume `/data`, Einstellungen bleiben in der App änderbar. Anleitung: `INSTALLATION.md`, Abschnitt „Docker“. Die Webspace-Installation ändert sich nicht.
+- Neue Umgebungsvariable `METARECHNUNG_CONFIG` (Pfad der `config.php`) und `TRUSTED_PROXIES` (Liste von IPs/Netzen, z. B. `172.16.0.0/12`): Steht die direkte Gegenstelle in dieser Liste, nutzen Login-/Cron-Sperren die Client-IP aus `X-Forwarded-For` (von rechts gelesen, Fälschungen am Anfang der Kette zählen nicht). Ohne Eintrag gilt wie bisher nur `REMOTE_ADDR`.
+- Das Verschlanken von `vendor/` ist in `build/slim-vendor.sh` ausgelagert (gemeinsam für Release-Pakete und Docker-Build). Keine Datenbankänderung.
+
 ## 1.19.3
 - Neue Einheiten **Monat(e)** und **Jahr(e)** für Positionen und Artikel (E-Rechnung: UN/ECE-Codes `MON` und `ANN`). Die Einheitenliste ist damit: Stk., Std., Tag(e), Monat(e), Jahr(e), pauschal, m, kg. Die Einheit-Auswahl in den Positionen ist breiter, damit „pauschal“ und „Monat(e)“ nicht abgeschnitten werden. Keine Datenbankänderung.
 

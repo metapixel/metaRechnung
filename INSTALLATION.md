@@ -12,6 +12,22 @@ eine leere MySQL/MariaDB-Datenbank, HTTPS (für die PWA-Installation), Schreibre
 3. Auf der Abschlussseite **„install.php jetzt löschen“** klicken (entfernt auch `vendor.zip`).
 4. Anmelden und loslegen. Zum Installieren als App: Seite im Browser öffnen → „Zum Startbildschirm hinzufügen“ / „Installieren“.
 
+## Docker (ab 1.20.0)
+
+Alternativ zum Webspace gibt es ein schlankes Image (`ghcr.io/metapixel/metarechnung`, amd64 und arm64): nginx und PHP-FPM in einem Container, die Datenbank (MariaDB) und ein Cron-Container laufen daneben.
+
+1. `docker-compose.yml` und `.env.example` aus dem Repository holen, `.env.example` als `.env` speichern und ausfüllen (mindestens `DB_PASS`, `ADMIN_PASSWORD`, Firmenadresse und `APP_URL`).
+2. `docker compose up -d`. Beim ersten Start legt der Container die Tabellen an und schreibt die Konfiguration; die Anmeldung steht danach unter `http://localhost:8080`.
+3. Danach kannst du `ADMIN_PASSWORD` und die übrigen Firmenwerte aus der `.env` entfernen: Sie werden nur bei der Erst-Einrichtung gelesen, alles Weitere änderst du in den Einstellungen der App.
+
+**Wichtig**
+- **Daten:** Alles Schreibbare (die `config.php`, ausgestellte PDFs, Logo, Briefpapier, Schriften, Exporte) liegt im Volume `app-data` (`/data`), die Datenbank im Volume `db-data`. Beide gehören in die Sicherung (z. B. `docker compose exec db mariadb-dump …` und eine Kopie des Volumes). Ein `docker compose down -v` löscht die Volumes und damit alle Rechnungen.
+- **HTTPS:** Der Container spricht nur HTTP (Port 8080, standardmäßig nur auf `127.0.0.1` veröffentlicht). Für den Betrieb im Internet setze einen Reverse-Proxy mit HTTPS davor (Caddy, Traefik, nginx …), der `X-Forwarded-Proto` setzt, und trage in `.env` die Adresse bzw. das Netz des Proxys bei `TRUSTED_PROXIES` ein, damit die Sperren nach fehlgeschlagenen Anmeldungen die echte Client-IP nutzen. `APP_URL` muss die öffentliche Adresse sein.
+- **Update:** `METARECHNUNG_TAG` auf die neue Version setzen (oder bei `latest` bleiben), dann `docker compose pull && docker compose up -d`. Datenbank-Anpassungen laufen wie gewohnt beim ersten Aufruf automatisch.
+- **Cron:** Der Container `cron` prüft alle 15 Minuten (`CRON_INTERVAL` in Sekunden), ob wiederkehrende Rechnungen fällig sind. Ein eigener Cronjob ist nicht nötig.
+- **Sitzungen:** Angemeldete Benutzer müssen sich nach einem Neustart des Containers neu anmelden.
+- **Selbst bauen:** `docker build -t metarechnung .` im Projektordner.
+
 ## Update einer bestehenden Installation
 1. Aus `rechnung-webspace-update-<Version>.zip` alle Dateien in den bestehenden Ordner hochladen und überschreiben.
    **Nicht überschreiben bzw. löschen:** `config.php`, `storage/`.

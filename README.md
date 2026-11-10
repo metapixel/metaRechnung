@@ -1,6 +1,6 @@
 # metaRechnung für Webspace
 
-Schlanke, selbst gehostete Rechnungsverwaltung in PHP/MySQL für ganz normalen Webspace (kein Docker, kein SSH nötig).
+Schlanke, selbst gehostete Rechnungsverwaltung in PHP/MySQL für ganz normalen Webspace (kein SSH nötig) – oder als schlankes Docker-Image (siehe INSTALLATION.md).
 
 - **Angebote** (eigener Nummernkreis, Gültigkeit, PDF, Mailversand) mit „In Rechnung wandeln“, **Textvorlagen** mit Platzhaltern für Mails und PDF, Zahlungserinnerung für überfällige Rechnungen
 - Kunden, Rechnungen mit Positionen, fortlaufende Nummern mit **frei gestaltbarem Nummernkreis** (Standard `RE-2026-0001`, Variablen, Startnummer für den Umstieg), Entwürfe, Duplizieren, Kleinunternehmer-Modus

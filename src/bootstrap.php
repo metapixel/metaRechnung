@@ -7,7 +7,8 @@ declare(strict_types=1);
 
 $root = dirname(__DIR__);
 
-if (!is_file($root . '/config.php')) {
+$configFile = (is_string(getenv('METARECHNUNG_CONFIG')) && getenv('METARECHNUNG_CONFIG') !== '') ? (string)getenv('METARECHNUNG_CONFIG') : $root . '/config.php';
+if (!is_file($configFile)) {
     http_response_code(503);
     exit(is_file($root . '/install.php')
         ? 'Noch nicht installiert. <a href="install.php">Installation starten</a>'
@@ -18,7 +19,7 @@ if (!is_file($root . '/vendor/autoload.php')) {
     exit('Das Verzeichnis vendor/ fehlt. Bitte den Ordner vendor/ (oder vendor.zip) hochladen.');
 }
 
-$GLOBALS['APP_CONFIG'] = require $root . '/config.php';
+$GLOBALS['APP_CONFIG'] = require $configFile;
 define('APP_VERSION', is_file($root . '/VERSION') ? trim((string)file_get_contents($root . '/VERSION')) : 'unbekannt');
 require $root . '/vendor/autoload.php';
 

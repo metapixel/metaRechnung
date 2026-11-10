@@ -9,9 +9,11 @@ namespace App;
 
 final class Config
 {
+    /** Ort der config.php. Standard: im Installationsordner; in Docker per METARECHNUNG_CONFIG auf ein Volume gelegt. */
     public static function path(): string
     {
-        return dirname(__DIR__) . '/config.php';
+        $p = getenv('METARECHNUNG_CONFIG');
+        return is_string($p) && $p !== '' ? $p : dirname(__DIR__) . '/config.php';
     }
 
     public static function writable(): bool
