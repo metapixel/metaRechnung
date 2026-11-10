@@ -25,6 +25,8 @@ services:
     image: ghcr.io/metapixel/metarechnung:${METARECHNUNG_TAG:-latest}
     restart: unless-stopped
     command: ["cron"]
+    healthcheck:
+      disable: true   # der Web-Healthcheck des Images gilt hier nicht (kein nginx in diesem Container)
     env_file: .env
     environment:
       DB_HOST: db
